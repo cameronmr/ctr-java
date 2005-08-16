@@ -4,7 +4,7 @@
  * Created on 9 February 2005, 19:57I
  */
 
-package budgetmanager;
+package manager;
 
 import com.rochester.budget.core.AbstractDatabaseObject;
 import com.rochester.budget.gui.BudgetManagerFrame;
