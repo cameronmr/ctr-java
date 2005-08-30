@@ -21,9 +21,7 @@ public interface ITransaction extends IDatabaseObject
         PARTIAL,
         FULL
     };
-    
-    String getKey();
-    
+        
     String getNarrative();
     
     String getNote();

@@ -48,13 +48,13 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
     }
     
     /** Creates a new instance of Reconciliation */
-    public Reconciliation( ResultSet rs, ITransaction transaction ) throws SQLException
+    public Reconciliation( ResultSet rs, ITransaction transaction ) throws Exception
     {
         m_transaction = transaction;
         parseResultSet( rs );
     }    
          
-    protected void parseResultSet( ResultSet results ) throws SQLException
+    protected void parseResultSet( ResultSet results ) throws Exception
     {
         // This will basically re-create the object        
         
@@ -70,9 +70,10 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
             // TODO: Load transaction
             // Transaction.
         }
-        // TODO: load more stuff
-        // m_category =
-        // m_account = 
+        
+        // Load the category & accounts associated with this reconciliation
+        m_category = Category.loadCategory( results.getString( "RECON_CATEGORY_FKEY") );
+        m_account = Account.loadAccount( results.getString( "RECON_ACCOUNT_FKEY") );
     }
     
     public ITransaction getTransaction()
