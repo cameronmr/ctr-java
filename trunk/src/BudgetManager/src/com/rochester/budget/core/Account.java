@@ -9,6 +9,7 @@ package com.rochester.budget.core;
 import com.rochester.budget.core.exceptions.AccountNotFoundException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 
 /**
@@ -20,7 +21,15 @@ public class Account extends AbstractDatabaseObject implements IAccount
     public static IAccount loadAccount( final String accountNumber ) throws AccountNotFoundException
     {
         // This will throw an exception if the account is not available
-        return new Account( accountNumber );        
+        IAccount account = m_accounts.get( accountNumber );
+        if ( null == account )
+        {
+            account = new Account( accountNumber );
+            
+            m_accounts.put( accountNumber, account );
+        }
+        
+        return account;
     }
     
     /** Creates a new instance of Account */
@@ -45,7 +54,7 @@ public class Account extends AbstractDatabaseObject implements IAccount
         return m_accountName + " - " + m_accountDescription;
     }
 
-    protected void parseResultSet(ResultSet results) throws SQLException
+    protected void parseResultSet(ResultSet results) throws Exception
     {
         setKey( results.getString( "PKEY" ) );
         m_accountName = results.getString( "ACCOUNT_NAME" );
@@ -74,5 +83,6 @@ public class Account extends AbstractDatabaseObject implements IAccount
     
     private String m_accountName = new String();
     private String m_accountDescription = new String();
-    
+ 
+    private static HashMap<String,IAccount> m_accounts = new HashMap<String,IAccount>();
 }

@@ -12,5 +12,11 @@ package com.rochester.budget.core;
  */
 public interface ICategory
 {
+    String getName();
     
+    String getDescription();
+    
+    ICategory getParent();
+    
+    IAccount getAccount();
 }
