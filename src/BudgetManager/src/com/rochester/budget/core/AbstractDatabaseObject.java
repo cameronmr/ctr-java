@@ -117,7 +117,7 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
     }
     
     protected abstract void parseResultSet( ResultSet results ) throws Exception;
-    protected abstract String getTableName( );
+    
     
     private static Connection m_connection = null;
     private static int m_observerCount;

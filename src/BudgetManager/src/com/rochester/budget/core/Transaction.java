@@ -5,21 +5,13 @@
  */
 
 package com.rochester.budget.core;
-
-import com.Ostermiller.util.ExcelCSVParser;
-import com.Ostermiller.util.LabeledCSVParser;
 import com.rochester.budget.core.ITransaction.ReconciliationState;
-import com.rochester.budget.core.exceptions.AccountNotFoundException;
 import com.rochester.budget.core.exceptions.BudgetManagerException;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import com.rochester.budget.core.exceptions.TransactionNotFoundException;
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.UUID;
-import java.util.Vector;
+
 
 
 /**
@@ -28,103 +20,20 @@ import java.util.Vector;
  */
 public class Transaction extends AbstractDatabaseObject implements ITransaction
 {    
-    public static void importTransactionsFromFile( File csvFile )
-    {        
+    
+    public Transaction( final String transactionKey ) throws TransactionNotFoundException
+    {
+        setKey( transactionKey );
+        
+        // Attempt to load the account
         try
         {
-            LabeledCSVParser parser = new LabeledCSVParser(
-                    new ExcelCSVParser( new BufferedInputStream( new FileInputStream( csvFile ) ) ) );
-            
-            int count = 0;
-            
-            while ( true )
-            {
-                count ++;
-                try
-                {
-                    // Go to the next line
-                    if ( null != parser.getLine() )
-                    {              
-                        Transaction.createTransaction( parser );                        
-                    }   
-                    else
-                    {
-                        break;
-                    }
-                }
-                catch ( SQLException e )
-                {
-                    System.out.println( e.getMessage() );
-                }    
-                catch ( Exception e )
-                {
-                    // TODO We have reached the end of the file??
-                    break;
-                }
-            }
+            load();
         }
         catch ( Exception e )
         {
-            // TODO??
-        }            
-    }
-    
-    /** Creates a new instance of Transaction */
-    public static void createTransaction( LabeledCSVParser parser ) throws Exception
-    {
-        // Load all the available fields from the parser
-        // TODO: Load field names from XML file/specific object type
-        if ( parser.getValueByLabel( " Categories" ).compareTo( "OTHER" ) == 0 || 
-             parser.getValueByLabel( " Categories" ).compareTo( "FEE" ) == 0 )
-        {            
-            String sql = new String();
-                sql = "INSERT INTO TRANSACTION VALUES ( '" + UUID.randomUUID() + "','" +
-                    AbstractDatabaseObject.escapeSQL( parser.getValueByLabel( " Narrative" ) ) + "', '" +
-                    parser.getValueByLabel( "Bank Account" ) + "', " +
-                    new MonetaryValue( parser.getValueByLabel( " Debit Amount" ) ).getCents() + ", '" +
-                    parser.getValueByLabel( " Date" ) + "', null )"; // must be formatted according to mysql spec!
-                                                                    // see http://dev.mysql.com/doc/mysql/en/datetime.html
-
-            AbstractDatabaseObject.getStatement().executeUpdate( sql ); 
-        }
-    }
-    
-    public static Vector<ITransaction> loadTransactions()
-    {
-        try
-        {
-            Vector<ITransaction> transactions = new Vector<ITransaction>();
-            String sql = new String( "select * from TRANSACTION" );
-
-            ResultSet results = AbstractDatabaseObject.getStatement().executeQuery( sql );
-
-            while ( results.next() )
-            {
-                try
-                {
-                    transactions.add( new Transaction( results ) );
-                }
-                catch( AccountNotFoundException e )
-                {
-                    // TODO: handling creation of new account 
-                    System.out.println( e.toString() );
-                }
-            }
-
-            results.close();
-            return transactions;
-        }
-        catch ( Exception t )
-        {
-            t.printStackTrace();
-            // TODO: error handling
-            return null;
-        }
-    }
-    
-    public Transaction( ResultSet rs ) throws Exception
-    {
-        parseResultSet( rs );
+            throw new TransactionNotFoundException( e.toString() );
+        }        
     }
     
     public String getNarrative()
@@ -132,19 +41,39 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
         return m_narrative;
     }
     
+    public void setNarrative( final String narrative )
+    {
+        m_narrative = narrative;
+    }
+    
     public String getNote()
     {
         return m_note;
     }
+    
+    public void setNote( final String note )
+    {
+        m_note = note;
+    }
                 
-    public MonetaryValue getValue()
+    public MonetaryValue getMonetaryValue()
     {
         return m_value;
+    }
+    
+    public void setMonetaryValue( final MonetaryValue value )
+    {
+        m_value = value;
     }
     
     public Date getDate()
     {        
         return m_date;
+    }
+    
+    public void setDate( final Date date )
+    {
+        m_date = date;
     }
     
     static public String[] getColumns()
@@ -155,8 +84,13 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     
     public IAccount getAccount()
     {
-        return null;
+        return m_account;
     }   
+    
+    public void setAccount( final IAccount account )
+    {
+        m_account = account;
+    }        
     
     public void addReconciliation( IReconciliation reconciliation ) throws BudgetManagerException
     {   
@@ -210,7 +144,7 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     {
         try
         {
-            return getNarrative() + " (" + getDate().toString() + " - " + getValue() + ")";
+            return getNarrative() + " (" + getDate().toString() + " - " + getMonetaryValue() + ")";
         }
         catch ( Throwable t )
         {
@@ -244,6 +178,11 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     public String getTableName()
     {
         return "TRANSACTION";
+    }
+    
+    public void commit()
+    {
+        // TODO commit changes to the database
     }
     
     /**

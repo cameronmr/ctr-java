@@ -23,14 +23,19 @@ public interface ITransaction extends IDatabaseObject
     };
         
     String getNarrative();
+    void setNarrative( final String narrative );
     
     String getNote();
+    void setNote( final String note );
     
     Date getDate();
+    void setDate( final Date date );
                 
-    MonetaryValue getValue();
+    MonetaryValue getMonetaryValue();
+    void setMonetaryValue( final MonetaryValue value );
     
     IAccount getAccount();
+    void setAccount( final IAccount account );
         
     Object getValue( int col );
     
