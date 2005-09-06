@@ -20,6 +20,11 @@ public class Account extends AbstractDatabaseObject implements IAccount
 {
     public static IAccount loadAccount( final String accountNumber ) throws AccountNotFoundException
     {
+        if ( accountNumber == null )
+        {
+            return null;
+        }
+        
         // This will throw an exception if the account is not available
         IAccount account = m_accounts.get( accountNumber );
         if ( null == account )
@@ -45,8 +50,7 @@ public class Account extends AbstractDatabaseObject implements IAccount
         catch ( Exception e )
         {
             throw new AccountNotFoundException( e.toString() );
-        }
-        
+        }        
     }
     
     public String toString()
@@ -61,9 +65,14 @@ public class Account extends AbstractDatabaseObject implements IAccount
         m_accountDescription = results.getString( "ACCOUNT_DESCRIPTION" );
     }
 
-    protected String getTableName()
+    public String getTableName()
     {
         return "ACCOUNT";
+    }
+    
+    public void commit()
+    {
+        // TODO commit any changes to the database
     }
 
     public String getAccountNumber()

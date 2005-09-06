@@ -23,11 +23,25 @@ public interface IDatabaseObject
     
     /**
      * Load a database object. This can only be executed once the object has been initially loaded (ie: the key is valid)
+     * @throws java.lang.Exception Thrown if the object can not be loaded from the database
      */
     public void load() throws Exception;
     
     /**
      * Delete a database object. Remove the key from the table
+     * @throws java.lang.Exception Thrown if the object cannot be deleted from the database
      */
     public void delete() throws Exception;
+    
+    /**
+     * Apply the current object to the database.
+     * @throws java.lang.Exception Throw if the commit fails
+     */
+    public void commit() throws Exception;
+    
+    /**
+     * Get the database table name for this object
+     * @return The database table name
+     */
+    String getTableName( );
 }

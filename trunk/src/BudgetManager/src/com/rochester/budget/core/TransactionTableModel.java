@@ -22,7 +22,7 @@ public class TransactionTableModel extends AbstractTableModel
     public TransactionTableModel( )
     {
         m_columns = Transaction.getColumns();
-        m_transactions = Transaction.loadTransactions( );        
+        m_transactions = new Vector<ITransaction>( TransactionFactory.getTransactions( ) );
     }
     
     public int getColumnCount() 

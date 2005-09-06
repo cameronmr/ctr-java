@@ -56,11 +56,6 @@ public class ReconciliationPanel implements IObservingGUIComponent
                 m_amountRemainingLabel.getPreferredSize().getHeight() );
         m_reconciliationPanel.setPreferredSize( d );
     }
-    
-    ReconciliationTable getReconciliationTable()
-    {
-        return m_reconciliationTable;
-    }
 
     public void update( Observable observable, Object obj )
     {

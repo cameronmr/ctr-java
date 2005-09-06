@@ -1,0 +1,10 @@
+Transaction Factory
+- Cache transactions 
+- Provide accessor methods for filtering transaction list
+	- Filter objects?
+	- start/end date filter
+	- account filter
+	- category filter
+
+Category GUI
+- New Category button & right-click menu

@@ -19,7 +19,7 @@ public class Main
 {
     private static void createAndShowGUI() 
     {
-        String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+        String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
         try
         {
             UIManager.setLookAndFeel(lookAndFeel);

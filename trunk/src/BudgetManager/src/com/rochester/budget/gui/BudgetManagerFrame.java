@@ -19,7 +19,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -85,7 +84,9 @@ public class BudgetManagerFrame extends JFrame
         tabbedPane.add( "Transactions", reconPane );
         
         // TODO: Categories
-        tabbedPane.add( "Categories", new JTextField( "Categories" ) );
+        CategoryPanel categoryTree = new CategoryPanel();
+        tabbedPane.add( "Categories", categoryTree.getComponent() );
+        
         
         // TODO: Statements
         tabbedPane.add( "Statements", new JTextField( "Statements" ) );

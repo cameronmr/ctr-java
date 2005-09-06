@@ -116,6 +116,11 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
         return "RECONCILIATION";
     }
     
+    public void commit()
+    {
+        // TODO: commit changes to the database
+    }
+    
     private IAccount m_account;
     private MonetaryValue m_value;
     private ICategory m_category;
