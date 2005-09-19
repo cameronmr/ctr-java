@@ -5,8 +5,7 @@
  */
 
 package manager;
-
-import com.rochester.budget.core.AbstractDatabaseObject;
+import com.rochester.budget.core.DatabaseManager;
 import com.rochester.budget.gui.BudgetManagerFrame;
 import javax.swing.UIManager;
 
@@ -41,7 +40,7 @@ public class Main
             Class.forName("com.mysql.jdbc.Driver");
             
             // Initiate the database connection
-            AbstractDatabaseObject.initiateDatabaseConnection();
+            DatabaseManager.initiateDatabaseConnection();
         }
         catch ( Exception e )
         {

@@ -52,17 +52,16 @@ public class TransactionPanel extends Observable implements IGUIComponent
 
                 ListSelectionModel lsm =
                     (ListSelectionModel)e.getSource();
-                if (lsm.isSelectionEmpty())
+                
+                if ( lsm.isSelectionEmpty() )
                 {
                     // Remove the selected transaction
                     notifyObservers( null );
                 }
                 else 
                 {
-                    int selectedRow = lsm.getMinSelectionIndex();       
-                    
                     // Set the selected transaction
-                    notifyObservers( m_transactionModel.getTransactionAt( selectedRow ) );
+                    notifyObservers( m_transactionModel.getTransactionAt( lsm.getMinSelectionIndex() ) );
                 }
             }
         });

@@ -6,14 +6,14 @@
 
 package com.rochester.budget.core;
 
-import com.rochester.budget.core.AbstractDataChangeObserver.ChangeType;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import com.rochester.budget.core.DataChangeObserver.ChangeType;
+import com.rochester.budget.core.exceptions.StateSyncException;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.ListIterator;
 import java.util.Observable;
+import java.util.UUID;
 
 /**
  *
@@ -21,46 +21,19 @@ import java.util.Observable;
  */
 public abstract class AbstractDatabaseObject extends Observable implements IDatabaseObject
 {    
-    public static String escapeSQL(String sql)
-	{
-        StringBuffer newSql = new StringBuffer( sql );
-        int pos = 0;
-        do
-        {
-            pos = newSql.indexOf("'", pos );          
-            if ( pos > 0 )
-            {
-                newSql.insert( pos, "\\" );
-                // Increment one to get past the current pos, 
-                // increment another to cater for the inserted item
-                pos += 2;
-            }
-            else
-            {
-                break;
-            }
-        }
-        while ( true );
         
-        return newSql.toString();
-	}
-    
-    /** Creates a new instance of AbstractDatabaseObject */
-    public AbstractDatabaseObject( )
+    /** Creates a new instance of AbstractDatabaseObject from a known key (in the database) */
+    public AbstractDatabaseObject( final String key )
     {
-        // Notify observers of new??
+        m_key = key;        
     }
     
-    public static void initiateDatabaseConnection() throws SQLException
+    /** Creates a new instance of AbstractDatabaseObject that is not in the database
+     */    
+    public AbstractDatabaseObject()
     {
-        // Connect to the necessary database       
-        m_connection = DriverManager.getConnection("jdbc:mysql://gateway.rochester.lan/AccountManager?user=Cam&password=Cam");
+        m_key = UUID.randomUUID().toString();
     }
-    
-    public static Statement getStatement() throws SQLException
-    {
-        return m_connection.createStatement( );
-    }    
                 
     public String getKey()
     {
@@ -76,7 +49,7 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
     {
         try
         {
-            Statement stmt = getStatement();
+            Statement stmt = DatabaseManager.getStatement();
             stmt.executeUpdate( "delete from " + getTableName() + " where PKEY = '" + m_key + "'" );
             stmt.close();
             
@@ -91,11 +64,11 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
     public void load( ) throws Exception
     {
         // Get the data from the table
-        Statement stmt = getStatement();
+        Statement stmt = DatabaseManager.getStatement();
         ResultSet results = null;
         try
         { 
-            results = stmt.executeQuery( "select * from " + getTableName() + " where PKEY = '" + m_key + "';" );    
+            results = stmt.executeQuery( "select * from " + getTableName() + " where PKEY = '" + m_key + "'" );    
 
             // Move to the first row
             results.first();
@@ -114,14 +87,129 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
         
         // Notify any observers that we have changed
         notifyObservers( ChangeType.UPDATE );
+        
+        // Store the loaded state
+        storeMemento();
+    }
+            
+    public void commit() throws Exception
+    {
+        // TODO: throw exception if not valid?
+        if ( !isValid() )
+        {
+            // throw new StateSyncException()
+        }
+        
+        // Make sure there is something to commit
+        if ( !isModified() )
+        {
+            return;
+        }
+        
+        // Get the data from the table
+        Statement stmt = DatabaseManager.getStatement();
+        ResultSet results = null;
+        try
+        { 
+            results = stmt.executeQuery( "select * from " + getTableName() + " where PKEY = '" + m_key + "'" );    
+
+            // Move to the first row
+            results.first();
+            
+            // populate the results
+            populateResultSet( results );
+            
+            // Store the updated results in the database
+            results.updateRow();
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            stmt.close();
+            if ( null != results )
+            {
+                results.close();
+            }
+        }
+        
+        // Notify any observers that we have changed
+        notifyObservers( ChangeType.UPDATE );
     }
     
-    protected abstract void parseResultSet( ResultSet results ) throws Exception;
-    
-    
-    private static Connection m_connection = null;
-    private static int m_observerCount;
+    public boolean isModified()
+    {        
+        // If there is more than one item in the list
+        if ( m_storedState.size() == 1 )
+        {
+            return false;
+        }
         
-    private HashMap<Integer, AbstractDataChangeObserver> m_observers;
-    private String m_key;
+        // If the item has never been valid but
+        // we have made changes
+        Memento lastValidState = getLastValidMemento();
+        if ( null == lastValidState &&
+                m_storedState.size() > 1 )
+        {
+            return true;
+        }                
+            
+        // compare the current state to the last valid state
+        Memento currentState = getMemento();        
+        
+        return currentState.equals( lastValidState );
+    }
+    
+    public void rollbackToLastValidState() throws StateSyncException
+    {
+        Memento state = getLastValidMemento();
+        
+        // TODO: what happens if there is no valid memento?
+        if ( state != null )
+        {
+            // Restore the state
+            restoreMemento( state );
+
+            // Remove all items after this point
+            ListIterator it = m_storedState.listIterator( m_storedState.indexOf( state ) );
+            while ( it.hasNext() )
+            {
+                it.next();
+                it.remove();
+            }
+        }        
+    }
+    
+    public void storeMemento()
+    {
+        // Get the memento & store it
+        m_storedState.add( getMemento() );
+    }
+        
+    protected abstract void parseResultSet( ResultSet results ) throws Exception;        
+    protected abstract void populateResultSet( ResultSet results ) throws Exception;
+    protected abstract Memento getMemento( );
+    
+    private Memento getLastValidMemento()
+    {
+        // Go backwards through the list of changes and restore the last valid state!
+        ListIterator<Memento> it = m_storedState.listIterator( m_storedState.size() );
+        while ( it.hasPrevious() )
+        {
+            Memento state = it.previous();
+            
+            if ( state.isValid() )
+            {
+                // Restore the state
+                return  state;
+            }
+        }       
+        
+        return null;
+    }
+        
+    private String m_key;    
+    private ArrayList<Memento> m_storedState = new ArrayList<Memento>();
 }

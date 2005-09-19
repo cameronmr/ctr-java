@@ -7,6 +7,7 @@
 package com.rochester.budget.core;
 import com.rochester.budget.core.ITransaction.ReconciliationState;
 import com.rochester.budget.core.exceptions.BudgetManagerException;
+import com.rochester.budget.core.exceptions.StateSyncException;
 import com.rochester.budget.core.exceptions.TransactionNotFoundException;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -19,11 +20,11 @@ import java.util.ArrayList;
  * @author Cameron
  */
 public class Transaction extends AbstractDatabaseObject implements ITransaction
-{    
-    
-    public Transaction( final String transactionKey ) throws TransactionNotFoundException
+{       
+    // Protected to ensure no access outside this package
+    protected Transaction( final String transactionKey ) throws TransactionNotFoundException
     {
-        setKey( transactionKey );
+        super( transactionKey );
         
         // Attempt to load the account
         try
@@ -34,6 +35,10 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
         {
             throw new TransactionNotFoundException( e.toString() );
         }        
+    }
+    
+    protected Transaction( )
+    {
     }
     
     public String getNarrative()
@@ -115,7 +120,7 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
         }
     }
     
-    public java.util.List<IReconciliation> getReconciliations()
+    public ArrayList<IReconciliation> getReconciliations()
     {
         return m_reconciliations;
     }
@@ -135,7 +140,6 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
         }
         else
         {
-            // TODO
             return ReconciliationState.PARTIAL;
         }
     }
@@ -153,48 +157,33 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     }   
     
     protected void parseResultSet( ResultSet results ) throws Exception
-    {
-        // This will basically re-create the object
-        
-        // De-register with observed objects
-        
+    {        
         // Reload the database object
         m_date = results.getDate( "TRANS_DATE" );
         m_narrative = results.getString( "TRANS_NARRATIVE" );
         m_note = results.getString( "TRANS_NOTE" );
-        setKey( results.getString( "PKEY" ) );
         m_value = new MonetaryValue( results.getInt( "TRANS_VALUE" ) );
         
         // The remaining value is the same as the transaction value initially
         m_valueRemaining = new MonetaryValue( m_value );
         
         // Load the account
-        m_account = Account.loadAccount( results.getString( "TRANS_ACCOUNT_FKEY" ) );
+        m_account = DataObjectFactory.loadAccount( results.getString( "TRANS_ACCOUNT_FKEY" ) );
         
         // Load reconciliations 
-        Reconciliation.loadReconciliationsForTransactions( this );
+        DataObjectFactory.loadReconciliationsForTransaction( this );
+    }
+    
+    protected void populateResultSet( ResultSet results ) throws Exception
+    { 
+        // TODO
     }
 
     public String getTableName()
     {
         return "TRANSACTION";
     }
-    
-    public void commit()
-    {
-        // TODO commit changes to the database
-    }
-    
-    /**
-     * This is called upon an observer when the source object changes.
-     * @param change The type of change
-     * @param object The object that has changed
-     */
-    /*public void notifyDatabaseChange( ChangeType change, Object object )
-    {
-        // TODO: What to do in this scenario
-    }*/
-    
+            
     /** 
      * stuff for displaying values in the JTable
      **/
@@ -219,6 +208,29 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     public MonetaryValue getValueRemaining()
     {
         return m_valueRemaining;
+    }
+        
+    public boolean isValid( )
+    {
+        // Check to see if this item is valid at this current time
+        return m_note != null &&
+                m_value != null &&
+                m_account != null &&
+                m_narrative != null &&
+                m_date != null;
+        
+        // TODO: do we care about reconciliations here?
+    }
+    
+    public Memento getMemento()
+    {
+        //TODO
+        return null;//new Memento( );
+    }
+    
+    public void restoreMemento( Memento state ) throws StateSyncException
+    {
+        //TODO
     }
     
     private String m_note;

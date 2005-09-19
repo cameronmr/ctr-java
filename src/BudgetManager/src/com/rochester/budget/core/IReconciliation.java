@@ -13,13 +13,18 @@ package com.rochester.budget.core;
  */
 public interface IReconciliation extends IDatabaseObject
 {
-    public MonetaryValue getValue();
+    MonetaryValue getValue();
+    void setValue( final MonetaryValue value );
     
-    public ITransaction getTransaction();
+    ITransaction getTransaction();
+    void setTransaction( final ITransaction trans );           
     
-    public ICategory getCatecory();
+    ICategory getCatecory();          
+    void setCategory( final ICategory category );
     
-    public IAccount getAccount();
+    //IAccount getAccount();    
+    //void ICategory
     
-    public String getNote();
+    String getNote();
+    void setNote( final String note );
 }

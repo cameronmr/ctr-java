@@ -10,6 +10,7 @@
 
 package com.rochester.budget.core;
 
+import java.util.Collections;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
@@ -22,7 +23,8 @@ public class TransactionTableModel extends AbstractTableModel
     public TransactionTableModel( )
     {
         m_columns = Transaction.getColumns();
-        m_transactions = new Vector<ITransaction>( TransactionFactory.getTransactions( ) );
+        m_transactions = new Vector<ITransaction>( DataObjectFactory.getTransactions( ) );
+        Collections.sort( m_transactions, ITransaction.TRANSACTION_DATE_ORDER );
     }
     
     public int getColumnCount() 

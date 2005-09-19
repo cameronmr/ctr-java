@@ -1,10 +1,22 @@
 Transaction Factory
 - Cache transactions 
+- Provide pre-compiled sql statements for database access
 - Provide accessor methods for filtering transaction list
 	- Filter objects?
 	- start/end date filter
 	- account filter
 	- category filter
+- Provide sorting comparators and clickable headers to change sort orders
 
 Category GUI
 - New Category button & right-click menu
+
+Memento
+- retrieve and Store memento after load if known key (after commit grab a new memento)
+- retrieve and Store memento after construction
+- How to clone state - what state to clone? Can't clone database items
+
+Questions
+- If a new reconciliation is created, how is it deleted if it is not wanted?
+	- When restoring state, must also compare lists and delete any objects that 
+	  had been created, but no longer needed

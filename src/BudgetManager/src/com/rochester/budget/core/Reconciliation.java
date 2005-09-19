@@ -9,81 +9,97 @@
  */
 
 package com.rochester.budget.core;
-
-import com.rochester.budget.core.AbstractDataChangeObserver.ChangeType;
+import com.rochester.budget.core.exceptions.ReconciliationNotFoundException;
+import com.rochester.budget.core.exceptions.StateSyncException;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
 
 /**
  *
  * @author Cam
  */
 public class Reconciliation extends AbstractDatabaseObject implements IReconciliation 
-{
-    public static void loadReconciliationsForTransactions( ITransaction transaction ) 
+{    
+    
+    // Protected to ensure no access outside this package
+    protected Reconciliation( final String reconKey ) throws ReconciliationNotFoundException
     {
+        super( reconKey );
+        
+        // Attempt to load the reconciliation
         try
         {
-            String sql = new String( "select * from RECONCILIATION where RECON_TRANS_FKEY = '" + transaction.getKey() + "'" );
-
-            Statement stmt = AbstractDatabaseObject.getStatement();
-            ResultSet results = stmt.executeQuery( sql );
-
-            while ( results.next() )
-            {
-                transaction.addReconciliation( new Reconciliation( results, transaction ) );
-            }
-            
-            results.close();
-            stmt.close();
+            load();            
         }
-        catch ( Exception t )
+        catch ( Exception e )
         {
-            t.printStackTrace();
-            
-            // TODO: error handling?
-            return;
+            throw new ReconciliationNotFoundException( e.toString() );
         }
-    }
-    
-    /** Creates a new instance of Reconciliation */
-    public Reconciliation( ResultSet rs, ITransaction transaction ) throws Exception
-    {
-        m_transaction = transaction;
-        parseResultSet( rs );
     }    
+    
+    // Protected to ensure no access outside this package
+    protected Reconciliation()
+    {
+    }
          
     protected void parseResultSet( ResultSet results ) throws Exception
-    {
-        // This will basically re-create the object        
-        
-        // De-register with observed objects
-        
+    {        
         // Reload the database object
         setKey( results.getString( "PKEY" ) );
         m_value = new MonetaryValue( results.getInt( "RECON_VALUE" ) );
         m_note = results.getString( "RECON_NOTE" );
         
-        if ( null == m_transaction )
-        {
-            // TODO: Load transaction
-            // Transaction.
-        }
+        // Delay loading of the transaction to prevent endless recursion
+        m_transactionKey = results.getString("RECON_TRANS_FKEY");
         
         // Load the category & accounts associated with this reconciliation
-        m_category = Category.loadCategory( results.getString( "RECON_CATEGORY_FKEY") );
-        m_account = Account.loadAccount( results.getString( "RECON_ACCOUNT_FKEY") );
+        m_category = DataObjectFactory.loadCategory( results.getString( "RECON_CATEGORY_FKEY") );
+        //m_account = DataObjectFactory.loadAccount( results.getString( "RECON_ACCOUNT_FKEY") );
+    }
+    
+    protected void populateResultSet( ResultSet results ) throws Exception
+    {                
+        // update the database object
+        results.updateInt( "RECON_VALUE", m_value.getCentsAsInt() );
+        results.updateString( "RECON_NOTE", m_note );
+        
+        // Transaction can't change
+        
+        // Load the category & accounts associated with this reconciliation
+        results.updateString( "RECON_CATEGORY_FKEY", m_category.getKey() );
+        //results.updateString( "RECON_ACCOUNT_FKEY", m_account.getKey() );
     }
     
     public ITransaction getTransaction()
     {
+        // Delay loading
+        if ( null == m_transaction )
+        {
+            try
+            {
+                m_transaction = DataObjectFactory.loadTransaction( m_transactionKey );
+            }
+            catch ( Exception e )
+            {
+                // TODO: this should not happen... but what if it does?
+            }
+        }
         return m_transaction;
+    }
+    
+    public void setTransaction( final ITransaction trans )
+    {
+        m_transaction = trans;
     }
 
     public ICategory getCatecory()
     {
         return m_category;
+    }    
+    
+    public void setCategory( final ICategory category )
+    {
+        m_category = category;
     }
 
     public MonetaryValue getValue()
@@ -91,39 +107,55 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
         return m_value;
     }
 
-    public IAccount getAccount()
+    public void setValue( final MonetaryValue value )
+    {
+        m_value = value;
+    }
+    
+    /*public IAccount getAccount()
     {
         return m_account;
-    }    
+    } */   
     
     public String getNote()
     {
         return m_note;
     }
     
-    /**
-     * This is called upon an observer when the source object changes.
-     * @param change The type of change
-     * @param object The object that has changed
-     */
-    public void notifyDatabaseChange( ChangeType change, Object object )
+    public void setNote( final String note )
     {
-        // TODO: What to do in this scenario
+        m_note = note;
     }
-    
+        
     public String getTableName()
     {
         return "RECONCILIATION";
-    }
+    }        
     
-    public void commit()
+    public boolean isValid( )
     {
-        // TODO: commit changes to the database
+        // Check to see if this item is valid at this current time
+        return m_value != null &&
+                m_category != null &&
+                m_transactionKey != null &&
+                m_note != null;
     }
     
-    private IAccount m_account;
+    public Memento getMemento()
+    {
+        //TODO
+        return null;//new Memento( new MonetaryValue( m_value ));
+    }
+    
+    public void restoreMemento( Memento state ) throws StateSyncException
+    {
+        //TODO
+    }
+    
+    //private IAccount m_account;
     private MonetaryValue m_value;
     private ICategory m_category;
     private ITransaction m_transaction;
-    private String m_note;
+    private String m_transactionKey;
+    private String m_note;    
 }

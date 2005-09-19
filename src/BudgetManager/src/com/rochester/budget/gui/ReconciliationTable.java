@@ -32,6 +32,8 @@ public class ReconciliationTable extends JTable
         // TODO: Get the classes from the table model
         setDefaultRenderer( ICategory.class, new DefaultTableCellRenderer() );
         setDefaultRenderer( MonetaryValue.class, new DefaultTableCellRenderer() );
+        
+        setDefaultEditor( ICategory.class, new CategoryCellEditor() );
     }
     
 }

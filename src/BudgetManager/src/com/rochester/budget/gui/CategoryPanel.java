@@ -11,6 +11,7 @@
 package com.rochester.budget.gui;
 
 import com.rochester.budget.core.Category;
+import com.rochester.budget.core.DataObjectFactory;
 import com.rochester.budget.core.ICategory;
 import com.rochester.budget.core.IGUIComponent;
 import java.awt.Component;
@@ -45,11 +46,6 @@ public class CategoryPanel implements IGUIComponent
             return !m_category.hasChildren();
         }
         
-        /*public int getChildCount()
-        {
-            return m_category.getChildCount();
-        }*/
-        
         public String toString()
         {
             return m_category.getName();
@@ -72,7 +68,7 @@ public class CategoryPanel implements IGUIComponent
         // Get the root category
         try
         {
-            CategoryNode root = new CategoryNode( Category.getRootCategory() );
+            CategoryNode root = new CategoryNode( DataObjectFactory.loadRootCategory() );
             m_categoryTree = new JTree( root );
             m_scrollPane = new JScrollPane( m_categoryTree );
         }

@@ -103,5 +103,8 @@ public class BudgetManagerFrame extends JFrame
         //Display the window.
         pack();
         setVisible(true);        
+        
+        // Set the divider to be 15% of the screen size
+        reconPane.setDividerLocation( 0.15 );
     }
 }

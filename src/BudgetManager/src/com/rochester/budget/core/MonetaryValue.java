@@ -38,6 +38,11 @@ public class MonetaryValue
         return Integer.toString( m_cents );
     }
     
+    public int getCentsAsInt()
+    {
+        return m_cents;
+    }
+    
     public void subtractValue( MonetaryValue value ) throws BudgetManagerException
     {
         // TODO: throw specific exception!

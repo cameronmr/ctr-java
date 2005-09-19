@@ -7,7 +7,8 @@
 package com.rochester.budget.core;
 import com.rochester.budget.core.exceptions.BudgetManagerException;
 import java.sql.Date;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  *
@@ -15,6 +16,15 @@ import java.util.List;
  */
 public interface ITransaction extends IDatabaseObject
 {    
+    static final Comparator<ITransaction> TRANSACTION_DATE_ORDER = 
+                                 new Comparator<ITransaction>()
+    {
+        public int compare( ITransaction t1, ITransaction t2 ) 
+        {
+            return t1.getDate().compareTo( t2.getDate() );
+        }
+    };
+    
     enum ReconciliationState 
     {
         NONE,
@@ -43,7 +53,7 @@ public interface ITransaction extends IDatabaseObject
     
     ReconciliationState getReconciliationState();
     
-    List<IReconciliation> getReconciliations();
+    ArrayList<IReconciliation> getReconciliations();
     
     MonetaryValue getValueRemaining();
     
