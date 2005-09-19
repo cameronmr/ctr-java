@@ -14,6 +14,7 @@ import com.rochester.budget.core.ITransaction;
 import java.awt.Dimension;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 
 /**
  *
@@ -37,6 +38,7 @@ public class ReconciliationPanel implements IObservingGUIComponent
         m_reconciliationLabel = new javax.swing.JLabel();
         m_reconciliationPanel = new JPanel();
         m_reconciliationTable = new ReconciliationTable( m_reconciliationModel );
+        m_reconciliationTable.setCellSelectionEnabled( true );
         m_amountRemainingLabel = new javax.swing.JLabel();
 
         m_reconciliationPanel.setLayout(new java.awt.BorderLayout());
@@ -47,14 +49,7 @@ public class ReconciliationPanel implements IObservingGUIComponent
 
         m_amountRemainingLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         m_amountRemainingLabel.setText( m_remaining );
-        m_reconciliationPanel.add(m_amountRemainingLabel, java.awt.BorderLayout.SOUTH);
-        
-        Dimension d = new Dimension();
-        d.setSize( m_reconciliationTable.getPreferredScrollableViewportSize().getWidth(),
-                m_reconciliationTable.getPreferredSize().getHeight() +
-                m_reconciliationLabel.getPreferredSize().getHeight() +
-                m_amountRemainingLabel.getPreferredSize().getHeight() );
-        m_reconciliationPanel.setPreferredSize( d );
+        m_reconciliationPanel.add(m_amountRemainingLabel, java.awt.BorderLayout.SOUTH);       
     }
 
     public void update( Observable observable, Object obj )
@@ -75,7 +70,7 @@ public class ReconciliationPanel implements IObservingGUIComponent
         m_amountRemainingLabel.setText( m_remaining + trans.getValueRemaining() );
         
         /* Pass to the ReconciliationTable to do some magic */
-        m_reconciliationModel.setTransaction( trans );
+        m_reconciliationModel.setTransaction( trans );        
     }
 
     public Component getComponent()

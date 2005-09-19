@@ -7,10 +7,8 @@
 package com.rochester.budget.core;
 
 import com.rochester.budget.core.exceptions.AccountNotFoundException;
+import com.rochester.budget.core.exceptions.StateSyncException;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-
 
 /**
  *
@@ -18,29 +16,10 @@ import java.util.HashMap;
  */
 public class Account extends AbstractDatabaseObject implements IAccount
 {
-    public static IAccount loadAccount( final String accountNumber ) throws AccountNotFoundException
+    // Protected to ensure no access outside this package
+    protected Account( final String accountNumber ) throws AccountNotFoundException
     {
-        if ( accountNumber == null )
-        {
-            return null;
-        }
-        
-        // This will throw an exception if the account is not available
-        IAccount account = m_accounts.get( accountNumber );
-        if ( null == account )
-        {
-            account = new Account( accountNumber );
-            
-            m_accounts.put( accountNumber, account );
-        }
-        
-        return account;
-    }
-    
-    /** Creates a new instance of Account */
-    private Account( final String accountNumber ) throws AccountNotFoundException
-    {
-        setKey( accountNumber );
+        super( accountNumber );
         
         // Attempt to load the account
         try
@@ -64,17 +43,17 @@ public class Account extends AbstractDatabaseObject implements IAccount
         m_accountName = results.getString( "ACCOUNT_NAME" );
         m_accountDescription = results.getString( "ACCOUNT_DESCRIPTION" );
     }
+    
+    protected void populateResultSet( ResultSet results ) throws Exception
+    { 
+        // TODO
+    }
 
     public String getTableName()
     {
         return "ACCOUNT";
     }
     
-    public void commit()
-    {
-        // TODO commit any changes to the database
-    }
-
     public String getAccountNumber()
     {
         return getKey();
@@ -89,9 +68,30 @@ public class Account extends AbstractDatabaseObject implements IAccount
     {
         return m_accountName;
     }
+      
+    public boolean isValid( )
+    {
+        // Check to see if this item is valid at this current time
+        return m_accountName != null &&
+                m_accountDescription != null;
+    }
     
-    private String m_accountName = new String();
-    private String m_accountDescription = new String();
- 
-    private static HashMap<String,IAccount> m_accounts = new HashMap<String,IAccount>();
+    public Memento getMemento()
+    {
+        // Remember that everything that isn't primitive is a reference so make sure to copy 
+        // objects that can change
+        return new Memento( isValid(), 
+                new String(m_accountName), 
+                new String(m_accountDescription) );
+    }
+    
+    
+    public void restoreMemento( Memento state ) throws StateSyncException
+    {
+        m_accountName = (String)state.getSomeState();
+        m_accountDescription = (String)state.getSomeState();
+    }
+    
+    private String m_accountName;
+    private String m_accountDescription; 
 }

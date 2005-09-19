@@ -1,5 +1,5 @@
 /*
- * AbstractDataChangeObserver.java
+ * DataChangeObserver.java
  *
  * Created on 23 May 2005, 13:48
  */
@@ -14,7 +14,7 @@ import java.util.Observer;
  * Allows observing objects to reload whenever a reload occurs
  * @author Cam
  */
-public abstract class AbstractDataChangeObserver implements Observer
+public abstract class DataChangeObserver implements Observer
 {
     enum ChangeType
     {
@@ -28,11 +28,11 @@ public abstract class AbstractDataChangeObserver implements Observer
      * @param change The type of change
      * @param object The object that has changed
      */
-    public abstract void notifyDatabaseChange( ChangeType change, Object object );
+    public abstract void notifyDatabaseChange( ChangeType change, IDatabaseObject object );
     
     public void update( Observable observable, Object obj )
     {       
-        notifyDatabaseChange( (ChangeType)obj, observable );
+        notifyDatabaseChange( (ChangeType)obj, (IDatabaseObject)observable );
     }
     
 }

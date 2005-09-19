@@ -31,9 +31,7 @@ public class TransactionTable extends JTable
         this.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         
         initColumnSizes( );        
-    }
-    
-    
+    }    
     
      /*
      * This method picks good column sizes.
@@ -66,28 +64,5 @@ public class TransactionTable extends JTable
             column.setMaxWidth( headerWidth );
         }
     }
-    
-    /*public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-        Object value = getValueAt(row, column);
-
-        boolean isSelected = false;
-        boolean hasFocus = false;
-
-        // Only indicate the selection and focused cell if not printing
-        //if (!isPrinting) {
-            isSelected = isCellSelected(row, column);
-
-            boolean rowIsLead =
-                (selectionModel.getLeadSelectionIndex() == row);
-            boolean colIsLead =
-                (columnModel.getSelectionModel().getLeadSelectionIndex() == column);
-
-            hasFocus = (rowIsLead && colIsLead) && isFocusOwner();
-        //}
-
-        return renderer.getTableCellRendererComponent(this, value,
-                                                      isSelected, hasFocus,
-                                                      row, column);
-    }*/    
 }
 
