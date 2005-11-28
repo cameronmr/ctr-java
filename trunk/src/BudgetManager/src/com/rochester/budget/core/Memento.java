@@ -30,22 +30,7 @@ public class Memento
         
         m_stateIsValid = valid;
     }
-    
-    /*public void storeState( Object state ) throws StateSyncException
-    {
-        // If we did not retrieved the complete state previously we are not
-        // able to add more state!
-        if ( !m_state.isEmpty() && m_gettingState )
-        {
-            throw new StateSyncException( "Unable to store new state in memento until old state restored" );
-        }
         
-        // We are now storing the state
-        m_gettingState = false;
-        
-        m_state.add( state );
-    }*/
-    
     public Object getSomeState( ) throws StateSyncException
     {
         // We are now retrieving state
@@ -64,6 +49,37 @@ public class Memento
         if ( obj instanceof Memento )
         {
             Memento m2 = (Memento)obj;
+            
+            if ( m_state.size() != m2.m_state.size() ||
+                    isValid() != m2.isValid() )
+            {
+                return false;
+            }
+            
+            /*for ( int i = 0; i < m_state.size(); i++ )
+            {
+                if ( m_state.get(i) == null )
+                {
+                    if ( m2.m_state.get(i) != null )
+                    {
+                        return false;
+                    }
+                }
+                else if ( m2.m_state.get(i) == null )
+                {                    
+                    if ( m_state.get(i) != null )
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if ( ! m_state.get(i).equals( m2.m_state.get(i) ) )
+                    {
+                        return false;
+                    }
+                }
+            }*/
             
             // TODO: Does this actually call the overridden equals function?
             return m_state.equals( m2.m_state );

@@ -13,8 +13,10 @@ package com.rochester.budget.gui;
 import com.rochester.budget.core.TransactionTableModel;
 import java.awt.Component;
 import com.rochester.budget.core.IGUIComponent;
+import com.rochester.budget.core.exceptions.StateSyncException;
 import java.util.Observable;
 import java.util.Observer;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
@@ -61,7 +63,21 @@ public class TransactionPanel extends Observable implements IGUIComponent
                 else 
                 {
                     // Set the selected transaction
-                    notifyObservers( m_transactionModel.getTransactionAt( lsm.getMinSelectionIndex() ) );
+                    try
+                    {
+                        notifyObservers( m_transactionModel.getTransactionAt( lsm.getMinSelectionIndex() ) );
+                        m_transactionModel.fireTableRowsUpdated( selectedRow, selectedRow );
+                        selectedRow = lsm.getMinSelectionIndex();
+                    }
+                    catch ( Exception ex )
+                    {
+                        JOptionPane.showMessageDialog( null, ex.toString() );
+                        
+                        lsm.setValueIsAdjusting( true );
+                        
+                        // The item is in a valid state so go back to the previous selection
+                        m_transactionTable.setRowSelectionInterval( selectedRow, selectedRow );
+                    }
                 }
             }
         });
@@ -78,4 +94,5 @@ public class TransactionPanel extends Observable implements IGUIComponent
     TransactionTable m_transactionTable;
     TransactionTableModel m_transactionModel;
     JScrollPane m_scrollPane;
+    int selectedRow;
 }

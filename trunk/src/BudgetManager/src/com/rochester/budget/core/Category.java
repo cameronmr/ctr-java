@@ -13,6 +13,7 @@ import com.rochester.budget.core.exceptions.CategoryNotFoundException;
 import com.rochester.budget.core.exceptions.StateSyncException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -143,18 +144,30 @@ public class Category extends AbstractDatabaseObject implements ICategory
                 m_account != null &&
                 m_parent != null;
         
-        // TODO: do we care about children here?
+        // TODO: do we care about children here? Probably not..
     }
     
     public Memento getMemento()
     {
-        // TODO
-        return new Memento( isValid() );
+        return new Memento( isValid(), 
+                new String( m_name ), 
+                new String( m_description ), 
+                m_account, // Original reference, not copy
+                m_parent, // Original reference, not copy
+                new ArrayList<ICategory>( m_children ) ); // new vector, but do not create new copy of all contents
     }
     
     public void restoreMemento( Memento state ) throws StateSyncException
     {
-        //TODO
+        m_name = (String)state.getSomeState();
+        m_description = (String)state.getSomeState();
+        m_account = (IAccount)state.getSomeState();
+        m_parent = (ICategory)state.getSomeState();
+        
+        // Reconcile differences between items in container
+        ArrayList<ICategory> src = (ArrayList<ICategory>)state.getSomeState();
+        reconcileObjectList( src, m_children );
+        m_children = src;
     }
         
     private String m_name = null;

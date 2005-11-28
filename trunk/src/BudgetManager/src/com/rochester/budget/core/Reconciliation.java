@@ -38,8 +38,12 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
     }    
     
     // Protected to ensure no access outside this package
-    protected Reconciliation()
+    protected Reconciliation( final String note, final MonetaryValue value, final ITransaction transaction )
     {
+        m_note = new String( note );
+        m_value = new MonetaryValue( value );
+        m_transaction = transaction;
+        m_transactionKey = transaction.getKey();
     }
          
     protected void parseResultSet( ResultSet results ) throws Exception
@@ -50,24 +54,20 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
         m_note = results.getString( "RECON_NOTE" );
         
         // Delay loading of the transaction to prevent endless recursion
-        m_transactionKey = results.getString("RECON_TRANS_FKEY");
+        m_transactionKey = results.getString( "RECON_TRANS_FKEY" );
         
-        // Load the category & accounts associated with this reconciliation
+        // Load the category associated with this reconciliation
         m_category = DataObjectFactory.loadCategory( results.getString( "RECON_CATEGORY_FKEY") );
-        //m_account = DataObjectFactory.loadAccount( results.getString( "RECON_ACCOUNT_FKEY") );
     }
     
     protected void populateResultSet( ResultSet results ) throws Exception
     {                
         // update the database object
+        results.updateString( "PKEY", getKey() );
         results.updateInt( "RECON_VALUE", m_value.getCentsAsInt() );
         results.updateString( "RECON_NOTE", m_note );
-        
-        // Transaction can't change
-        
-        // Load the category & accounts associated with this reconciliation
+        results.updateString( "RECON_TRANS_FKEY", m_transactionKey );
         results.updateString( "RECON_CATEGORY_FKEY", m_category.getKey() );
-        //results.updateString( "RECON_ACCOUNT_FKEY", m_account.getKey() );
     }
     
     public ITransaction getTransaction()
@@ -90,6 +90,9 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
     public void setTransaction( final ITransaction trans )
     {
         m_transaction = trans;
+        m_transactionKey = trans.getKey();
+        
+        storeMemento();
     }
 
     public ICategory getCatecory()
@@ -100,6 +103,8 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
     public void setCategory( final ICategory category )
     {
         m_category = category;
+        
+        storeMemento();
     }
 
     public MonetaryValue getValue()
@@ -109,14 +114,12 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
 
     public void setValue( final MonetaryValue value )
     {
-        m_value = value;
+        // Just create a new one and let the GC worry about the rest...
+        m_value = new MonetaryValue( value );
+        
+        storeMemento();
     }
-    
-    /*public IAccount getAccount()
-    {
-        return m_account;
-    } */   
-    
+        
     public String getNote()
     {
         return m_note;
@@ -125,6 +128,8 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
     public void setNote( final String note )
     {
         m_note = note;
+        
+        storeMemento();
     }
         
     public String getTableName()
@@ -143,19 +148,33 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
     
     public Memento getMemento()
     {
-        //TODO
-        return null;//new Memento( new MonetaryValue( m_value ));
+        return new Memento( isValid(), 
+                ( m_value == null ) ? null : new MonetaryValue( m_value ), 
+                m_category, // Don't want a new copy
+                ( m_transactionKey == null ) ? null : new String( m_transactionKey ), 
+                ( m_note == null ) ? null : new String( m_note ) );
     }
     
     public void restoreMemento( Memento state ) throws StateSyncException
     {
-        //TODO
+        m_value = (MonetaryValue)state.getSomeState();
+        m_category = (ICategory)state.getSomeState();
+        m_transactionKey = (String)state.getSomeState();
+        try
+        {
+            m_transaction = DataObjectFactory.loadTransaction( m_transactionKey );
+        }
+        catch( Exception e )
+        {
+            // TODO??
+        }
+        m_note = (String)state.getSomeState();
     }
     
-    //private IAccount m_account;
     private MonetaryValue m_value;
     private ICategory m_category;
     private ITransaction m_transaction;
+    // Only used to restore a memento
     private String m_transactionKey;
     private String m_note;    
 }

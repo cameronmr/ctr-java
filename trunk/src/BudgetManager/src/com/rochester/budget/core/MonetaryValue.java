@@ -43,7 +43,7 @@ public class MonetaryValue
         return m_cents;
     }
     
-    public void subtractValue( MonetaryValue value ) throws BudgetManagerException
+    public void subtractValue( final MonetaryValue value ) throws BudgetManagerException
     {
         // TODO: throw specific exception!
         if ( m_cents - value.m_cents < 0 )
@@ -54,9 +54,14 @@ public class MonetaryValue
         m_cents -= value.m_cents;
     }
     
-    public void addValue( MonetaryValue value )
+    public void addValue( final MonetaryValue value )
     {
         m_cents += value.m_cents;
+    }
+    
+    public void setValue( final MonetaryValue value )
+    {
+        m_cents = value.m_cents;
     }
     
     public boolean isZero()
@@ -75,5 +80,17 @@ public class MonetaryValue
         return amount.toString();
     }
     
+    public boolean equals( Object o )
+    {
+        if ( o instanceof MonetaryValue )
+        {
+            MonetaryValue v = (MonetaryValue)o;
+            if ( v.m_cents == m_cents )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     private int m_cents;
 }

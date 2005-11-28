@@ -11,7 +11,7 @@
 package com.rochester.budget.core;
 
 import java.util.ArrayList;
-import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -26,19 +26,37 @@ public class ReconciliationTableModel extends AbstractTableModel
     {
     }
     
-    public void setTransaction( ITransaction transaction )
+    public void setTransaction( ITransaction transaction ) throws Exception
     {                
         // When the transaction is applied ask the existing transaction to apply any changes that are necessary
-        
-        m_reconciliations = transaction.getReconciliations();
+        if ( null != m_newReconciliation )
+        {
+            if ( m_newReconciliation.isNew() &&
+                    !m_newReconciliation.isModified() )
+            {
+                // If it hasn't been modified just delete it
+                m_newReconciliation.delete();
+            }
+            else
+            {
+                // This will throw an exception if not valid
+                m_newReconciliation.commit();
+
+                m_transaction.addReconciliation( m_newReconciliation );
+            }
+        }
+
         m_transaction = transaction;
-        
+
+        m_reconciliations = new ArrayList<IReconciliation>(transaction.getReconciliations());
+
         // If the transaction is not fully reconciled then create a reconciliation with the remaining amount
         if ( m_transaction.getReconciliationState() != ITransaction.ReconciliationState.FULL )
         {
-            m_reconciliations.add( DataObjectFactory.newReconciliationForTransaction( m_transaction ) );
+            m_newReconciliation = DataObjectFactory.newReconciliationForTransaction( m_transaction );
+            m_reconciliations.add( m_newReconciliation );
         }
-        
+
         // reload the table
         fireTableDataChanged();
     }
@@ -92,8 +110,7 @@ public class ReconciliationTableModel extends AbstractTableModel
         }
         
         return null;
-    }
-    
+    }    
     
     /*
      * Don't need to implement this method unless your table's
@@ -115,7 +132,6 @@ public class ReconciliationTableModel extends AbstractTableModel
             return;
         }
         
-        // TODO: switch based on the class information?
         IReconciliation recon = m_reconciliations.get( row );
         switch ( col )
         {
@@ -146,4 +162,5 @@ public class ReconciliationTableModel extends AbstractTableModel
     private String[] m_columns = { "Category", "Reconciliation Note", "Amount" };
     private ArrayList<IReconciliation> m_reconciliations = new ArrayList<IReconciliation>();
     private ITransaction m_transaction;
+    private IReconciliation m_newReconciliation;
 }

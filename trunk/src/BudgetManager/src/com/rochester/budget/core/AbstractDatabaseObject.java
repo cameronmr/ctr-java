@@ -33,6 +33,9 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
     public AbstractDatabaseObject()
     {
         m_key = UUID.randomUUID().toString();
+        
+        // We definately do not exist in the database yet!
+        m_state = DBState.NEW;
     }
                 
     public String getKey()
@@ -47,18 +50,27 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
     
     public void delete()
     {
-        try
+        // only delete from the database if we are committed to the database
+        if ( m_state == DBState.COMMITTED )
         {
-            Statement stmt = DatabaseManager.getStatement();
-            stmt.executeUpdate( "delete from " + getTableName() + " where PKEY = '" + m_key + "'" );
-            stmt.close();
-            
-            notifyObservers( ChangeType.DELETE );
+            try
+            {
+                Statement stmt = DatabaseManager.getStatement();
+                stmt.executeUpdate( "delete from " + getTableName() + " where PKEY = '" + m_key + "'" );
+                stmt.close();
+
+                // We are no longer in the database
+                m_state = DBState.DELETED;
+
+            }
+            catch ( Exception e )
+            {
+                // Do nothing
+            }
         }
-        catch ( Exception e )
-        {
-            // Do nothing
-        }
+        
+        // We notify observers regardless of the committed state
+        notifyObservers( ChangeType.DELETE );     
     }
     
     public void load( ) throws Exception
@@ -75,6 +87,13 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
             
             // Parse the results
             parseResultSet( results );
+            
+            // we exist in the database
+            m_state = DBState.COMMITTED;
+            m_committedState = getMemento();
+            
+            // Notify any observers that we have changed
+            notifyObservers( ChangeType.UPDATE );
         }
         finally
         {
@@ -83,48 +102,63 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
             {
                 results.close();
             }
-        }
-        
-        // Notify any observers that we have changed
-        notifyObservers( ChangeType.UPDATE );
-        
-        // Store the loaded state
-        storeMemento();
+        }                
     }
             
     public void commit() throws Exception
     {
-        // TODO: throw exception if not valid?
-        if ( !isValid() )
-        {
-            // throw new StateSyncException()
-        }
-        
         // Make sure there is something to commit
         if ( !isModified() )
         {
             return;
-        }
+        }        
+        
+        // throw exception if not valid
+        if ( !isValid() )
+        {
+            throw new StateSyncException( "Item is not in a valid state to commit to the database" );
+        }        
         
         // Get the data from the table
         Statement stmt = DatabaseManager.getStatement();
         ResultSet results = null;
         try
         { 
-            results = stmt.executeQuery( "select * from " + getTableName() + " where PKEY = '" + m_key + "'" );    
-
-            // Move to the first row
-            results.first();
+            if ( m_state == DBState.COMMITTED )
+            {
+                // Retrieve the existing entry..
+                results = stmt.executeQuery( "select * from " + getTableName() + " where PKEY = '" + m_key + "'" );    
+                
+                // Move to the first row
+                results.first();
+                
+                // populate the results
+                populateResultSet( results );
+                
+                // Store the updated results in the database
+                results.updateRow();
+            }
+            else
+            {
+                // Get the first result just to populate the resultset..
+                results = stmt.executeQuery( "select * from " + getTableName() + " limit 1" );   
+                
+                // Prepare to insert a new entry
+                results.moveToInsertRow();
+                
+                // populate the results
+                populateResultSet( results );
+                
+                // Store the updated results in the database
+                results.insertRow();
+            }                            
             
-            // populate the results
-            populateResultSet( results );
+            // we exist in the database
+            m_state = DBState.COMMITTED;
+            m_committedState = getMemento();
             
-            // Store the updated results in the database
-            results.updateRow();
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
+            // Notify any observers that we have changed
+            notifyObservers( ChangeType.UPDATE );
         }
         finally
         {
@@ -133,33 +167,43 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
             {
                 results.close();
             }
-        }
-        
-        // Notify any observers that we have changed
-        notifyObservers( ChangeType.UPDATE );
+        }        
     }
     
     public boolean isModified()
     {        
         // If there is more than one item in the list
-        if ( m_storedState.size() == 1 )
+        if ( m_modifiedState.isEmpty() )
         {
             return false;
         }
         
-        // If the item has never been valid but
-        // we have made changes
-        Memento lastValidState = getLastValidMemento();
-        if ( null == lastValidState &&
-                m_storedState.size() > 1 )
+        // If item is commited we must compare to the committed state
+        switch ( m_state )
         {
-            return true;
-        }                
-            
-        // compare the current state to the last valid state
-        Memento currentState = getMemento();        
+            case COMMITTED:
+            {
+                Memento lastValidState = getLastValidMemento();
+                if ( null == lastValidState )
+                {
+                    // If the item has no valid changes it has still been modified
+                    return true;
+                }        
+                else
+                {
+                    // If the items are both equal than nothing has been modified!
+                    return ! m_committedState.equals( lastValidState );
+                }
+            }
+            case NEW:
+            {
+                // If there are any modifications at all then we must return false for        
+                return true;
+            }
+        }    
         
-        return currentState.equals( lastValidState );
+        // Everything else has not been modified
+        return false;
     }
     
     public void rollbackToLastValidState() throws StateSyncException
@@ -173,7 +217,7 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
             restoreMemento( state );
 
             // Remove all items after this point
-            ListIterator it = m_storedState.listIterator( m_storedState.indexOf( state ) );
+            ListIterator it = m_modifiedState.listIterator( m_modifiedState.indexOf( state ) );
             while ( it.hasNext() )
             {
                 it.next();
@@ -185,17 +229,42 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
     public void storeMemento()
     {
         // Get the memento & store it
-        m_storedState.add( getMemento() );
+        m_modifiedState.add( getMemento() );
+        
+        // cap the maximum size of history to, say, 50 items?
+        if ( m_modifiedState.size() > 50 )
+        {
+            m_modifiedState.remove( 0 );
+        }
+    }
+    
+    public boolean isNew()
+    {
+        return m_state == DBState.NEW;
     }
         
     protected abstract void parseResultSet( ResultSet results ) throws Exception;        
     protected abstract void populateResultSet( ResultSet results ) throws Exception;
     protected abstract Memento getMemento( );
     
+    protected void reconcileObjectList( ArrayList src, ArrayList copy )
+    {
+        // find the items in the copy that don't exist in the src, and 'delete them' (remove them from
+        // the database cache & from the database if they exist in the database
+        for ( Object obj : copy )
+        {            
+            if ( ! src.contains( obj ) )
+            {
+                // The src doesn't contain this item so delete it!
+                ((IDatabaseObject)obj).delete();
+            }
+        }
+    }
+    
     private Memento getLastValidMemento()
     {
         // Go backwards through the list of changes and restore the last valid state!
-        ListIterator<Memento> it = m_storedState.listIterator( m_storedState.size() );
+        ListIterator<Memento> it = m_modifiedState.listIterator( m_modifiedState.size() );
         while ( it.hasPrevious() )
         {
             Memento state = it.previous();
@@ -211,5 +280,7 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
     }
         
     private String m_key;    
-    private ArrayList<Memento> m_storedState = new ArrayList<Memento>();
+    private ArrayList<Memento> m_modifiedState = new ArrayList<Memento>();
+    private Memento m_committedState = null;
+    private DBState m_state = DBState.UNKNOWN;
 }

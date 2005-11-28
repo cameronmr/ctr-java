@@ -15,6 +15,14 @@ import java.util.Observer;
  */
 public interface IDatabaseObject
 {    
+    enum DBState
+    {
+        COMMITTED,
+        NEW,
+        DELETED,
+        UNKNOWN
+    };
+    
     /**
      * Return the primary key for this object. All database objects must have a primary key
      * @return The primary key of the database
@@ -29,9 +37,8 @@ public interface IDatabaseObject
     
     /**
      * Delete a database object. Remove the key from the table and notify observers (ie: Dataobject maps)
-     * @throws java.lang.Exception Thrown if the object cannot be deleted from the database
      */
-    void delete() throws Exception;
+    void delete();
     
     /**
      * Check to see if this item has been modified at all. This will generally involve 
@@ -40,13 +47,8 @@ public interface IDatabaseObject
      */
     boolean isModified();
     
-    /**
-     * Check to see whether this item can be committed to the database.
-     * This will likely involve ensuring all parameters are populated and valid
-     * @return true if the object is ready to be committed to the database
-     */
-    //boolean committable();
-    
+    boolean isNew();
+        
     /**
      * Apply the current object to the database.
      * @throws java.lang.Exception Throw if the commit fails

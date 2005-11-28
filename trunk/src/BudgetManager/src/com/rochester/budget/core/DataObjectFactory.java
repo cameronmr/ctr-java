@@ -294,13 +294,8 @@ public class DataObjectFactory
     
     public static IReconciliation newReconciliationForTransaction( ITransaction transaction )
     {
-        IReconciliation recon = new Reconciliation();
-        
-        // build up a new reconciliation!
-        recon.setNote( "New Reconciliation..." );
-        recon.setValue( transaction.getValueRemaining() );
-        recon.setTransaction( transaction );
-        
+        IReconciliation recon = new Reconciliation( "New Reconciliation...", transaction.getValueRemaining(), transaction );
+                
         return recon;
     }
     
