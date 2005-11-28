@@ -49,6 +49,8 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     public void setNarrative( final String narrative )
     {
         m_narrative = narrative;
+        
+        storeMemento();
     }
     
     public String getNote()
@@ -59,6 +61,8 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     public void setNote( final String note )
     {
         m_note = note;
+        
+        storeMemento();
     }
                 
     public MonetaryValue getMonetaryValue()
@@ -68,7 +72,9 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     
     public void setMonetaryValue( final MonetaryValue value )
     {
-        m_value = value;
+        m_value.setValue( value );
+        
+        storeMemento();
     }
     
     public Date getDate()
@@ -79,6 +85,8 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     public void setDate( final Date date )
     {
         m_date = date;
+        
+        storeMemento();
     }
     
     static public String[] getColumns()
@@ -95,6 +103,8 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     public void setAccount( final IAccount account )
     {
         m_account = account;
+        
+        storeMemento();
     }        
     
     public void addReconciliation( IReconciliation reconciliation ) throws BudgetManagerException
@@ -104,8 +114,10 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
         
         m_reconciliations.add( reconciliation );
         
-        /* Notify any observers that a reconciliation has been added */
-        notifyObservers();
+        /* TODO: Notify any observers that a reconciliation has been added */
+        //notifyObservers( ChangeType.UPDATE );
+        
+        storeMemento();
     }
     
     public void removeReconciliation(IReconciliation reconciliation)
@@ -116,7 +128,9 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
             m_valueRemaining.addValue( reconciliation.getValue() );
                     
             /* Notify any observers that a reconciliation has been removed */
-            notifyObservers();
+            // TODO: notifyObservers();
+            
+            storeMemento();
         }
     }
     
@@ -213,24 +227,40 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     public boolean isValid( )
     {
         // Check to see if this item is valid at this current time
-        return m_note != null &&
+        return /*m_note != null &&*/
                 m_value != null &&
                 m_account != null &&
                 m_narrative != null &&
                 m_date != null;
         
-        // TODO: do we care about reconciliations here?
+        // TODO: do we care about reconciliations here? Probably not
     }
     
     public Memento getMemento()
     {
-        //TODO
-        return null;//new Memento( );
+        return new Memento( isValid(), 
+                (m_note == null) ? null : new String( m_note ),
+                new MonetaryValue( m_value ), 
+                new MonetaryValue( m_valueRemaining ), 
+                m_account,
+                new String( m_narrative ), 
+                new Date( m_date.getTime() ),
+                new ArrayList<IReconciliation>( m_reconciliations ) );
     }
     
     public void restoreMemento( Memento state ) throws StateSyncException
     {
-        //TODO
+        m_note = (String)state.getSomeState();
+        m_value = (MonetaryValue)state.getSomeState();
+        m_valueRemaining = (MonetaryValue)state.getSomeState();
+        m_account = (IAccount)state.getSomeState();
+        m_narrative = (String)state.getSomeState();
+        m_date = (Date)state.getSomeState();
+        
+        // Reconcile differences between items in container
+        ArrayList<IReconciliation> src = (ArrayList<IReconciliation>)state.getSomeState();
+        reconcileObjectList( src, m_reconciliations );
+        m_reconciliations = src;
     }
     
     private String m_note;
