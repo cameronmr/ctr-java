@@ -6,21 +6,25 @@
 
 package com.rochester.budget.gui;
 
+import com.rochester.budget.core.IDataChangeObserver;
+import com.rochester.budget.core.IDataChangeObserver.ChangeType;
+import com.rochester.budget.core.IDatabaseObject;
 import com.rochester.budget.core.ReconciliationTableModel;
 import java.awt.Component;
 import java.util.Observable;
 import com.rochester.budget.core.IObservingGUIComponent;
 import com.rochester.budget.core.ITransaction;
-import java.awt.Dimension;
+import com.rochester.budget.core.ITransaction.ReconciliationState;
+import com.rochester.budget.core.exceptions.BudgetManagerException;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+
 
 /**
  *
  * @author  Cam
  */
-public class ReconciliationPanel implements IObservingGUIComponent
+public class ReconciliationPanel implements IObservingGUIComponent, IDataChangeObserver
 {
     
     /** Creates new form ReconciliationPanel */
@@ -54,6 +58,8 @@ public class ReconciliationPanel implements IObservingGUIComponent
 
     public void update( Observable observable, Object obj )
     {
+        m_reconciliationTable.editingCanceled( null );
+        
         // Handle the new transaction!
         ITransaction trans = (ITransaction)obj;
         
@@ -61,21 +67,46 @@ public class ReconciliationPanel implements IObservingGUIComponent
         if ( null == trans )
         {
             return;
-        }
+        }        
         
-        /* Update the title! */
-        m_reconciliationLabel.setText( m_title + trans );
+        // Listen to changes to the transaction so that we can update our labels
+        trans.addObserver( this );
         
-        /* Get the value remaining & update the label! */
-        m_amountRemainingLabel.setText( m_remaining + trans.getValueRemaining() );
+        // Update the labels
+        updateLabels( trans );
         
         /* Pass to the ReconciliationTable to do some magic */
-        m_reconciliationModel.setTransaction( trans );        
+        m_reconciliationModel.setTransaction( trans );       
+    }
+    
+    public void notifyDatabaseChange( ChangeType change, IDatabaseObject object ) throws BudgetManagerException
+    {
+        if ( change == ChangeType.UPDATE )
+        {
+            ITransaction trans = (ITransaction)object;
+            updateLabels( trans );
+            
+            // If the update results in the transaction still having funds available we set the
+            // transaction on the panel again to add another transaction
+            if ( trans.getReconciliationState() != ReconciliationState.FULL )
+            {
+                m_reconciliationModel.setTransaction( trans );
+            }
+        }
     }
 
     public Component getComponent()
     {
         return m_reconciliationPanel;
+    }
+    
+    private void updateLabels( ITransaction trans )
+    {        
+        /* Update the title! */
+        m_reconciliationLabel.setText( m_title + trans );
+        
+        /* Get the value remaining & update the label! */
+        m_amountRemainingLabel.setText( m_remaining + trans.getValueRemaining() );         
     }
     
     private javax.swing.JLabel m_amountRemainingLabel;

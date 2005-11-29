@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
@@ -27,16 +28,16 @@ import javax.swing.JOptionPane;
 public class CategoryComboBox extends JComboBox implements ActionListener
 {   
     /** Creates a new instance of CategoryComboBox */
-    public CategoryComboBox( )
+    public CategoryComboBox( AbstractCellEditor editor )
     {
         addActionListener( this );
+        m_editor = editor;
     }
     
     public void selectCategory( final ICategory category )
-    {
-        m_selectedCategory = category;
-        
-        // Empty the combo box
+    {        
+        // Empty the combo box, disable it before emptying it to stop unnecessary messages
+        m_editing = false;
         this.removeAllItems();
         
         try
@@ -54,7 +55,11 @@ public class CategoryComboBox extends JComboBox implements ActionListener
             // Add the new category placeholder
             this.addItem( m_newCategoryString );
             
-            setSelectedItem( m_selectedCategory );
+            setSelectedItem( category );
+            m_selectedIndex = getSelectedIndex();
+            
+            // Combo box has been repopulated, so enable it again
+            m_editing = true;
         }
         catch( Exception e )
         {
@@ -64,23 +69,36 @@ public class CategoryComboBox extends JComboBox implements ActionListener
     
     public void actionPerformed(ActionEvent e)
     {
-        JComboBox cb = (JComboBox)e.getSource();
-        Object selected = cb.getSelectedItem();
-        if ( null != selected && 
-                selected.equals( m_newCategoryString ) )
+        if ( m_editing )
         {
-            if ( JOptionPane.showConfirmDialog( this, "woot" ) == JOptionPane.OK_OPTION )
+            JComboBox cb = (JComboBox)e.getSource();
+            Object newSelection = cb.getSelectedItem();
+            if ( null != newSelection )
             {
-                // Select the new                
-            }
-            else
-            {
-                // select the original
-                setSelectedItem( m_selectedCategory );
+                if( newSelection.equals( m_newCategoryString ) )
+                {            
+                    if ( JOptionPane.showConfirmDialog( this, "create new category..." ) == JOptionPane.OK_OPTION )
+                    {
+                        // Select the new               
+                        m_editor.stopCellEditing();
+                    }
+                    else
+                    {
+                        // select the original
+                        setSelectedIndex( m_selectedIndex );
+                    }
+                }
+                else
+                {
+                    m_selectedIndex = getSelectedIndex();
+                    m_editor.stopCellEditing();
+                }
             }
         }
     }
     
     private final String m_newCategoryString = new String( "New Category..." );
-    private ICategory m_selectedCategory;
+    private int m_selectedIndex;
+    private AbstractCellEditor m_editor = null;
+    private boolean m_editing = false;
 }

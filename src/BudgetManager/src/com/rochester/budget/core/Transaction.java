@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * A transaction, once created, can not be deleted. It observes reconciliations to monitor the current reconciliation state
  * @author Cameron
  */
-public class Transaction extends AbstractDatabaseObject implements ITransaction
+public class Transaction extends AbstractDatabaseObject implements ITransaction, IDataChangeObserver
 {       
     // Protected to ensure no access outside this package
     protected Transaction( final String transactionKey ) throws TransactionNotFoundException
@@ -108,14 +108,17 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     }        
     
     public void addReconciliation( IReconciliation reconciliation ) throws BudgetManagerException
-    {   
+    {           
+        if ( ! m_reconciliations.contains( reconciliation ) )
+        {
+            m_reconciliations.add( reconciliation );   
+            
+            // Observer the reconciliation so that we are notified when the reconciliation value changes
+            reconciliation.addObserver( this );
+        }
+                
         /* Attempt to subtract the reconciliation - this will throw an exception if too much */
-        m_valueRemaining.subtractValue( reconciliation.getValue() );
-        
-        m_reconciliations.add( reconciliation );
-        
-        /* TODO: Notify any observers that a reconciliation has been added */
-        //notifyObservers( ChangeType.UPDATE );
+        calculateValueRemaining();        
         
         storeMemento();
     }
@@ -124,11 +127,14 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     {
         if ( m_reconciliations.remove( reconciliation ) )
         {
-            /* If the reconciliation existed, we remove it from the remaining value */
-            m_valueRemaining.addValue( reconciliation.getValue() );
-                    
-            /* Notify any observers that a reconciliation has been removed */
-            // TODO: notifyObservers();
+            reconciliation.deleteObserver( this );
+            try
+            {
+                /* If the reconciliation existed, we remove it from the remaining value */
+                calculateValueRemaining();
+            }
+            catch( Exception e )
+            {}                    
             
             storeMemento();
         }
@@ -143,12 +149,13 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
     {
         // If there are no reconciliations at all then it is easy
         if ( null == m_reconciliations ||
-                m_reconciliations.isEmpty() )
+                m_reconciliations.isEmpty() ||
+                m_valueRemaining.equals( m_value ) )
         {
             return ReconciliationState.NONE;
         }
         
-        else if ( m_valueRemaining.isZero() )
+        if ( m_valueRemaining.isZero() )
         {
             return ReconciliationState.FULL;
         }
@@ -169,6 +176,29 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
             return "Nothing to see here, move along";
         }
     }   
+    
+    /**
+     * Listen for changes to reconciliations!
+     */
+    public void notifyDatabaseChange( ChangeType change, IDatabaseObject object ) throws BudgetManagerException
+    {
+        // If the update is for a reconciliation...
+        if ( object instanceof IReconciliation )
+        {
+            switch ( change )
+            {
+                case UPDATE:
+                    // Recalculate the remaining value
+                    calculateValueRemaining();
+                    break;
+                case DELETE:
+                    // Remove from the list
+                    removeReconciliation( (IReconciliation)object );
+                    break;
+            }
+        }
+    }
+            
     
     protected void parseResultSet( ResultSet results ) throws Exception
     {        
@@ -261,6 +291,27 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction
         ArrayList<IReconciliation> src = (ArrayList<IReconciliation>)state.getSomeState();
         reconcileObjectList( src, m_reconciliations );
         m_reconciliations = src;
+    }
+    
+    private void calculateValueRemaining() throws BudgetManagerException
+    {
+        MonetaryValue originalValue = new MonetaryValue( m_valueRemaining );
+        m_valueRemaining.setValue( m_value );
+        
+        // Go through the list of reconciliations and calculate the value remaining
+        for ( IReconciliation recon : m_reconciliations )
+        {
+            if ( recon.isValid() )
+            {
+                m_valueRemaining.subtractValue( recon.getValue() );
+            }
+        }
+        
+        if ( ! m_valueRemaining.equals( originalValue ) )
+        {
+            /* Notify any observers that the value reconciliation has changed */
+            notifyObservers( ChangeType.UPDATE );
+        }
     }
     
     private String m_note;

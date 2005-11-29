@@ -65,13 +65,13 @@ public interface IDatabaseObject
      * Add an observer to this databaseobject. The observer will be notified of changes to this object
      * @param o The observer to add
      */
-    void addObserver(Observer o);
+    void addObserver( IDataChangeObserver o );
     
     /**
      * Remove an observer from this object
      * @param o The observer to delete
      */
-    void deleteObserver(Observer o);
+    void deleteObserver( IDataChangeObserver o );
     
     void storeMemento();
     void restoreMemento( Memento state ) throws StateSyncException;

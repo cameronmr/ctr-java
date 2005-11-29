@@ -6,20 +6,22 @@
 
 package com.rochester.budget.core;
 
-import com.rochester.budget.core.DataChangeObserver.ChangeType;
+import com.rochester.budget.core.IDataChangeObserver.ChangeType;
+import com.rochester.budget.core.IDatabaseObject.DBState;
+import com.rochester.budget.core.exceptions.BudgetManagerException;
 import com.rochester.budget.core.exceptions.StateSyncException;
+import com.sun.java_cup.internal.emit;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.Observable;
 import java.util.UUID;
 
 /**
  *
  * @author Cam
  */
-public abstract class AbstractDatabaseObject extends Observable implements IDatabaseObject
+public abstract class AbstractDatabaseObject implements IDatabaseObject
 {    
         
     /** Creates a new instance of AbstractDatabaseObject from a known key (in the database) */
@@ -70,7 +72,12 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
         }
         
         // We notify observers regardless of the committed state
-        notifyObservers( ChangeType.DELETE );     
+        try
+        {
+            notifyObservers( ChangeType.DELETE );     
+        }
+        catch ( Exception emit )
+        {}
     }
     
     public void load( ) throws Exception
@@ -242,7 +249,29 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
     {
         return m_state == DBState.NEW;
     }
-        
+    
+    public void addObserver( IDataChangeObserver o )
+    {
+        // If it doesn't exist, add it
+        if ( ! m_observers.contains( o ) )   
+        {
+            m_observers.add( o );
+        }
+    }
+    
+    public void deleteObserver( IDataChangeObserver o )
+    {
+        m_observers.remove( o );
+    }
+              
+    protected void notifyObservers( ChangeType change ) throws BudgetManagerException
+    {
+        for ( IDataChangeObserver o : m_observers )
+        {
+            o.notifyDatabaseChange( change, this );
+        }
+    }
+    
     protected abstract void parseResultSet( ResultSet results ) throws Exception;        
     protected abstract void populateResultSet( ResultSet results ) throws Exception;
     protected abstract Memento getMemento( );
@@ -283,4 +312,5 @@ public abstract class AbstractDatabaseObject extends Observable implements IData
     private ArrayList<Memento> m_modifiedState = new ArrayList<Memento>();
     private Memento m_committedState = null;
     private DBState m_state = DBState.UNKNOWN;
+    private ArrayList<IDataChangeObserver> m_observers = new ArrayList<IDataChangeObserver>();
 }

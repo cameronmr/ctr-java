@@ -16,7 +16,7 @@ import java.util.HashMap;
  *
  * @author Cam
  */
-public class DataObjectMap<E extends IDatabaseObject> extends DataChangeObserver
+public class DataObjectMap<E extends IDatabaseObject> implements IDataChangeObserver
 {
     
     /** Creates a new instance of DatabaseMap */

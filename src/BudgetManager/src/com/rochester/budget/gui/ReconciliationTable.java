@@ -34,6 +34,7 @@ public class ReconciliationTable extends JTable
         setDefaultRenderer( MonetaryValue.class, new DefaultTableCellRenderer() );
         
         setDefaultEditor( ICategory.class, new CategoryCellEditor() );
+        setDefaultEditor( MonetaryValue.class, new MonetaryValueCellEditor() );
     }
     
 }
