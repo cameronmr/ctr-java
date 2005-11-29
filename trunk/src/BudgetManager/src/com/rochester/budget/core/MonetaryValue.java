@@ -17,7 +17,7 @@ public class MonetaryValue
     /**
      * Creates a new instance of MonetaryValue 
      */
-    public MonetaryValue( int cents )
+    public MonetaryValue( final int cents )
     {
         m_cents = cents;
     }
@@ -32,6 +32,22 @@ public class MonetaryValue
         int pos = value.indexOf('.');
         m_cents = ( Integer.parseInt( value.substring( 0, pos ) ) * 100 ) + Integer.parseInt( value.substring( pos + 1) );
     }
+        
+    public MonetaryValue( final Object value )
+    {
+        if ( value instanceof Double )
+        {            
+            Double val = (Double)value;
+            Double cents = val*100;
+            m_cents = cents.intValue();
+        }
+        else if ( value instanceof Long )
+        {            
+            Long val = (Long)value;
+            Long cents = val*100;
+            m_cents = cents.intValue();
+        }                    
+    }
     
     public String getCents()
     {
@@ -41,7 +57,7 @@ public class MonetaryValue
     public int getCentsAsInt()
     {
         return m_cents;
-    }
+    }   
     
     public void subtractValue( final MonetaryValue value ) throws BudgetManagerException
     {
@@ -62,6 +78,12 @@ public class MonetaryValue
     public void setValue( final MonetaryValue value )
     {
         m_cents = value.m_cents;
+    }
+    
+    public double getValue( )
+    {
+        double cents = m_cents;
+        return cents / 100;
     }
     
     public boolean isZero()

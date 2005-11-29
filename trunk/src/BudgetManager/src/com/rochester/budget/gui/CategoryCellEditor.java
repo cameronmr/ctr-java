@@ -14,7 +14,6 @@ import com.rochester.budget.core.ICategory;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import javax.swing.AbstractCellEditor;
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
@@ -30,6 +29,8 @@ public class CategoryCellEditor extends AbstractCellEditor implements TableCellE
     public CategoryCellEditor()
     {
         m_panel.setLayout( new BorderLayout() );
+        
+        m_categoryCombo = new CategoryComboBox( this );
         m_panel.add( m_categoryCombo, BorderLayout.CENTER );
     }
     
@@ -39,6 +40,9 @@ public class CategoryCellEditor extends AbstractCellEditor implements TableCellE
         ICategory category = (ICategory)value;
         m_categoryCombo.selectCategory( category );
         
+        m_selectedCol = column;
+        m_selectedRow = row;
+        m_table = table;
         return m_panel;
     }
         
@@ -54,9 +58,16 @@ public class CategoryCellEditor extends AbstractCellEditor implements TableCellE
     
     public boolean stopCellEditing()
     {
-        return super.stopCellEditing();
+        if ( super.stopCellEditing() )
+        {
+            m_table.setColumnSelectionInterval( m_selectedCol + 1, m_selectedCol + 1 );
+            return true;
+        }
+        return false;
     }
     
     private JPanel m_panel = new JPanel();
-    private CategoryComboBox m_categoryCombo = new CategoryComboBox();
+    private CategoryComboBox m_categoryCombo = null;
+    private int m_selectedCol, m_selectedRow;
+    private JTable m_table = null;
 }

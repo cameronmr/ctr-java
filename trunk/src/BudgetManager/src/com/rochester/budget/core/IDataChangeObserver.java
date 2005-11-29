@@ -1,20 +1,18 @@
 /*
- * DataChangeObserver.java
+ * IDataChangeObserver.java
  *
  * Created on 23 May 2005, 13:48
  */
 
 package com.rochester.budget.core;
-
-import java.util.Observable;
-import java.util.Observer;
+import com.rochester.budget.core.exceptions.BudgetManagerException;
 
 /**
  * This allows database objects to register as observers of other database objects. 
  * Allows observing objects to reload whenever a reload occurs
  * @author Cam
  */
-public abstract class DataChangeObserver implements Observer
+public interface IDataChangeObserver
 {
     enum ChangeType
     {
@@ -28,11 +26,5 @@ public abstract class DataChangeObserver implements Observer
      * @param change The type of change
      * @param object The object that has changed
      */
-    public abstract void notifyDatabaseChange( ChangeType change, IDatabaseObject object );
-    
-    public void update( Observable observable, Object obj )
-    {       
-        notifyDatabaseChange( (ChangeType)obj, (IDatabaseObject)observable );
-    }
-    
+    public void notifyDatabaseChange( ChangeType change, IDatabaseObject object ) throws BudgetManagerException;
 }

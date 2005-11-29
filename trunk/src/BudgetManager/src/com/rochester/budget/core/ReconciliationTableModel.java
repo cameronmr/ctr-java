@@ -10,15 +10,15 @@
 
 package com.rochester.budget.core;
 
+import com.rochester.budget.core.IDataChangeObserver.ChangeType;
 import java.util.ArrayList;
-import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 /**
  *
  * @author Cam
  */
-public class ReconciliationTableModel extends AbstractTableModel
+public class ReconciliationTableModel extends AbstractTableModel implements IDataChangeObserver
 {
     
     /** Creates a new instance of ReconciliationTableModel */
@@ -26,7 +26,7 @@ public class ReconciliationTableModel extends AbstractTableModel
     {
     }
     
-    public void setTransaction( ITransaction transaction ) throws Exception
+    public void setTransaction( ITransaction transaction )
     {                
         // When the transaction is applied ask the existing transaction to apply any changes that are necessary
         if ( null != m_newReconciliation )
@@ -37,28 +37,46 @@ public class ReconciliationTableModel extends AbstractTableModel
                 // If it hasn't been modified just delete it
                 m_newReconciliation.delete();
             }
-            else
-            {
-                // This will throw an exception if not valid
-                m_newReconciliation.commit();
-
-                m_transaction.addReconciliation( m_newReconciliation );
-            }
         }
 
-        m_transaction = transaction;
-
-        m_reconciliations = new ArrayList<IReconciliation>(transaction.getReconciliations());
+        m_reconciliations = new ArrayList<IReconciliation>( transaction.getReconciliations() );
 
         // If the transaction is not fully reconciled then create a reconciliation with the remaining amount
-        if ( m_transaction.getReconciliationState() != ITransaction.ReconciliationState.FULL )
+        if ( transaction.getReconciliationState() != ITransaction.ReconciliationState.FULL )
         {
-            m_newReconciliation = DataObjectFactory.newReconciliationForTransaction( m_transaction );
+            m_newReconciliation = DataObjectFactory.newReconciliationForTransaction( transaction );
             m_reconciliations.add( m_newReconciliation );
+            
+            try
+            {
+                // The transaction can also monitor changes to the reconciliation, to update value remaining, etc
+                transaction.addReconciliation( m_newReconciliation );
+            }
+            catch ( Exception e )
+            {
+                // a new reconciliation always has a value of zero and should not cause an exception to be thrown 
+            }
+            
+            // We want to observe the reconciliation to delete it if necessary
+            m_newReconciliation.addObserver( this );
         }
 
         // reload the table
         fireTableDataChanged();
+    }
+    
+    public void notifyDatabaseChange( ChangeType change, IDatabaseObject object )
+    {        
+        switch ( change )
+        {
+            case DELETE:
+                // remove from the list of reconciliations
+                m_reconciliations.remove( object );
+                break;
+            case UPDATE:
+                // Do nothing, the transaction is already listening to this!
+                break;
+        }        
     }
     
     public int getColumnCount() 
@@ -142,7 +160,7 @@ public class ReconciliationTableModel extends AbstractTableModel
                 recon.setNote( (String)value );
                 break;
             case 2:
-                recon.getValue();
+                recon.setValue( new MonetaryValue( value ) );
                 break;
         }
         
@@ -161,6 +179,5 @@ public class ReconciliationTableModel extends AbstractTableModel
     
     private String[] m_columns = { "Category", "Reconciliation Note", "Amount" };
     private ArrayList<IReconciliation> m_reconciliations = new ArrayList<IReconciliation>();
-    private ITransaction m_transaction;
     private IReconciliation m_newReconciliation;
 }
