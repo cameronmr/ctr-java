@@ -9,65 +9,46 @@
  */
 
 package com.rochester.budget.gui;
-
 import com.rochester.budget.core.ICategory;
-import java.awt.BorderLayout;
 import java.awt.Component;
-import javax.swing.AbstractCellEditor;
-import javax.swing.JPanel;
+import java.awt.event.ActionEvent;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
-import javax.swing.table.TableCellEditor;
 
 /**
  *
  * @author Cam
  */
-public class CategoryCellEditor extends AbstractCellEditor implements TableCellEditor
+public class CategoryCellEditor extends DefaultCellEditor// implements TableCellEditor
 {
     
     /** Creates a new instance of CategoryCellEditor */
-    public CategoryCellEditor()
+    public CategoryCellEditor( JTable table )
     {
-        m_panel.setLayout( new BorderLayout() );
-        
-        m_categoryCombo = new CategoryComboBox( this );
-        m_panel.add( m_categoryCombo, BorderLayout.CENTER );
+        super( new CategoryComboBox() );
+        m_categoryCombo = (CategoryComboBox)getComponent();
+        m_table = table;
     }
     
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) 
     {
-        // Update the label & the button
-        ICategory category = (ICategory)value;
-        m_categoryCombo.selectCategory( category );
+        m_categoryCombo.populateCategorys( );
         
-        m_selectedCol = column;
-        m_selectedRow = row;
-        m_table = table;
-        return m_panel;
+        return super.getTableCellEditorComponent(table, value, isSelected, row, column );
     }
-        
-    public Object getCellEditorValue()
-    {        
-        return m_categoryCombo.getSelectedItem();
-    }
-    
-    public void cancelCellEditing()
-    {
-        super.cancelCellEditing();
-    }
-    
+            
     public boolean stopCellEditing()
     {
         if ( super.stopCellEditing() )
         {
-            m_table.setColumnSelectionInterval( m_selectedCol + 1, m_selectedCol + 1 );
+            // For some reason focus was returning to the main transaction table..?
+            m_table.requestFocusInWindow();            
             return true;
         }
+        
         return false;
     }
     
-    private JPanel m_panel = new JPanel();
     private CategoryComboBox m_categoryCombo = null;
-    private int m_selectedCol, m_selectedRow;
     private JTable m_table = null;
 }

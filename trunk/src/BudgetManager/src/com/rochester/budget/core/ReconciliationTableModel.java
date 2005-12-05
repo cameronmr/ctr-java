@@ -27,7 +27,7 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
     }
     
     public void setTransaction( ITransaction transaction )
-    {                
+    {                        
         // When the transaction is applied ask the existing transaction to apply any changes that are necessary
         if ( null != m_newReconciliation )
         {
@@ -63,6 +63,28 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
 
         // reload the table
         fireTableDataChanged();
+    }
+    
+    public void deleteReconciliation( int item )
+    {
+        try
+        {
+            IReconciliation recon = m_reconciliations.get( item );
+
+            if ( null != recon )
+            {
+                // Delete the currently selected reconciliation, this should automatically update the transaction
+                // and it will automatically update us as well (we are observing the reconciliation)
+                recon.delete();           
+            }
+
+            // Don't need to do this as the change to the transaction will result in the table being redrawn
+            // fireTableDataChanged();
+        }
+        catch ( IndexOutOfBoundsException e )
+        {
+            // do nothing
+        }
     }
     
     public void notifyDatabaseChange( ChangeType change, IDatabaseObject object )
@@ -179,5 +201,5 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
     
     private String[] m_columns = { "Category", "Reconciliation Note", "Amount" };
     private ArrayList<IReconciliation> m_reconciliations = new ArrayList<IReconciliation>();
-    private IReconciliation m_newReconciliation;
+    private IReconciliation m_newReconciliation = null;
 }

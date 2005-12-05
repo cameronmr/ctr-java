@@ -73,20 +73,24 @@ public class BudgetManagerFrame extends JFrame
         // Add the tabbed contents
         // Transactions & Reconciliations
         ReconciliationPanel reconciliationPanel = new ReconciliationPanel();       
-        /* The ReconciliationPanel is an observer of the TransactionPanel! */ 
-        TransactionPanel transactionPanel = new TransactionPanel( reconciliationPanel );
-        
+            
                 
         JSplitPane reconPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
         reconPane.setOneTouchExpandable( true );
-        reconPane.setTopComponent( reconciliationPanel.getComponent() );
+        reconPane.setTopComponent( reconciliationPanel );
+        
+        // Call this now because we need to be added to the frame before the input map can be modified
+        reconciliationPanel.initComponents();
+        
+        /* The ReconciliationPanel is an observer of the TransactionPanel! */   
+        TransactionPanel transactionPanel = new TransactionPanel( reconciliationPanel );  
+        
         reconPane.setBottomComponent( transactionPanel.getComponent() );
         tabbedPane.add( "Transactions", reconPane );
         
         // TODO: Categories
         CategoryPanel categoryTree = new CategoryPanel();
-        tabbedPane.add( "Categories", categoryTree.getComponent() );
-        
+        tabbedPane.add( "Categories", categoryTree.getComponent() );        
         
         // TODO: Statements
         tabbedPane.add( "Statements", new JTextField( "Statements" ) );

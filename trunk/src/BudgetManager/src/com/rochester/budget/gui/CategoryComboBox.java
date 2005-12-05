@@ -28,13 +28,13 @@ import javax.swing.JOptionPane;
 public class CategoryComboBox extends JComboBox implements ActionListener
 {   
     /** Creates a new instance of CategoryComboBox */
-    public CategoryComboBox( AbstractCellEditor editor )
+    public CategoryComboBox( )
     {
-        addActionListener( this );
-        m_editor = editor;
+        //this.setEditable( true );
     }
     
-    public void selectCategory( final ICategory category )
+    
+    public void populateCategorys( )
     {        
         // Empty the combo box, disable it before emptying it to stop unnecessary messages
         m_editing = false;
@@ -54,10 +54,7 @@ public class CategoryComboBox extends JComboBox implements ActionListener
             
             // Add the new category placeholder
             this.addItem( m_newCategoryString );
-            
-            setSelectedItem( category );
-            m_selectedIndex = getSelectedIndex();
-            
+                        
             // Combo box has been repopulated, so enable it again
             m_editing = true;
         }
@@ -71,8 +68,7 @@ public class CategoryComboBox extends JComboBox implements ActionListener
     {
         if ( m_editing )
         {
-            JComboBox cb = (JComboBox)e.getSource();
-            Object newSelection = cb.getSelectedItem();
+            Object newSelection = this.getSelectedItem();
             if ( null != newSelection )
             {
                 if( newSelection.equals( m_newCategoryString ) )
@@ -80,7 +76,6 @@ public class CategoryComboBox extends JComboBox implements ActionListener
                     if ( JOptionPane.showConfirmDialog( this, "create new category..." ) == JOptionPane.OK_OPTION )
                     {
                         // Select the new               
-                        m_editor.stopCellEditing();
                     }
                     else
                     {
@@ -91,14 +86,14 @@ public class CategoryComboBox extends JComboBox implements ActionListener
                 else
                 {
                     m_selectedIndex = getSelectedIndex();
-                    m_editor.stopCellEditing();
                 }
             }
+            
+            super.actionPerformed( e );
         }
     }
     
     private final String m_newCategoryString = new String( "New Category..." );
     private int m_selectedIndex;
-    private AbstractCellEditor m_editor = null;
     private boolean m_editing = false;
 }
