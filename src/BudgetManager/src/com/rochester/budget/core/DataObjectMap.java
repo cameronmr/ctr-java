@@ -42,13 +42,13 @@ public class DataObjectMap<E extends IDatabaseObject> implements IDataChangeObse
         return m_dataObjects.values();
     }
     
+    // Observer is automatically deregistered on delete change!
     public void notifyDatabaseChange( ChangeType change, IDatabaseObject object )
     {
         switch ( change )
         {
             case DELETE:
-                // remove the item from the map & de-register the observer
-                object.deleteObserver( this );
+                // remove the item from the map
                 m_dataObjects.remove( object.getKey() );
                 break;
             default:

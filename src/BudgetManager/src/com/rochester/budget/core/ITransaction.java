@@ -59,5 +59,5 @@ public interface ITransaction extends IDatabaseObject
     
     void addReconciliation( IReconciliation reconciliation ) throws BudgetManagerException;
     
-    void removeReconciliation( IReconciliation reconciliation );
+    //void removeReconciliation( IReconciliation reconciliation );
 }

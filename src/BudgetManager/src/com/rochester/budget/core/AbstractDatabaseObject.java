@@ -270,6 +270,12 @@ public abstract class AbstractDatabaseObject implements IDatabaseObject
         {
             o.notifyDatabaseChange( change, this );
         }
+        
+        // If this is a delete we remove all the observers automatically
+        if ( ChangeType.DELETE == change )
+        {
+            m_observers.clear();
+        }
     }
     
     protected abstract void parseResultSet( ResultSet results ) throws Exception;        

@@ -9,57 +9,145 @@ package com.rochester.budget.gui;
 import com.rochester.budget.core.IDataChangeObserver;
 import com.rochester.budget.core.IDataChangeObserver.ChangeType;
 import com.rochester.budget.core.IDatabaseObject;
+import com.rochester.budget.core.IGUIComponent;
 import com.rochester.budget.core.ReconciliationTableModel;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.Observable;
-import com.rochester.budget.core.IObservingGUIComponent;
 import com.rochester.budget.core.ITransaction;
 import com.rochester.budget.core.ITransaction.ReconciliationState;
 import com.rochester.budget.core.exceptions.BudgetManagerException;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.Observer;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.ImageIcon;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 
 
 /**
  *
  * @author  Cam
  */
-public class ReconciliationPanel implements IObservingGUIComponent, IDataChangeObserver
+public class ReconciliationPanel extends JPanel implements IDataChangeObserver, Observer
 {
     
     /** Creates new form ReconciliationPanel */
     public ReconciliationPanel()
     {
-        initComponents();
     }
     
     /** This method is called from within the constructor to
      * initialize the form.
      */
-    private void initComponents()
+    public void initComponents()
     {
         m_reconciliationModel = new ReconciliationTableModel();
         m_reconciliationLabel = new javax.swing.JLabel();
-        m_reconciliationPanel = new JPanel();
         m_reconciliationTable = new ReconciliationTable( m_reconciliationModel );
+        //m_reconciliationTable.setSurrendersFocusOnKeystroke( true );
         m_reconciliationTable.setCellSelectionEnabled( true );
         m_amountRemainingLabel = new javax.swing.JLabel();
 
-        m_reconciliationPanel.setLayout(new java.awt.BorderLayout());
+        this.setLayout(new java.awt.BorderLayout());
 
         m_reconciliationLabel.setText( m_title );
-        m_reconciliationPanel.add( m_reconciliationLabel, java.awt.BorderLayout.NORTH );
-        m_reconciliationPanel.add( new JScrollPane( m_reconciliationTable ), java.awt.BorderLayout.CENTER);
+        this.add( m_reconciliationLabel, java.awt.BorderLayout.NORTH );
+        this.add( new JScrollPane( m_reconciliationTable ), java.awt.BorderLayout.CENTER);
 
         m_amountRemainingLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        m_amountRemainingLabel.setText( m_remaining );
-        m_reconciliationPanel.add(m_amountRemainingLabel, java.awt.BorderLayout.SOUTH);       
-    }
-
-    public void update( Observable observable, Object obj )
-    {
-        m_reconciliationTable.editingCanceled( null );
+        m_amountRemainingLabel.setText( m_remaining );                      
         
+        // Action associated with the delete button and 'D' key event        
+        Action deleteAction = new AbstractAction("Delete Reconciliation")
+        {
+            public void actionPerformed(ActionEvent e) 
+            {            
+                // delete the transaction!
+                m_reconciliationModel.deleteReconciliation( m_reconciliationTable.getSelectedRow() );
+            }
+        };
+        
+        // Action that will be associated with the next button and with
+        // the 'N' key event
+        Action nextAction = new AbstractAction("Next Transaction")
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                // Next Transaction
+            }
+        };
+
+        // Action that will be associated with the Previous button and with
+        // the 'P' key event
+        Action previousAction = new AbstractAction("Previous Transaction")
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                // Previous Transaction
+            }
+        };
+        
+        // Register Key Bindings for the 'O' and 'C' keys:
+        InputMap im = this.getInputMap( JComponent.WHEN_IN_FOCUSED_WINDOW );
+        ActionMap am = this.getActionMap();
+                
+        im.put( KeyStroke.getKeyStroke( KeyEvent.VK_D, java.awt.event.InputEvent.ALT_MASK ), "delete");
+        am.put( "delete", deleteAction );
+         
+        // Bottom buttons
+        JPanel buttonPanel = new JPanel( new BorderLayout(5,1) );
+        JButton deleteButton = new JButton( deleteAction );  
+        deleteButton.setIcon( createImageIcon( "res/delete.png" ) );
+        deleteButton.setMnemonic( KeyEvent.VK_D );
+        
+        JButton nextButton = new JButton( "Next Transaction", createImageIcon( "res/next.gif" ) );     
+        nextButton.setHorizontalTextPosition( SwingConstants.LEFT );
+        nextButton.setMnemonic( KeyEvent.VK_N );
+        nextButton.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                // next transaction!
+            }
+        }); 
+        
+        JButton previousButton = new JButton( "Previous Transaction", createImageIcon("res/prev.gif" ) );    
+        previousButton.setMnemonic( KeyEvent.VK_P );
+        previousButton.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                // previous transaction!
+            }
+        }); 
+        
+        
+        buttonPanel.add( deleteButton, BorderLayout.WEST );
+        JPanel middlePanel = new JPanel( new FlowLayout( FlowLayout.CENTER, 5, 1 ) );
+        middlePanel.add( previousButton );
+        middlePanel.add( nextButton );
+        buttonPanel.add( middlePanel, BorderLayout.CENTER );
+        buttonPanel.add( m_amountRemainingLabel, BorderLayout.EAST );
+        m_amountRemainingLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        m_amountRemainingLabel.setText( m_remaining );
+        
+        this.add( buttonPanel, java.awt.BorderLayout.SOUTH);    
+    }
+    
+    public void update( Observable observable, Object obj )
+    {        
         // Handle the new transaction!
         ITransaction trans = (ITransaction)obj;
         
@@ -67,16 +155,9 @@ public class ReconciliationPanel implements IObservingGUIComponent, IDataChangeO
         if ( null == trans )
         {
             return;
-        }        
+        }                     
         
-        // Listen to changes to the transaction so that we can update our labels
-        trans.addObserver( this );
-        
-        // Update the labels
-        updateLabels( trans );
-        
-        /* Pass to the ReconciliationTable to do some magic */
-        m_reconciliationModel.setTransaction( trans );       
+        updateTransaction( trans );
     }
     
     public void notifyDatabaseChange( ChangeType change, IDatabaseObject object ) throws BudgetManagerException
@@ -90,7 +171,7 @@ public class ReconciliationPanel implements IObservingGUIComponent, IDataChangeO
             // transaction on the panel again to add another transaction
             if ( trans.getReconciliationState() != ReconciliationState.FULL )
             {
-                m_reconciliationModel.setTransaction( trans );
+                updateTransaction( trans );
             }
         }
     }
@@ -98,6 +179,33 @@ public class ReconciliationPanel implements IObservingGUIComponent, IDataChangeO
     public Component getComponent()
     {
         return m_reconciliationPanel;
+    }
+    
+    private void updateTransaction( ITransaction trans )
+    {
+        m_reconciliationTable.editingCanceled( null );
+        m_reconciliationTable.requestFocusInWindow();
+                
+        // Listen to changes to the transaction so that we can update our labels
+        // Note: even if we are already an observer this can be called.
+        trans.addObserver( this );
+        
+        // Update the labels
+        updateLabels( trans );
+        
+        /* Pass to the ReconciliationTable to do some magic */
+        m_reconciliationModel.setTransaction( trans );
+        
+        // select the item at the starting point..
+        m_reconciliationTable.changeSelection( 0, 0, false, false );         
+    }
+    
+    private ImageIcon createImageIcon(String path) 
+    {
+        java.net.URL imgURL = ClassLoader.getSystemClassLoader().getResource(path);
+
+        //error handling omitted for clarity...
+        return new ImageIcon(imgURL);
     }
     
     private void updateLabels( ITransaction trans )

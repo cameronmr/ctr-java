@@ -123,19 +123,11 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
         storeMemento();
     }
     
-    public void removeReconciliation(IReconciliation reconciliation)
+    // This can not be called externally, explicitly delete the reconciliation
+    private void removeReconciliation(IReconciliation reconciliation)
     {
         if ( m_reconciliations.remove( reconciliation ) )
-        {
-            reconciliation.deleteObserver( this );
-            try
-            {
-                /* If the reconciliation existed, we remove it from the remaining value */
-                calculateValueRemaining();
-            }
-            catch( Exception e )
-            {}                    
-            
+        {            
             storeMemento();
         }
     }
@@ -194,6 +186,7 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
                 case DELETE:
                     // Remove from the list
                     removeReconciliation( (IReconciliation)object );
+                    calculateValueRemaining();
                     break;
             }
         }
@@ -271,7 +264,6 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
         return new Memento( isValid(), 
                 (m_note == null) ? null : new String( m_note ),
                 new MonetaryValue( m_value ), 
-                new MonetaryValue( m_valueRemaining ), 
                 m_account,
                 new String( m_narrative ), 
                 new Date( m_date.getTime() ),
@@ -282,7 +274,6 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
     {
         m_note = (String)state.getSomeState();
         m_value = (MonetaryValue)state.getSomeState();
-        m_valueRemaining = (MonetaryValue)state.getSomeState();
         m_account = (IAccount)state.getSomeState();
         m_narrative = (String)state.getSomeState();
         m_date = (Date)state.getSomeState();
@@ -291,6 +282,15 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
         ArrayList<IReconciliation> src = (ArrayList<IReconciliation>)state.getSomeState();
         reconcileObjectList( src, m_reconciliations );
         m_reconciliations = src;
+        
+        try
+        {
+            calculateValueRemaining();
+        }
+        catch( Exception e )
+        {
+            // TODO;
+        }
     }
     
     private void calculateValueRemaining() throws BudgetManagerException
