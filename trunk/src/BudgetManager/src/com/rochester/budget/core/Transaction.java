@@ -5,6 +5,7 @@
  */
 
 package com.rochester.budget.core;
+import com.rochester.budget.core.IDataChangeObserver.ChangeType;
 import com.rochester.budget.core.ITransaction.ReconciliationState;
 import com.rochester.budget.core.exceptions.BudgetManagerException;
 import com.rochester.budget.core.exceptions.StateSyncException;

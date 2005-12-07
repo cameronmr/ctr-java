@@ -12,7 +12,6 @@ package com.rochester.budget.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
@@ -62,9 +61,7 @@ public class BudgetManagerFrame extends JFrame
         fileMenu.add(menuItem);
         
         setJMenuBar( menuBar );
-        
-        this.setPreferredSize( new Dimension(1024, 768) );
-        
+               
         // Setup the tabbed layout
         Container pane = getContentPane();
         JTabbedPane tabbedPane = new JTabbedPane();
@@ -72,20 +69,20 @@ public class BudgetManagerFrame extends JFrame
         
         // Add the tabbed contents
         // Transactions & Reconciliations
-        ReconciliationPanel reconciliationPanel = new ReconciliationPanel();       
-            
-                
+        ReconciliationPanel reconciliationPanel = new ReconciliationPanel();   
+        TransactionPanel transactionPanel = new TransactionPanel();         
+        
+        /* The ReconciliationPanel listens for changes to transaction selection */   
+        transactionPanel.addActionListener( reconciliationPanel );
+        
+        /* The TransactionPanel listens for changes to reconciliation state */
+        reconciliationPanel.addActionListener( transactionPanel );
+        
         JSplitPane reconPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
         reconPane.setOneTouchExpandable( true );
         reconPane.setTopComponent( reconciliationPanel );
-        
-        // Call this now because we need to be added to the frame before the input map can be modified
-        reconciliationPanel.initComponents();
-        
-        /* The ReconciliationPanel is an observer of the TransactionPanel! */   
-        TransactionPanel transactionPanel = new TransactionPanel( reconciliationPanel );  
-        
         reconPane.setBottomComponent( transactionPanel.getComponent() );
+        
         tabbedPane.add( "Transactions", reconPane );
         
         // TODO: Categories
@@ -108,7 +105,9 @@ public class BudgetManagerFrame extends JFrame
         pack();
         setVisible(true);        
         
-        // Set the divider to be 15% of the screen size
-        reconPane.setDividerLocation( 0.15 );
+        // Set the divider to be 16% of the screen size
+        reconPane.setDividerLocation( 0.16 );
+        
+        this.setExtendedState(MAXIMIZED_BOTH);
     }
 }

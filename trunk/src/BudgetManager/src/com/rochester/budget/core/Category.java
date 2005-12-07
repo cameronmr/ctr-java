@@ -51,6 +51,11 @@ public class Category extends AbstractDatabaseObject implements ICategory
         {
             m_parent = DataObjectFactory.loadCategory( parentKey );
         }
+        else
+        {
+            // This is the root category!
+            m_isRoot = true;
+        }
         
         // Get the associated account
         m_account = DataObjectFactory.loadAccount( results.getString( "CATEGORY_ACC_FKEY" ) );
@@ -84,13 +89,14 @@ public class Category extends AbstractDatabaseObject implements ICategory
     public String toString()
     {
         ICategory parent = getParent();
-        if ( null == parent )
+        if ( null == parent ||
+                parent.isRootNode() )
         {
             return getName();
         }
         else
         {
-            return parent.getName() + "/" + getName();
+            return parent.toString() + "/" + getName();
         }
     }
     
@@ -105,6 +111,11 @@ public class Category extends AbstractDatabaseObject implements ICategory
     public boolean hasChildren( )
     {
         return !m_children.isEmpty();
+    }
+    
+    public boolean isRootNode()
+    {
+        return m_isRoot;
     }
     
     public List<ICategory> getChildren()
@@ -174,6 +185,7 @@ public class Category extends AbstractDatabaseObject implements ICategory
     private String m_description = null;
     private IAccount m_account = null;
     private ICategory m_parent = null;
+    private boolean m_isRoot = false;
  
     private ArrayList<ICategory> m_children = new ArrayList<ICategory>();    
 }
