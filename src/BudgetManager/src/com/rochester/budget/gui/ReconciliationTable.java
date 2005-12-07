@@ -12,7 +12,6 @@ package com.rochester.budget.gui;
 
 import com.rochester.budget.core.ICategory;
 import com.rochester.budget.core.MonetaryValue;
-import com.rochester.budget.core.ReconciliationTableModel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;

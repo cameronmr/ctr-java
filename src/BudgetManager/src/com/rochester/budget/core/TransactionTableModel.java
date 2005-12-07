@@ -18,13 +18,19 @@ import javax.swing.table.AbstractTableModel;
  *
  * @author Cam
  */
-public class TransactionTableModel extends AbstractTableModel
+public class TransactionTableModel extends AbstractTableModel implements IDataChangeObserver
 {
     public TransactionTableModel( )
     {
         m_columns = Transaction.getColumns();
         m_transactions = new Vector<ITransaction>( DataObjectFactory.getTransactions( ) );
         Collections.sort( m_transactions, ITransaction.TRANSACTION_DATE_ORDER );
+        
+        // Observe any changes to the transactions
+        for ( ITransaction trans : m_transactions )
+        {
+            trans.addObserver( this );
+        }
     }
     
     public int getColumnCount() 
@@ -63,6 +69,20 @@ public class TransactionTableModel extends AbstractTableModel
         return m_transactions.get( row );
     }
 
+    public void notifyDatabaseChange( ChangeType change, IDatabaseObject object )
+    {
+        // Find the item in the collection and update the table
+        if ( ChangeType.UPDATE == change )
+        {
+            // Update the reconciliation status
+            int row = m_transactions.indexOf( object );
+            if ( row >= 0 )
+            {
+                fireTableCellUpdated( row, 0 );
+            }
+        }
+    }
+    
     /*
      * Don't need to implement this method unless your table's
      * editable.

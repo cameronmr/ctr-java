@@ -13,9 +13,9 @@ package com.rochester.budget.gui;
 import com.rochester.budget.core.TransactionTableModel;
 import java.awt.Component;
 import com.rochester.budget.core.IGUIComponent;
-import com.rochester.budget.core.exceptions.StateSyncException;
-import java.util.Observable;
-import java.util.Observer;
+import java.awt.AWTEventMulticaster;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -26,13 +26,12 @@ import javax.swing.event.ListSelectionListener;
  *
  * @author Cam
  */
-public class TransactionPanel extends Observable implements IGUIComponent
+public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetActionPublisher
 {
     
     /** Creates a new instance of TransactionPanel */
-    public TransactionPanel( Observer observer )
+    public TransactionPanel( )
     {        
-        addObserver( observer );
         initComponents();        
     }
     
@@ -50,24 +49,22 @@ public class TransactionPanel extends Observable implements IGUIComponent
                 //Ignore extra messages.
                 if ( e.getValueIsAdjusting() ) return;
                 
-                setChanged();
-
                 ListSelectionModel lsm =
                     (ListSelectionModel)e.getSource();
                 
                 if ( lsm.isSelectionEmpty() )
                 {
                     // Remove the selected transaction
-                    notifyObservers( null );
+                    fireActionEvent( 3, null );
                 }
                 else 
                 {
                     // Set the selected transaction
                     try
                     {
-                        notifyObservers( m_transactionModel.getTransactionAt( lsm.getMinSelectionIndex() ) );
-                        m_transactionModel.fireTableRowsUpdated( selectedRow, selectedRow );
-                        selectedRow = lsm.getMinSelectionIndex();
+                        fireActionEvent( 3, m_transactionModel.getTransactionAt( lsm.getMinSelectionIndex() ) );
+                        m_transactionModel.fireTableRowsUpdated( m_currentRow, m_currentRow );
+                        m_currentRow = lsm.getMinSelectionIndex();
                     }
                     catch ( Exception ex )
                     {
@@ -76,14 +73,27 @@ public class TransactionPanel extends Observable implements IGUIComponent
                         lsm.setValueIsAdjusting( true );
                         
                         // The item is in a valid state so go back to the previous selection
-                        m_transactionTable.setRowSelectionInterval( selectedRow, selectedRow );
+                        m_transactionTable.setRowSelectionInterval( m_currentRow, m_currentRow );
                     }
                 }
             }
         });
-        
-        // Select the first row at startup
-        m_transactionTable.setRowSelectionInterval( 0, 0 );
+    }
+    
+    public void actionPerformed( ActionEvent e )
+    {
+        // Constants defined in IBudgetActionPublisher
+        switch ( e.getID() )
+        {
+            case NEXT_TRANSACTION:
+                // Select the next row
+                m_transactionTable.changeSelection( m_transactionTable.getSelectedRow() + 1 , 0, false, false );
+                break;
+            case PREV_TRANSACTION:
+                // Select the previous row
+                m_transactionTable.changeSelection( m_transactionTable.getSelectedRow() - 1 , 0, false, false );
+                break;
+        }
     }
     
     public Component getComponent()
@@ -91,8 +101,25 @@ public class TransactionPanel extends Observable implements IGUIComponent
         return m_scrollPane;
     }
     
-    TransactionTable m_transactionTable;
-    TransactionTableModel m_transactionModel;
-    JScrollPane m_scrollPane;
-    int selectedRow;
+    public synchronized void addActionListener(ActionListener l)
+    {   
+        m_subscribers = AWTEventMulticaster.add(m_subscribers, l);
+    }
+    public synchronized void removeActionListener(ActionListener l)
+    {   
+        m_subscribers = AWTEventMulticaster.remove(m_subscribers, l);
+    }
+    private void fireActionEvent( int id, Object object )
+    {   
+        if (m_subscribers != null)
+        {
+             m_subscribers.actionPerformed(new ActionEvent(object, id, "") );
+        }
+    }
+    
+    private TransactionTable m_transactionTable;
+    private TransactionTableModel m_transactionModel;
+    private JScrollPane m_scrollPane;
+    private int m_currentRow;
+    private ActionListener m_subscribers = null;    
 }

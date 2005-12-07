@@ -36,6 +36,8 @@ public interface ICategory extends IDatabaseObject
     
     boolean hasChildren( );
     
+    boolean isRootNode();
+    
     List<ICategory> getChildren();
     
     List<ICategory> getDescendants();    
