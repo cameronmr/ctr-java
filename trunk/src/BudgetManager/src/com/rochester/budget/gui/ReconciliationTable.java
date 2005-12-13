@@ -13,6 +13,7 @@ package com.rochester.budget.gui;
 import com.rochester.budget.core.ICategory;
 import com.rochester.budget.core.MonetaryValue;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
@@ -27,6 +28,8 @@ public class ReconciliationTable extends JTable
     public ReconciliationTable( TableModel model )
     {
         super( model );
+        
+        setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
         
         // TODO: Get the classes from the table model
         setDefaultRenderer( ICategory.class, new DefaultTableCellRenderer() );

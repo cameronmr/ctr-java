@@ -23,7 +23,7 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
     public TransactionTableModel( )
     {
         m_columns = Transaction.getColumns();
-        m_transactions = new Vector<ITransaction>( DataObjectFactory.getTransactions( ) );
+        m_transactions = new Vector<ITransaction>( DataObjectFactory.loadTransactions( ) );
         Collections.sort( m_transactions, ITransaction.TRANSACTION_DATE_ORDER );
         
         // Observe any changes to the transactions

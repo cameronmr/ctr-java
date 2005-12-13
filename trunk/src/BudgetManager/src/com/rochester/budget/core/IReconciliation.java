@@ -21,10 +21,7 @@ public interface IReconciliation extends IDatabaseObject
     
     ICategory getCatecory();          
     void setCategory( final ICategory category );
-    
-    //IAccount getAccount();    
-    //void ICategory
-    
+        
     String getNote();
     void setNote( final String note );
 }

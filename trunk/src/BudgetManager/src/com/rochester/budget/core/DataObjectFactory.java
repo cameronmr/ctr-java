@@ -122,12 +122,10 @@ public class DataObjectFactory
         return transaction;
     }
     
-    public static Collection<ITransaction> getTransactions()
+    public static Collection<ITransaction> loadTransactions()
     {
-        if ( !m_transactionsLoaded )
-        {
-            m_transactionsLoaded = true; 
-            
+        if ( ! m_transactions.allLoaded() )        
+        {            
             try
             {
                 String sql = new String( "select PKEY from TRANSACTION" );
@@ -147,6 +145,9 @@ public class DataObjectFactory
                         System.out.println( e.toString() );
                     }
                 }
+                
+                // Flag the data as loaded
+                m_transactions.setLoaded();
 
                 results.close();
             }
@@ -180,6 +181,45 @@ public class DataObjectFactory
         }
         
         return account;
+    }
+    
+    public static Collection<IAccount> loadAccounts( )
+    {
+        if ( ! m_accounts.allLoaded() )
+        {
+            try
+            {
+                String sql = new String( "select PKEY from ACCOUNT" );
+
+                // the statement object will be automatically cleaned up when garbage collected
+                ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+                while ( results.next() )
+                {
+                    try
+                    {
+                        loadAccount( results.getString("PKEY") );
+                    }
+                    catch( AccountNotFoundException e )
+                    {
+                        // TODO: handling creation of new account 
+                        System.out.println( e.toString() );
+                    }
+                }
+
+                m_accounts.setLoaded();
+                
+                results.close();
+            }
+            catch ( Exception t )
+            {
+                t.printStackTrace();
+                // TODO: error handling
+                return null;
+            }
+        }
+        
+        return m_accounts.values();
     }
     
     /******************************** CATEGORY ************************************/
@@ -253,6 +293,13 @@ public class DataObjectFactory
         }        
     }
     
+    public static ICategory newChildCategory( ICategory parent, IAccount account, final String name ) throws Exception
+    {
+        ICategory cat = new Category( parent, account, name );
+                
+        return cat;
+    }
+     
     /************************** RECONCILIATION ***********************************/
     
     public static IReconciliation loadReconciliation( final String reconKey ) throws ReconciliationNotFoundException
@@ -304,5 +351,4 @@ public class DataObjectFactory
     private static DataObjectMap<IAccount> m_accounts = new DataObjectMap<IAccount>();
     private static DataObjectMap<ICategory> m_categories = new DataObjectMap<ICategory>();
     private static DataObjectMap<IReconciliation> m_reconciliations = new DataObjectMap<IReconciliation>();
-    private static boolean m_transactionsLoaded = false;
 }

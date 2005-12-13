@@ -34,7 +34,7 @@ public class Account extends AbstractDatabaseObject implements IAccount
     
     public String toString()
     {
-        return m_accountName + " - " + m_accountDescription;
+        return m_accountName + " (" + getKey() + ")";
     }
 
     protected void parseResultSet(ResultSet results) throws Exception

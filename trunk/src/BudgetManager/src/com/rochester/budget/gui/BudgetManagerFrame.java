@@ -15,6 +15,7 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -86,8 +87,18 @@ public class BudgetManagerFrame extends JFrame
         tabbedPane.add( "Transactions", reconPane );
         
         // TODO: Categories
-        CategoryPanel categoryTree = new CategoryPanel();
-        tabbedPane.add( "Categories", categoryTree.getComponent() );        
+        CategoryTreePanel categoryTree = new CategoryTreePanel();
+        JSplitPane catVPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
+        JSplitPane catHPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
+        catHPane.setOneTouchExpandable( true );
+        catVPane.setOneTouchExpandable( true );
+        
+        catHPane.setLeftComponent( categoryTree.getComponent() );
+        catHPane.setRightComponent( new JLabel( "TODO") );
+        catVPane.setTopComponent( catHPane );
+        catVPane.setBottomComponent( new JLabel( "TODO") );
+                
+        tabbedPane.add( "Categories", catVPane );        
         
         // TODO: Statements
         tabbedPane.add( "Statements", new JTextField( "Statements" ) );
@@ -107,6 +118,9 @@ public class BudgetManagerFrame extends JFrame
         
         // Set the divider to be 16% of the screen size
         reconPane.setDividerLocation( 0.16 );
+        
+        catHPane.setDividerLocation( 0.30 );
+        catVPane.setDividerLocation( 0.5 );
         
         this.setExtendedState(MAXIMIZED_BOTH);
     }

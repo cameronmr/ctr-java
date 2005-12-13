@@ -167,6 +167,11 @@ public abstract class AbstractDatabaseObject implements IDatabaseObject
             // Notify any observers that we have changed
             notifyObservers( ChangeType.UPDATE );
         }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw e;
+        }
         finally
         {
             stmt.close();
