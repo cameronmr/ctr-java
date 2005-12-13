@@ -39,6 +39,12 @@ public class CategoryCellEditor extends DefaultCellEditor// implements TableCell
             
     public boolean stopCellEditing()
     {
+        // We don't want the default behaviour to occur when the new category is selected
+        if ( m_categoryCombo.isNewCategorySelected() )
+        {
+            return true;
+        }
+                    
         if ( super.stopCellEditing() )
         {
             // For some reason focus was returning to the main transaction table..?

@@ -25,12 +25,16 @@ public interface ICategory extends IDatabaseObject
     };
     
     String getName();
+    void setName( final String name );
     
     String getDescription();
+    void setDescription( final String description );
     
     ICategory getParent();
+    void setParent( ICategory parent );
     
     IAccount getAccount();
+    void setAccount( IAccount account );    
     
     void addCategory( ICategory category );
     

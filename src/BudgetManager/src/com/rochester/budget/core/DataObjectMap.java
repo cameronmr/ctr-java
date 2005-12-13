@@ -56,5 +56,16 @@ public class DataObjectMap<E extends IDatabaseObject> implements IDataChangeObse
         }
     }
     
-    HashMap<String, E> m_dataObjects = new HashMap<String, E>();    
+    public boolean allLoaded()
+    {
+        return m_isLoaded;
+    }
+    
+    public void setLoaded()
+    {
+        m_isLoaded = true;
+    }
+    
+    private HashMap<String, E> m_dataObjects = new HashMap<String, E>();   
+    private boolean m_isLoaded = false;
 }

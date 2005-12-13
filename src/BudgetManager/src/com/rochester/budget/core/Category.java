@@ -13,8 +13,8 @@ import com.rochester.budget.core.exceptions.CategoryNotFoundException;
 import com.rochester.budget.core.exceptions.StateSyncException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
 
 /**
  *
@@ -36,6 +36,16 @@ public class Category extends AbstractDatabaseObject implements ICategory
         {
             throw new CategoryNotFoundException( e.toString() );
         }
+    }
+    
+    protected Category( ICategory parent, IAccount account, final String name ) throws Exception
+    {
+        setParent( parent );
+        m_name = new String( name );
+        setAccount( account );
+        
+        // We have enough info to commit here
+        commit();
     }
     
     protected void parseResultSet(ResultSet results) throws Exception
@@ -63,7 +73,13 @@ public class Category extends AbstractDatabaseObject implements ICategory
     
     protected void populateResultSet( ResultSet results ) throws Exception
     { 
-        // TODO
+        // update the database object
+        results.updateString( "PKEY", getKey() );
+        results.updateString( "CATEGORY_NAME", m_name );
+        results.updateString( "CATEGORY_DESCRIPTION", m_description );
+        results.updateBoolean( "CATEGORY_ACTIVE", m_isActive );
+        results.updateString( "CATEGORY_PARENT_FKEY", m_parent.getKey() );
+        results.updateString( "CATEGORY_ACC_FKEY", m_account.getKey() );
     }
     
     public String getName()
@@ -71,9 +87,23 @@ public class Category extends AbstractDatabaseObject implements ICategory
         return m_name;
     }
     
+    public void setName( final String name )
+    {
+        m_name = new String( name );
+        
+        storeMemento();
+    }
+    
     public String getDescription()
     {
         return m_description;
+    }
+    
+    public void setDescription( final String description )
+    {
+        m_description = new String( description );
+        
+        storeMemento();
     }
     
     public ICategory getParent()
@@ -81,9 +111,27 @@ public class Category extends AbstractDatabaseObject implements ICategory
         return m_parent;
     }
     
+    public void setParent( ICategory parent )
+    {
+        m_parent = parent;
+        
+        // Add ourselves to the parent
+        parent.addCategory( this );
+        
+        storeMemento();
+    }
+    
     public IAccount getAccount()
     {
         return m_account;
+    }
+    
+    public void setAccount( IAccount account )
+    {
+        // TODO: Should we be listening to changes to the account?
+        m_account = account;
+        
+        storeMemento();
     }
     
     public String toString()
@@ -151,7 +199,6 @@ public class Category extends AbstractDatabaseObject implements ICategory
     {
         // Check to see if this item is valid at this current time
         return m_name != null &&
-                m_description != null &&
                 m_account != null &&
                 m_parent != null;
         
@@ -161,8 +208,10 @@ public class Category extends AbstractDatabaseObject implements ICategory
     public Memento getMemento()
     {
         return new Memento( isValid(), 
-                new String( m_name ), 
-                new String( m_description ), 
+                ( m_name == null ) ? null : new String( m_name ), 
+                ( m_description == null ) ? null : new String( m_description ), 
+                m_isActive,
+                m_isRoot,
                 m_account, // Original reference, not copy
                 m_parent, // Original reference, not copy
                 new ArrayList<ICategory>( m_children ) ); // new vector, but do not create new copy of all contents
@@ -172,6 +221,8 @@ public class Category extends AbstractDatabaseObject implements ICategory
     {
         m_name = (String)state.getSomeState();
         m_description = (String)state.getSomeState();
+        m_isActive = (Boolean)state.getSomeState();
+        m_isRoot = (Boolean)state.getSomeState();
         m_account = (IAccount)state.getSomeState();
         m_parent = (ICategory)state.getSomeState();
         
@@ -179,13 +230,14 @@ public class Category extends AbstractDatabaseObject implements ICategory
         ArrayList<ICategory> src = (ArrayList<ICategory>)state.getSomeState();
         reconcileObjectList( src, m_children );
         m_children = src;
-    }
-        
+    }    
+    
     private String m_name = null;
     private String m_description = null;
     private IAccount m_account = null;
     private ICategory m_parent = null;
     private boolean m_isRoot = false;
+    private boolean m_isActive = false;
  
     private ArrayList<ICategory> m_children = new ArrayList<ICategory>();    
 }

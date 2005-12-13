@@ -15,11 +15,10 @@ import com.rochester.budget.core.ICategory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  *
@@ -30,7 +29,8 @@ public class CategoryComboBox extends JComboBox implements ActionListener
     /** Creates a new instance of CategoryComboBox */
     public CategoryComboBox( )
     {
-        //this.setEditable( true );
+        populateCategorys();
+        addActionListener( this );
     }
     
     
@@ -68,29 +68,51 @@ public class CategoryComboBox extends JComboBox implements ActionListener
     {
         if ( m_editing )
         {
-            Object newSelection = this.getSelectedItem();
-            if ( null != newSelection )
-            {
-                if( newSelection.equals( m_newCategoryString ) )
-                {            
-                    if ( JOptionPane.showConfirmDialog( this, "create new category..." ) == JOptionPane.OK_OPTION )
+            if( isNewCategorySelected() )
+            {   
+                CategoryCreatePanel panel = new CategoryCreatePanel( null );
+                if ( JOptionPane.showConfirmDialog( null, panel, "Create New Category...", JOptionPane.OK_CANCEL_OPTION ) == JOptionPane.OK_OPTION )
+                {
+                    try
                     {
-                        // Select the new               
+                        ICategory newCat = panel.getCategory(); 
+                        
+                        // Select the new      
+                        populateCategorys();
+                        setSelectedItem( newCat );
                     }
-                    else
+                    catch ( Exception ex )
                     {
+                        JOptionPane.showMessageDialog( null, ex, "Error", JOptionPane.ERROR_MESSAGE );
                         // select the original
-                        setSelectedIndex( m_selectedIndex );
+                        setSelectedIndex( m_selectedIndex );                        
                     }
                 }
                 else
                 {
-                    m_selectedIndex = getSelectedIndex();
+                    // select the original
+                    setSelectedIndex( m_selectedIndex );
                 }
             }
+            else
+            {
+                m_selectedIndex = getSelectedIndex();
+            }
             
-            super.actionPerformed( e );
+            //super.actionPerformed( e );
         }
+    }
+    
+    public boolean isNewCategorySelected( )
+    {
+        Object newSelection = this.getSelectedItem();
+        if ( newSelection != null &&
+            newSelection.equals( m_newCategoryString ) )
+        {
+            return true;
+        }
+        
+        return false;
     }
     
     private final String m_newCategoryString = new String( "New Category..." );

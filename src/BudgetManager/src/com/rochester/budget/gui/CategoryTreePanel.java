@@ -1,5 +1,5 @@
 /*
- * CategoryPanel.java
+ * CategoryTreePanel.java
  *
  * Created on 6 September 2005, 19:22
  *
@@ -30,7 +30,7 @@ import javax.swing.tree.TreePath;
  *
  * @author Cam
  */
-public class CategoryPanel implements IGUIComponent
+public class CategoryTreePanel implements IGUIComponent
 {
     class CategoryNode extends DefaultMutableTreeNode
     {
@@ -58,11 +58,18 @@ public class CategoryPanel implements IGUIComponent
             return m_category.getName();
         }
         
+        public ICategory getCategory()
+        {
+            return m_category;
+        }
+        
         private ICategory m_category;
     }
         
-    /** Creates a new instance of CategoryPanel */
-    public CategoryPanel() 
+    /**
+     * Creates a new instance of CategoryTreePanel 
+     */
+    public CategoryTreePanel() 
     {
         initComponents();
     }
@@ -109,15 +116,15 @@ public class CategoryPanel implements IGUIComponent
             public void actionPerformed( ActionEvent e )
             {
                 // Popup menu
-                JOptionPane.showMessageDialog( null, "add" );
+                addCategory();
             }
         };
-        Action removeAction = new AbstractAction( "Remove sub-category" )
+        Action removeAction = new AbstractAction( "Disable" )
         {
             public void actionPerformed( ActionEvent e )
             {
                 // Popup menu
-                JOptionPane.showMessageDialog( null, "remove" );
+                JOptionPane.showMessageDialog( null, "disable" );
             }
         };
         
@@ -130,6 +137,42 @@ public class CategoryPanel implements IGUIComponent
     public Component getComponent()
     {    
         return m_scrollPane;
+    }
+    
+    private void addCategory( )
+    {        
+        TreePath parentPath = m_categoryTree.getSelectionPath();
+
+        if ( parentPath != null) 
+        {
+            CategoryNode parentNode = (CategoryNode)(parentPath.getLastPathComponent()); 
+            
+            CategoryCreatePanel panel = new CategoryCreatePanel( parentNode.getCategory() );
+            
+            if ( JOptionPane.showConfirmDialog( null, panel, "Create New Category...", JOptionPane.OK_CANCEL_OPTION ) == JOptionPane.OK_OPTION )
+            {
+                try
+                {
+                    CategoryNode childNode = new CategoryNode( panel.getCategory() );
+                    
+                    parentNode.add( childNode );
+                    
+                    m_categoryTree.updateUI();
+                            
+                    // Make sure the user can see the lovely new node.
+                    m_categoryTree.makeVisible( new TreePath( childNode.getPath() ) );
+                }
+                catch ( Exception ex )
+                {
+                    JOptionPane.showMessageDialog( null, ex, "Error", JOptionPane.ERROR_MESSAGE );
+                }
+            }
+        }
+    }
+    
+    private void disableCategory( )
+    {
+        
     }
     
     JTree m_categoryTree;
