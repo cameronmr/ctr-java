@@ -23,6 +23,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -111,6 +113,8 @@ public class BudgetManagerFrame extends JFrame
         
         // TODO: Filter?
         tabbedPane.add( "Filters", new JTextField( "Filters" ) );
+                
+        tabbedPane.addChangeListener( categoryTree );
         
         //Display the window.
         pack();

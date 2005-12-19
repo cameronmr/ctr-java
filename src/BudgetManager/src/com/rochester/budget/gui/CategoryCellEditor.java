@@ -9,9 +9,7 @@
  */
 
 package com.rochester.budget.gui;
-import com.rochester.budget.core.ICategory;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
 
@@ -19,7 +17,7 @@ import javax.swing.JTable;
  *
  * @author Cam
  */
-public class CategoryCellEditor extends DefaultCellEditor// implements TableCellEditor
+public class CategoryCellEditor extends DefaultCellEditor
 {
     
     /** Creates a new instance of CategoryCellEditor */

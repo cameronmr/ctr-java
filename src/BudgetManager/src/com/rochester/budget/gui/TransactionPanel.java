@@ -55,14 +55,14 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
                 if ( lsm.isSelectionEmpty() )
                 {
                     // Remove the selected transaction
-                    fireActionEvent( 3, null );
+                    fireActionEvent( TRANS_SELECTION_CHANGED, null );
                 }
                 else 
                 {
                     // Set the selected transaction
                     try
                     {
-                        fireActionEvent( 3, m_transactionModel.getTransactionAt( lsm.getMinSelectionIndex() ) );
+                        fireActionEvent( TRANS_SELECTION_CHANGED, m_transactionModel.getTransactionAt( lsm.getMinSelectionIndex() ) );
                         m_transactionModel.fireTableRowsUpdated( m_currentRow, m_currentRow );
                         m_currentRow = lsm.getMinSelectionIndex();
                     }
