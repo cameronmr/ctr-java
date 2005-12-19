@@ -17,20 +17,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Enumeration;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTree;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 /**
  *
  * @author Cam
  */
-public class CategoryTreePanel implements IGUIComponent
+public class CategoryTreePanel implements IGUIComponent, ChangeListener
 {
     class CategoryNode extends DefaultMutableTreeNode
     {
@@ -65,11 +70,11 @@ public class CategoryTreePanel implements IGUIComponent
         
         private ICategory m_category;
     }
-        
+    
     /**
-     * Creates a new instance of CategoryTreePanel 
+     * Creates a new instance of CategoryTreePanel
      */
-    public CategoryTreePanel() 
+    public CategoryTreePanel()
     {
         initComponents();
     }
@@ -83,23 +88,23 @@ public class CategoryTreePanel implements IGUIComponent
         try
         {
             CategoryNode root = new CategoryNode( DataObjectFactory.loadRootCategory() );
-            m_categoryTree = new JTree( root );
+            m_categoryTree = new JTree( m_treeModel = new DefaultTreeModel( root ) );
             m_scrollPane = new JScrollPane( m_categoryTree );
         }
         catch( Exception ex )
         {
             // TODO: handle exception
             ex.printStackTrace();
-        }                
+        }
         
         // Add a mouse listener
-        MouseListener ml = new MouseAdapter() 
+        MouseListener ml = new MouseAdapter()
         {
-            public void mouseReleased( MouseEvent e) 
+            public void mouseReleased( MouseEvent e)
             {
                 TreePath selPath = m_categoryTree.getPathForLocation( e.getX(), e.getY() );
                 if( selPath != null &&
-                    e.isPopupTrigger() )
+                        e.isPopupTrigger() )
                 {
                     m_categoryTree.clearSelection();
                     m_categoryTree.addSelectionPath( selPath );
@@ -135,17 +140,46 @@ public class CategoryTreePanel implements IGUIComponent
     }
     
     public Component getComponent()
-    {    
+    {
         return m_scrollPane;
     }
     
-    private void addCategory( )
-    {        
-        TreePath parentPath = m_categoryTree.getSelectionPath();
-
-        if ( parentPath != null) 
+    public void stateChanged( ChangeEvent evt ) 
+    {
+        // If we are selected
+        JTabbedPane pane = (JTabbedPane)evt.getSource();
+    
+        // Get current tab
+        if( pane.getSelectedIndex() == 1 )
         {
-            CategoryNode parentNode = (CategoryNode)(parentPath.getLastPathComponent()); 
+            // TODO: redraw the tree
+	    // May need to make a generic listenr for new object types...
+	    // Create new category, receive event, update view.. That kind of
+	    // thing
+            Enumeration<TreePath> expanded = m_categoryTree.getExpandedDescendants( new TreePath( m_treeModel.getRoot() ) ); 
+            try
+            {
+                m_treeModel.setRoot( new CategoryNode( DataObjectFactory.loadRootCategory() ) );
+                while ( expanded != null &&
+                        expanded.hasMoreElements() )
+                {
+                    m_categoryTree.expandPath( expanded.nextElement() );
+                }
+            }
+            catch ( Exception ex )
+            {
+                JOptionPane.showMessageDialog( null, ex, "Error", JOptionPane.ERROR_MESSAGE );
+            }
+        }
+    }
+    
+    private void addCategory( )
+    {
+        TreePath parentPath = m_categoryTree.getSelectionPath();
+        
+        if ( parentPath != null)
+        {
+            CategoryNode parentNode = (CategoryNode)(parentPath.getLastPathComponent());
             
             CategoryCreatePanel panel = new CategoryCreatePanel( parentNode.getCategory() );
             
@@ -155,10 +189,8 @@ public class CategoryTreePanel implements IGUIComponent
                 {
                     CategoryNode childNode = new CategoryNode( panel.getCategory() );
                     
-                    parentNode.add( childNode );
+                    m_treeModel.insertNodeInto( childNode, parentNode, parentNode.getChildCount() );                                 
                     
-                    m_categoryTree.updateUI();
-                            
                     // Make sure the user can see the lovely new node.
                     m_categoryTree.makeVisible( new TreePath( childNode.getPath() ) );
                 }
@@ -176,6 +208,7 @@ public class CategoryTreePanel implements IGUIComponent
     }
     
     JTree m_categoryTree;
-    JScrollPane m_scrollPane;    
+    DefaultTreeModel m_treeModel;
+    JScrollPane m_scrollPane;
     JPopupMenu m_popupMenu;
 }

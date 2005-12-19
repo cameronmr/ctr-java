@@ -5,17 +5,12 @@
  */
 
 package com.rochester.budget.gui;
-import com.rochester.budget.core.ReconciliationTableModel;
-import com.rochester.budget.core.TransactionTableModel;
 import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
-
 
 /**
  *
