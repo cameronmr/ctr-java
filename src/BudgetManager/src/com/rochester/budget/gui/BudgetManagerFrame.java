@@ -15,16 +15,13 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+
 
 /**
  *
@@ -70,62 +67,42 @@ public class BudgetManagerFrame extends JFrame
         JTabbedPane tabbedPane = new JTabbedPane();
         pane.add( tabbedPane, BorderLayout.CENTER );
         
-        // Add the tabbed contents
-        // Transactions & Reconciliations
-        ReconciliationPanel reconciliationPanel = new ReconciliationPanel();   
-        TransactionPanel transactionPanel = new TransactionPanel();         
-        
-        /* The ReconciliationPanel listens for changes to transaction selection */   
-        transactionPanel.addActionListener( reconciliationPanel );
-        
-        /* The TransactionPanel listens for changes to reconciliation state */
-        reconciliationPanel.addActionListener( transactionPanel );
-        
-        JSplitPane reconPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
-        reconPane.setOneTouchExpandable( true );
-        reconPane.setTopComponent( reconciliationPanel );
-        reconPane.setBottomComponent( transactionPanel.getComponent() );
-        
-        tabbedPane.add( "Transactions", reconPane );
-        
-        // TODO: Categories
-        CategoryTreePanel categoryTree = new CategoryTreePanel();
-        JSplitPane catVPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
-        JSplitPane catHPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
-        catHPane.setOneTouchExpandable( true );
-        catVPane.setOneTouchExpandable( true );
-        
-        catHPane.setLeftComponent( categoryTree.getComponent() );
-        catHPane.setRightComponent( new JLabel( "TODO") );
-        catVPane.setTopComponent( catHPane );
-        catVPane.setBottomComponent( new JLabel( "TODO") );
-                
-        tabbedPane.add( "Categories", catVPane );        
-        
-        // TODO: Statements
-        tabbedPane.add( "Statements", new JTextField( "Statements" ) );
-        
-        // TODO: Accounts
-        tabbedPane.add( "Accounts", new JTextField( "Accounts" ) );
-        
-        // TODO: Rules
-        tabbedPane.add( "Rules", new JTextField( "Rules" ) );
-        
-        // TODO: Filter?
-        tabbedPane.add( "Filters", new JTextField( "Filters" ) );
-                
-        tabbedPane.addChangeListener( categoryTree );
-        
         //Display the window.
         pack();
         setVisible(true);        
-        
-        // Set the divider to be 16% of the screen size
-        reconPane.setDividerLocation( 0.16 );
-        
-        catHPane.setDividerLocation( 0.30 );
-        catVPane.setDividerLocation( 0.5 );
-        
+                
         this.setExtendedState(MAXIMIZED_BOTH);
+        
+        // Add the tabbed contents
+        // Transactions & Reconciliations       
+        recons = new ReconciliationTab();
+        tabbedPane.add( recons.getTabTitle(), recons.getComponent() );
+        
+        // TODO: fix hack to make divider appear at the correct spot
+        javax.swing.SwingUtilities.invokeLater( new Runnable() 
+        {
+            public void run()
+            {
+                recons.stateChanged( null );
+            }
+        });        
+                
+        // Categories
+        CategoryTab categories = new CategoryTab();
+        tabbedPane.add( categories.getTabTitle(), categories.getComponent() );
+        tabbedPane.addChangeListener( categories );        
+        
+        // Statements
+        StatementTab statements = new StatementTab();
+        tabbedPane.add( statements.getTabTitle(), statements.getComponent() );
+        
+        // Accounts
+        AccountTab accounts = new AccountTab();
+        tabbedPane.add( accounts.getTabTitle(), accounts.getComponent() );
+        
+        // TODO: Rules
+        tabbedPane.add( "Rules", new JTextField( "Rules" ) );        
     }
+    
+    private ReconciliationTab recons = null;
 }
