@@ -148,28 +148,24 @@ public class CategoryTreePanel implements IGUIComponent, ChangeListener
     {
         // If we are selected
         JTabbedPane pane = (JTabbedPane)evt.getSource();
-    
-        // Get current tab
-        if( pane.getSelectedIndex() == 1 )
-        {
-            // TODO: redraw the tree
+
+        // TODO: redraw the tree
 	    // May need to make a generic listenr for new object types...
 	    // Create new category, receive event, update view.. That kind of
 	    // thing
-            Enumeration<TreePath> expanded = m_categoryTree.getExpandedDescendants( new TreePath( m_treeModel.getRoot() ) ); 
-            try
+        Enumeration<TreePath> expanded = m_categoryTree.getExpandedDescendants( new TreePath( m_treeModel.getRoot() ) ); 
+        try
+        {
+            m_treeModel.setRoot( new CategoryNode( DataObjectFactory.loadRootCategory() ) );
+            while ( expanded != null &&
+                    expanded.hasMoreElements() )
             {
-                m_treeModel.setRoot( new CategoryNode( DataObjectFactory.loadRootCategory() ) );
-                while ( expanded != null &&
-                        expanded.hasMoreElements() )
-                {
-                    m_categoryTree.expandPath( expanded.nextElement() );
-                }
+                m_categoryTree.expandPath( expanded.nextElement() );
             }
-            catch ( Exception ex )
-            {
-                JOptionPane.showMessageDialog( null, ex, "Error", JOptionPane.ERROR_MESSAGE );
-            }
+        }
+        catch ( Exception ex )
+        {
+            JOptionPane.showMessageDialog( null, ex, "Error", JOptionPane.ERROR_MESSAGE );
         }
     }
     
