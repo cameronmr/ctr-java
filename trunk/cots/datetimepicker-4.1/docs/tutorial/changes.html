@@ -1,0 +1,375 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>6.&nbsp;What's New</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="introduction.html" title="Chapter&nbsp;1.&nbsp;Introduction"><link rel="previous" href="knownissues.html" title="5.&nbsp;Known Issues"><link rel="next" href="support.html" title="7.&nbsp;More Help"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">6.&nbsp;What's New</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="knownissues.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;1.&nbsp;Introduction</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="support.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="changes"></a>6.&nbsp;What's New</h2></div></div><div></div></div><p>This section contains the changes made in each version of Java
+      Date Picker.</p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v4.1"></a>6.1.&nbsp;Version 4.1 (October 19, 2005)</h3></div></div><div></div></div><p>This new version makes the product even more stable by providing
+        many bug fixes, small features and improvements. Almost all the
+        changes come from users' feedback.</p><p>Here is a list with all the changes:</p><div class="itemizedlist"><p class="title"><b>Migration</b></p><ul type="disc"><li><p>We have renamed two
+            <tt class="classname">AbstractMonthViewUI</tt> methods to better
+            reflect their meaning:</p><div class="itemizedlist"><ul type="circle"><li><p>createTodayLabel():JLabel -&gt;
+                createTodayComponent():JComponent</p></li><li><p>createNoneLabel():JLabel -&gt;
+                createNoneComponent():JComponent</p></li></ul></div><p>This change is not supposed to make you update your code
+            unless you are using a custom month view UI delegate that extends
+            <tt class="classname">AbstractMonthViewUI</tt>,
+            <tt class="classname">BasicMonthViewUI</tt> or
+            <tt class="classname">DefaultMonthViewUI</tt>.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p>Added three more properties to
+            <tt class="classname">JDatePicker</tt> to control its calendar:</p><div class="itemizedlist"><ul type="circle"><li><p><tt class="function">setCalendarTrailingPreviousEnabled</tt></p></li><li><p><tt class="function">setCalendarTrailingNextEnabled</tt></p></li><li><p><tt class="function">setCalendarDowFirst</tt></p></li></ul></div></li><li><p>Added the <tt class="function">setNoneButtonVisible</tt> method
+            to <tt class="classname">JMonthView</tt> to control the visibility of
+            the none button.</p></li><li><p>Added the
+            <tt class="function">disabledDateSelectionAttempted</tt> method to
+            <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/event/DateSelectionListener.html">DateSelectionListener</a></tt>.
+            This will allow to receive notifications every time when an
+            attempt to select a disabled date is made.</p></li><li><p>Added support for ISO week numbers. Read the <a href="jmonth-expert.html#isoweeknumbers" title="7.10.&nbsp;Using ISO week numbers">ISO week numbers section</a> for more
+            information on how to configure a JMonth component to display week
+            numbers according to the ISO 8601 format.</p><div class="itemizedlist"><ul type="circle"><li><p><tt class="function">getWeekNumber</tt> was added in
+                <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/WeekModel.html">WeekModel</a></tt></p></li><li><p><tt class="function">setWeekNumberISOFormatEnabled</tt> and
+                <tt class="function">isWeekNumberISOFormatEnabled</tt> were added
+                in <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/DefaultWeekModel.html">DefaultWeekModel</a></tt></p></li></ul></div></li><li><p>One letter week day names in
+            <tt class="classname">DefaultWeekModel</tt>. Added the
+            DOW_NAMES_LETTER type value for the dowFormat parameter in
+            <tt class="classname">DefaultWeekModel</tt>. This is important when
+            the names of the week days are displayed in the calendar.</p></li><li><p>Added time zone parametrization for
+            <tt class="classname">JDateEditComponent</tt> components.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>Added the <tt class="function">autoUpdateToday</tt> property to
+            <tt class="classname">JMonth</tt> and
+            <tt class="classname">JMonthView</tt>. When this property is enabled,
+            an internal timer that updates the today date at midnight is
+            started. By default it is not enabled.</p><p>The previous implementation started and stopped this timer
+            automatically. So, if you relied on the component to update the
+            today date automatically, you would have to add a line of code
+            that enables it.</p></li><li><p>The default date renderers are registered in the UI
+            delegates and not in the constructors of the components.</p></li><li><p>The AbstractXXXUI classes that define the UI delegates
+            contain two new methods: <tt class="function">createDefaults</tt> and
+            <tt class="function">initializeDefaults</tt>. The
+            <tt class="function">createDefaults</tt> method can be overridden to
+            specify a UI delegate's specific set of default values.</p></li><li><p>Added two new buttons to the JMonthView UI delegate that
+            scroll the years.</p><p>The new buttons are created using the
+            #createNextYearButton() and #createPreviousYearButton() methods
+            from <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/plaf/basic/AbstractMonthViewUI.html">
+            AbstractMonthViewUI</a></tt>. By <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/plaf/basic/BasicMonthViewUI.html">default</a></tt>,
+            these methods return null which means that no button is created.
+            But the UI delegate class can be extended to return actual
+            buttons. This <a href="../demo/com/standbysoft/demo/date/plaf/MonthViewYearButtonsUI.java.html" target="_top">
+            sample UI delegate</a> shows how to do this.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Bug Fixes</b></p><ul type="disc"><li><p>The date edit components didn't update their internal state
+            correctly when using the free text mode. This meant that the
+            registered parser received wrong text information and the date
+            that it produced was also wrong. The bug was discovered when using
+            an editable date picker with the "MM/dd/yy" date format and
+            Japanese locale.</p></li><li><p>If a value bigger than the maximum allowed value is typed in
+            the day field, we interpret it as being the maximum.</p><p>For instance, if the current date is 01/01/2005 (dd/MM/yyyy)
+            and then we type 31/04/2005, the date resulted after pressing
+            enter is 30/04/2005 (the month of April has at most 30 days). This
+            inconsistence appears when changing the date as explained above;
+            the day changes to 31 (a valid value for the month of January) and
+            then the month is changed to April (a month that has less than 31
+            days).</p></li><li><p>The <tt class="classname">JDatePicker</tt> popup was aligned to
+            the left.</p><p>If the <tt class="classname">JDatePicker</tt> was too wide, the
+            popup appeared to the left which made the component a little
+            unusable as the user had to move the mouse to the left to select a
+            date. Now, the popup is aligned to the right which means that it
+            is displayed right under the drop-down button.</p></li><li><p>Fixed popup display on multi-monitor systems. It was
+            displayed only in the primary monitor.</p></li><li><p>The AbstractDateSelectionModel#setSelectedDates() method
+            selected all the dates and it didn't reject the disabled
+            dates.</p></li><li><p>Fixed behavior for the date cell editor.</p><p>The date cell editor stops the editing when a date is
+            selected from the popup or the user hits enter in the text field
+            (when <tt class="classname">JDatePicker</tt> is editable).</p></li><li><p><tt class="classname">JMonth</tt> receives focus when one of its
+            dates is clicked.</p></li><li><p>UI delegates where instantiated twice when they were
+            associated to a <tt class="classname">JDateComponent</tt>.</p></li><li><p>Fixed an internal memory leak.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v4.0"></a>6.2.&nbsp;Version 4.0 (April 7, 2005)</h3></div></div><div></div></div><p>This is the second major version from initial release. It is
+        focused on providing a selection mechanism for weeks and days of week.
+        A week can be selected by clicking on its number or a day of week by
+        clicking on its label (Tue for Tuesday, for instance). Events for such
+        selections are generated and the visualization of selected weeks or
+        days of week can be configured.</p><p>The API has been modified in a few places to accommodate new
+        changes and to provide a base for further development. If your
+        application does not compile anymore, see the migration list from
+        below for more help.</p><p>Here is a list with all the changes:</p><div class="itemizedlist"><p class="title"><b>Migration</b></p><ul type="disc"><li><p>We have restructured the <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/MonthModel.html">MonthModel</a></tt>
+            interface and moved some of its methods and fields.</p><div class="itemizedlist"><ul type="circle"><li><p>MonthModel#getDowFirst -&gt;
+                WeekModel#getDowFirst</p></li><li><p>MonthModel#setDowFirst -&gt;
+                WeekModel#setDowFirst</p></li><li><p>MonthModel#getDows -&gt; WeekModel#getDows</p></li><li><p>MonthModel#DOW_NAMES_LONG -&gt;
+                DefaultWeekModel#DOW_NAMES_LONG</p></li><li><p>MonthModel#DOW_NAMES_SHORT -&gt;
+                DefaultWeekModel#DOW_NAMES_SHORT</p></li><li><p>MonthModel#getDowNamesFormat -&gt;
+                DefaultWeekModel#getDowNamesFormat</p></li><li><p>MonthModel#MONTH_NAMES_LONG -&gt;
+                DefaultMonthModel#MONTH_NAMES_LONG</p></li><li><p>MonthModel#MONTH_NAMES_SHORT -&gt;
+                DefaultMonthModel#MONTH_NAMES_SHORT</p></li><li><p>MonthModel#getMonthNamesFormat -&gt;
+                DefaultMonthModel#getMonthNamesFormat</p></li></ul></div></li><li><p>The <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/DefaultMonthModel.html">DefaultMonthModel</a></tt>
+            has also changed as follows.</p><div class="itemizedlist"><ul type="circle"><li><p>DefaultMonthModel#setDowFormat -&gt;
+                DefaultWeekModel#setDowNamesFormat</p></li><li><p>DefaultMonthModel#setMonthFormat -&gt;
+                DefaultMonthModel#setMonthNamesFormat</p></li></ul></div></li><li><p>The <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/event/MonthModelListener.html">MonthModelListener</a></tt>
+            has also changed as follows.</p><div class="itemizedlist"><ul type="circle"><li><p>MonthModelListener#dowFirstChanged -&gt;
+                WeekModelListener#dowFirstChanged</p></li><li><p>MonthModelListener#dowNamesFormatChanged -&gt;
+                WeekModelListener#dowNamesChanged</p></li><li><p>MonthModelListener#monthNamesFormatChanged -&gt;
+                MonthModelListener#monthNamesChanged</p></li></ul></div></li></ul></div><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p>Refactored the <tt class="classname">MonthModel</tt> interface
+            and its related classes <tt class="classname">DefaultMonthModel</tt>
+            and <tt class="classname">MonthModelListener</tt>. This was done
+            because a new <tt class="classname">WeekModel</tt> interface was added
+            and <tt class="classname">MonthModel</tt> contained week related
+            methods. The month model contains information strictly about
+            months and the week model information about weeks.</p><p>The tutorial sections that described the month model have
+            been updated. You may want to know more about <a href="jmonth-expert.html#monthmodel" title="7.1.&nbsp;Concepts: About Month Models">what a month model is</a>, <a href="jmonth-expert.html#monthmodellistener" title="7.2.&nbsp;Listening for Changes on Month Model">how to listen for changes</a> on
+            it, <a href="jmonth-expert.html#custommonthmodel" title="7.3.&nbsp;Implementing a Month Model">how to implement a custom
+            month model</a> or <a href="jmonth-expert.html#monthmodelmethods" title="7.4.&nbsp;Change the Displayed Month">which are
+            the most used methods</a>.</p></li><li><p>Added a new <tt class="classname">WeekModel</tt> interface,
+            mainly to control week and day of week selection. You may want to
+            know more about <a href="jmonth-expert.html#weekmodel" title="7.6.&nbsp;Concepts: About Week Models">what a week model
+            is</a>, <a href="jmonth-expert.html#weekmodellistener" title="7.7.&nbsp;Listening for Changes on Week Model">how to listen for
+            changes</a> on it, <a href="jmonth-expert.html#customweekmodel" title="7.8.&nbsp;Implementing a Week Model">how to
+            implement a custom week model</a> or <a href="jmonth-expert.html#weekmodelmethods" title="7.9.&nbsp;Specify when the Week Starts">which are the most used
+            methods</a>.</p><p>The week model is the supporting mechanism that is used to
+            select weeks or days of week. Users will click on the week number
+            to select a week. But this mechanism is not enabled by default in
+            a <tt class="classname">JMonth</tt> component. Read this <a href="jmonth-expert.html#enableweekselections" title="7.5.&nbsp;Enabling Week Selections">section</a> for more
+            information.</p></li><li><p>Added the <span class="property">toggleDateSelectionEnabled</span>
+            property to <tt class="classname">JMonth</tt> components. This feature
+            is especially useful when you want to select multiple dates but
+            you do not want to use the CTRL + mouse click to do that. Enabling
+            this property has the same effect as holding down the CTRL key.
+            The tutorial contains a new <a href="jmonth.html#toggledateselectionenabled" title="6.10.&nbsp;Selecting Dates with Simple Mouse-Clicks">section</a> that explains
+            this feature.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>The demo uses the JGoodies Plastic LF instead of Kunststoff
+            and Metouia LFs. We decided to make this replacement because many
+            developers <a href="http://javalobby.org/forums/thread.jspa?threadID=16786&amp;messageID=91823737&amp;tstart=0http://javalobby.org/forums/thread.jspa?threadID=16786&amp;messageID=91823737&amp;tstart=0" target="_top">prefer
+            it</a>. When using the Plastic LF with
+            <tt class="classname">JDatePicker</tt>, the
+            <tt class="classname">PlasticComboBoxUI</tt> must be recompiled
+            without the final modifier. Read this <a href="jdatepicker.html#customlf" title="4.5.&nbsp;Using a Custom Look and Feel">section</a> for more information.</p></li><li><p>Added a <a href="../api/com/standbysoft/component/date/swing/plaf/basic/package-summary.html#uidelegate" target="_top">new
+            section in the javadoc</a> that explains why we use client
+            properties to configure the components.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Bug Fixes</b></p><ul type="disc"><li><p>NPE when typing non-digits after the last cursor position in
+            a <tt class="classname">JDateEditComponent</tt> component.</p></li><li><p>It was possible to reselect a null date for a
+            <tt class="classname">JDateComponent</tt> component. This generated
+            unnecessary events.</p></li><li><p>Selecting a date in the calendar also changed the date of
+            the date picker which triggered unnecessary date selection
+            events.</p><p>Form now on, selecting a date in the drop-down calendar of
+            <tt class="classname">JDatePicker</tt> does not change the date picker
+            selected date. This happens only when the user presses ENTER,
+            clicks on a date or toggles the popup. If ESC is pressed, the
+            calendar selection is lost.</p></li><li><p>The today date represented by Java Date Picker components
+            (JMonth, JMonthView, JDatePicker) was not synchronized with the
+            system date if the application ran over night. If the application
+            was left over night running and then used the second day, the
+            today date would be in fact the yesterday date.</p><p>This meant that both the calendar today date was not
+            rendered correctly and also the today label from JMonthView didn't
+            display the right date. To fix this bug we did some API
+            changes:</p><div class="itemizedlist"><ul type="circle"><li><p>Added the MonthModel#setToday() and
+                MonthModel#getToday() methods.</p></li><li><p>Added the MonthModelListener#todayChanged()
+                method.</p></li></ul></div><p>The fix actually consisted of introducing a timer to trigger
+            an event when the day changes.</p><p>A JMonth/JMonthView component has an internal timer that
+            updates the today date from MonthModel each time the day changes.
+            This leads to an accurate representation of the today date in all
+            Java Date Picker components (JMonth, JMonthView,
+            JDatePicker).</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v3.3"></a>6.3.&nbsp;Version 3.3 (December 17, 2004)</h3></div></div><div></div></div><p>The major improvement of this new version is the multiple month
+        calendar. Until now, <tt class="classname">JMonthView</tt> displayed only
+        one month. Starting from now, you can use it as a full-blown calendar.
+        Another improvement is the support for the JGoodies data binding
+        framework.</p><p>Here is a list with all the changes:</p><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p>Added support for multiple months in
+            <tt class="classname">JMonthView</tt>. Months can be arranged on rows
+            and columns. The tutorial contains a new <a href="jmonthview.html#multiple" title="8.1.&nbsp;Using Multiple Months">section</a> that explains this
+            feature.</p></li><li><p>Added the <span class="property">scrollingDelta</span> property for
+            <tt class="classname">JMonthView</tt> to control <a href="jmonthview.html#scrolling" title="8.4.&nbsp;Changing Scrolling Behavior">scrolling behavior</a>.</p></li><li><p>Added the <span class="property">trailingNextEnabled</span> and
+            <span class="property">trainlingPreviousEnabled</span> properties for
+            <tt class="classname">JMonth</tt> to control <a href="jmonth.html#trailing" title="6.8.&nbsp;Showing Trailing Dates">trailing dates visibility</a>.</p></li><li><p>Added support for the <a href="jgoodies-binding.html" title="2.&nbsp;JGoodies Binding">JGoodies data binding</a>
+            framework.</p></li><li><p>Added horizontalAlignment property for
+            <tt class="classname">JDateEditComponent</tt>s.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>Added a <a href="knownissues.html" title="5.&nbsp;Known Issues">new section</a> with
+            issues that may prevent the good use of the Java Date Picker
+            components.</p></li><li><p>Added the JDateEditComponent.clearDateOnEdit client property
+            for <tt class="classname">JDateEditComponent</tt> components
+            (<tt class="classname">JDateField</tt> and
+            <tt class="classname">JDatePicker</tt>). See the updated tutorial
+            section on <a href="jdateeditcomponent.html#editing" title="3.7.&nbsp;Configuring Editing Behavior">date editing
+            behavior</a>.</p></li><li><p>The demo application can also be started as an applet using
+            the <a href="../../startDemo.html" target="_top">startDemo.html</a>
+            file.</p></li><li><p>Removed jar signing for the standard distribution.</p></li><li><p><tt class="classname">JDatePicker</tt> uses the same
+            <tt class="classname">JComboBox</tt> keyboard shortcuts to open the
+            popup.</p></li><li><p>Improved editing for the am/pm field. One can just type "am"
+            or "pm" to change this field.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Bug Fixes</b></p><ul type="disc"><li><p>Fixed caret blink problem for
+            <tt class="classname">JDateField</tt> and
+            <tt class="classname">JDatePicker</tt>.</p></li><li><p><tt class="classname">DateModel</tt> registration was not
+            handled properly by
+            <tt class="classname">JDateEditComponent</tt>s.</p></li><li><p>Fixed stylesheet problem for JDK 1.5. The demo could not be
+            started with 1.5.</p></li><li><p>Fixed focus problem for Mac OS X.</p></li><li><p>Surrenders focus to the underlying text field when the date
+            field gains it.</p></li><li><p>Fixed layout arrangement for the
+            <tt class="classname">JTextField</tt> used by
+            <tt class="classname">JDateField</tt>.</p></li><li><p>Fixed calendar year spinner problem for
+            <tt class="classname">JDatePicker</tt>.</p></li><li><p>Fixed lead date selection behavior for
+            <tt class="classname">AbstractDateSelectionModel</tt>.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v3.2"></a>6.4.&nbsp;Version 3.2 (October 12, 2004)</h3></div></div><div></div></div><p>This new version contains improvements and bug fixes, mainly
+        requested by customers. The highlight being the UI delegate
+        API.</p><p>The UI delegate API lets you customize easily the look and feel
+        of the Java Date Picker components. For instance, you can create a UI
+        delegate that changes the title of a calendar month to use a combo box
+        instead of a popup to display and select months.</p><p>Here is a list with all the changes:</p><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>Improved the UI delegate API. This is a major improvement
+            because it allows to create UI delegates for the Java Date Picker
+            components easily. UI delegates can help you refine the way
+            components look and behave. The tutorial contains a new <a href="advanced.html#uidelegate" title="1.&nbsp;How to Create a Completely New Look for the Components">section</a> that explains how to use the
+            UI delegates.</p></li><li><p>The year spinner from <tt class="classname">JMonth</tt> (used by
+            <tt class="classname">JMonthView</tt> and
+            <tt class="classname">JDatePicker</tt>) repeatedly increments or
+            decrements the year as long as its buttons are pressed.</p></li><li><p>Added "JDatePicker.backgroundOnEditable" client property to
+            <tt class="classname">JDatePicker</tt>. More details can be found
+            <a href="jdatepicker.html#jdatepicker-background" title="4.2.&nbsp;Changing the Background Color">here</a>.</p></li><li><p>Added <a href="jdatecomponent.html#action-events" title="2.6.&nbsp;Listening for Action Events">action event
+            support</a> for <tt class="classname">JDateComponents</tt>.
+            <tt class="classname">JMonthView</tt> components will fire an action
+            event when a selectable date is double-clicked.</p></li><li><p>Added new methods to <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JDateEditComponent.html">JDateEditComponent</a></tt>
+            (<tt class="function">commitEdit</tt>,
+            <tt class="function">isEditValid</tt>,
+            <tt class="function">invalidEdit</tt>). See the updated tutorial
+            section on <a href="jdateeditcomponent.html#validation" title="3.6.&nbsp;Configuring Validation Behavior">date validation
+            behavior</a>.</p></li><li><p>Added new methods to
+            <tt class="classname">JDateEditComponent</tt>
+            (<tt class="function">setAutoCenturyYear</tt> and
+            <tt class="function">getAutoCenturyYear</tt>). These methods are useful
+            when a year is specified as a short one (between 0 and 99).</p></li><li><p>Added new methods to <tt class="classname">DateModel</tt>
+            (<tt class="function">isUsed</tt>, <tt class="function">setUsed</tt>,
+            <tt class="function">setAutoCenturyYear</tt> and
+            <tt class="function">getAutoCenturyYear</tt>).</p></li><li><p>Added Norwegian and Swedish localizations for
+            <tt class="classname">JMonthView</tt>. This localization refers to the
+            texts for the Today and None buttons that cannot be retrieved from
+            somewhere else. The component is now localized for the following
+            languages: German, Spanish, French, Hungarian, Italian, Norwegian,
+            Portuguese, Romanian and Swedish.</p></li><li><p>Demo source code files accessible from this tutorial where
+            converted to html using <a href="http://www.java2html.de/" target="_top">java2html</a>. This makes the
+            code easier to read. Here is a <a href="../demo/com/standbysoft/demo/date/DateComponentDemo.java.html" target="_top">link
+            to such a file</a>.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Bug Fixes</b></p><ul type="disc"><li><p>Fixed the components to work with the Netbeans 3.6 Form
+            editor. This is a bug in Netbeans rather than in the Java Date
+            Picker components. The fix is actually a workaround to allow the
+            components to be used with Netbeans.</p></li><li><p><tt class="classname">JMonth</tt> generated NPE when using Java
+            1.4 under certain instantiation conditions.</p></li><li><p>Improved date editing behavior. The caret position is now
+            kept consistent while editing a date. When editing a date you can
+            also type a separator char to advance the caret to the next
+            field.</p></li><li><p>The months popup menu from <tt class="classname">JMonth</tt> was
+            sometimes displayed improperly if the mouse was clicked, dragged
+            and then released.</p></li><li><p><tt class="classname">JMonth</tt> and
+            <tt class="classname">JMonthView</tt> report correctly focusGained and
+            focusLost events.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v3.1"></a>6.5.&nbsp;Version 3.1 (August 30, 2004)</h3></div></div><div></div></div><p>In the new version, the tutorial groups together all product
+        information (changes, installation notes, etc) to make it more
+        accessible. Apart from this, we have added new features and fixed bugs
+        at customers' request. Here are the changes for this new
+        version:</p><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p><tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JMonthView.html">JMonthView</a></tt>
+            inherits from <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JMonth.html">JMonth</a></tt>.
+            The methods inherited from <tt class="classname">JMonth</tt> will act
+            on the months aggregated by
+            <tt class="classname">JMonthView</tt>.</p></li><li><p>Date selection API is simpler. Although date selection can
+            be made using the underlying date selection model, the components
+            must provide a set of methods that are frequently used.</p><p>As a consequence, we have added the methods
+            <tt class="function">setSelectionMode</tt> and
+            <tt class="function">setSelectedDates</tt> to <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JMonth.html">JMonth</a></tt>
+            and moved the method <tt class="function">setSelectedDate</tt> from
+            <tt class="classname">JDateEditComponent</tt> to <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JDateComponent.html">JDateComponent</a></tt>.</p><p>Also, the methods <tt class="function">selectDate</tt> (use
+            <tt class="function">setSelectedDates</tt> instead) and
+            <tt class="function">selectToday</tt> from
+            <tt class="classname">JMonth</tt> were removed.</p></li><li><p>More customization options for a
+            <tt class="classname">JMonth</tt> component. Added <a href="jmonth.html#grid" title="6.7.&nbsp;Configuring the Grid">grid control operations</a> and week days names
+            visibility <a href="jmonth.html#week-names-numbers" title="6.9.&nbsp;Showing Week Numbers and Day Names">operations</a>.</p></li><li><p>More customization options for the
+            <tt class="classname">JMonthView</tt> component. Can control
+            visibility for the <tt class="classname">JMonthView</tt> <a href="jmonthview.html#statusbar" title="8.6.&nbsp;Showing the Status Bar">status bar</a> which contains the Today and
+            None buttons.</p></li><li><p>Added <tt class="classname">SelectTodayAction</tt> in <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JDateComponent.html">JDateComponent</a></tt></p></li><li><p>Removed <tt class="function">getDowNamesFormat</tt> and
+            <tt class="function">getMonthNamesFormat</tt> from
+            <tt class="classname">JMonth</tt>.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>Documentation is easy to use. The tutorial has become the
+            main source of information about the Java Date Picker suite. All
+            documents (changes, license, instructions to install, etc) have
+            been moved here.</p></li><li><p>Tool tip support for <tt class="classname">JDatePicker</tt> and
+            <tt class="classname">JDateField</tt>.</p></li><li><p>All the components resize correctly, especially
+            <tt class="classname">JMonthView</tt>.</p></li><li><p>Foreground and background colors for
+            <tt class="classname">JDatePicker</tt> and
+            <tt class="classname">JDateField</tt>.</p></li><li><p>Demo application restructured. The demo application is
+            entirely explained in the tutorial. Each tutorial section that
+            explains the functionality of a component uses a certain demo part
+            for that.</p></li><li><p>Duplicate messages that were generated when the same date
+            was selected where removed.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Bug Fixes</b></p><ul type="disc"><li><p>Obscured calendar popup. The calendar popup used by
+            <tt class="classname">JDatePicker</tt> was not always kept entirely
+            visible.</p></li><li><p>Fixed fast scrolling for <tt class="classname">JMonthView</tt>
+            when using Single selection Mode. If
+            <tt class="classname">JMonthView</tt> was in Single selection mode and
+            the mouse was dragged over the trailing dates, the selected date
+            would change very fast, too fast for a user to follow it.</p></li><li><p>Fixed JBuilder palette problem. JBuilder failed to add
+            <tt class="classname">JMonthView</tt> and
+            <tt class="classname">JDatePicker</tt> when working in Design
+            mode.</p></li><li><p>Fixed memory leak in
+            <tt class="classname">JDatePicker</tt>.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v3.0"></a>6.6.&nbsp;Version 3.0 (June 18, 2004)</h3></div></div><div></div></div><p>This is the first major version since initial release. It adds a
+        new component, <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JDateField.html">JDateField</a></tt>
+        and defines the framework for future date components.</p><p>The Javadoc has been rethought to be the complete document a
+        programmer would ever need to work with Java Date Picker date
+        components. Every package has a detailed description of how its
+        classes relate and how they can be used. The tutorial has also been
+        improved and is meant as a light introduction to the API. Apart from
+        all these, some small enhancements and bug fixes have been
+        made.</p><p>The API has been modified in a few places to accommodate new
+        changes and to provide a base for further development. If your
+        application does not compile anymore, see migration list from below
+        for more help.</p><div class="itemizedlist"><p class="title"><b>Migration</b></p><ul type="disc"><li><p>For JDatePicker, the methods setPopupVisible and
+            isPopupVisible have been renamed to setCalendarVisible and
+            isCalendarVisible to be consistent with the other calendar
+            methods.</p></li><li><p>For JDatePicker, change listeners are not accepted anymore.
+            One can register a date model listener instead to be notified
+            about date field changes. This is explained below in <a href="jdateeditcomponent.html#datemodellistener" title="3.3.&nbsp;Listening for Changes on Date Model">Listening for Changes on Date
+            Model</a>.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p>New JDateComponent. All date selection components are based
+            on JDateComponent. It is also the container for standard date
+            selection actions.</p><p>This is explained below in <a href="jdatecomponent.html" title="2.&nbsp;Using a JDateComponent">Using a JDateComponent</a>.</p></li><li><p>New JDateEditComponent. JDateEditComponent is the base class
+            for all date editing components. By default, dates are edited
+            using an internal editor that forces users to type correct dates
+            according to a standard or custom date format.</p><p>The component can also accept free text entries that are
+            converted to dates using a date parser. This makes it possible to
+            plug special parsers that can convert shortcut strings like
+            'today' to an appropriate date.</p><p>This is explained below in <a href="jdateeditcomponent.html" title="3.&nbsp;Using a JDateEditComponent">Using a
+            JDateEditComponent</a>.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>Home &amp; End actions. Home and end action will select the
+            first, respectively the last selectable days in a month.</p></li><li><p>PopupVisible Property. In JDatePicker, the popupVisible
+            property has been renamed to calendarVisible to be consistent with
+            other calendar methods. So, the calendar's visibility can be
+            controlled using the setCalendarVisible method.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Bug Fixes</b></p><ul type="disc"><li><p>Obscured calendar popup. The calendar popup used by
+            JDatePicker was obscured when the component appeared near the
+            bottom of the screen. Now, the calendar is visible no matter where
+            the JDatePicker component is placed.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v2.4"></a>6.7.&nbsp;Version 2.4 (May 3, 2004)</h3></div></div><div></div></div><p>This version brings important changes over the previous ones by
+        adding null dates support and a new (redesigned) date editor. Some
+        other enhancements have been made to make the components even more
+        usable and customizable.</p><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p>Null Dates Support. Added support for null dates (empty
+            selection).</p></li><li><p>Date Renderer. The calendar's appearance can be customized
+            with a custom renderer.</p></li><li><p>Today/None Texts Localization. The texts for the today and
+            none buttons can be customized using a properties file.</p></li><li><p>Editor Change Listener. Change listener that will receive
+            notifications when the date is changed by the editor.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>New Date Editor. The date editor has been redesigned to
+            allow easier date input. One could simply type "01012004" to say
+            "January 1st, 2004".</p></li><li><p>Easier Keyboard Navigation. Selecting a disabled date with
+            the keyboard will select the next possible date.</p></li><li><p>New JMonthView keyboard shortcuts. Added DELETE and
+            BACKSPACE to select no date.</p></li><li><p>JMonthView API enhancement. Added methods for the components
+            to support easier model control (setSelectionMode,
+            getSelectionMode).</p></li><li><p>Table Editor Enhancement. Create a table cell editor with a
+            specified date picker.
+            (JDatePicker#createTableCellEditor(datePicker)).</p></li><li><p>Register Custom Actions. Custom actions can be registered on
+            the components to make them even more customizable.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v2.3.1"></a>6.8.&nbsp;Version 2.3.1 (April 15, 2004)</h3></div></div><div></div></div><p>This is a bug fix version that eliminates the focus problems of
+        the Swing components.</p><div class="itemizedlist"><p class="title"><b>Bug Fixes</b></p><ul type="disc"><li><p>All the components get the focus when it is requested either
+            by mouse or keyboard allowing for smoother navigation.</p></li><li><p>Look and feel is changed correctly for the table cell
+            editor.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>Fixed month scrolling to mean only that. When using the
+            JMonthView arrow buttons, the month popup menu or the year
+            spinner, only the month is changed without any date
+            selection.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v2.3"></a>6.9.&nbsp;Version 2.3 (March 25, 2004)</h3></div></div><div></div></div><div class="itemizedlist"><p class="title"><b>Migration</b></p><ul type="disc"><li><p>The package com.standbysoft.datepicker has been renamed to
+            com.standbysoft.component.date which now contains generic classes
+            and interfaces that can be used for date selection. The Swing
+            components are contained in the sub package
+            com.standbysoft.component.date.swing.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p>Dates can be represented and edited by JDatePicker using a
+            custom date format (see JDatePicker#setCustomFormat()).</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>JDatePicker can be used with any look and feel (Metal,
+            Motif, Windows, Aqua and custom ones).</p></li><li><p>Improved date editor to edit time fields. Now it can be
+            considered a date time editor also.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v2.2"></a>6.10.&nbsp;Version 2.2 (February 23, 2004)</h3></div></div><div></div></div><div class="itemizedlist"><p class="title"><b>Migration</b></p><ul type="disc"><li><p>Restrictions on the minimum allowed date and maximum allowed
+            date have been moved from MonthModel to DateSelectionModel. This
+            design expresses more the nature of these restrictions. See the
+            tutorial on how to work with the new DateSelectionModel.</p><p>The following operations have been removed from
+            MonthModel:</p><div class="orderedlist"><ol type="1"><li><p>rollYear -&gt; use the date selection API to select a
+                certain date</p></li><li><p>rollMonth -&gt; use the date selection API to select a
+                certain date</p></li><li><p>getMinimumAllowed -&gt; use
+                DateSelectionModel#getMinimumAllowed</p></li><li><p>getMaximumAllowed -&gt; use
+                DateSelectionModel#getMaximumAllowed</p></li><li><p>isMonthInRange -&gt; use
+                DateSelectionModel#isDateSelectable</p></li></ol></div><p>The following operations have been removed from
+            MonthModelListener and MonthModelAdapter:</p><div class="orderedlist"><ol type="1"><li><p>dateIntervalChanged -&gt; use
+                DateSelectionListener#disabledDatesChanged</p></li></ol></div><p>The following operations have been removed from
+            JMonth:</p><div class="orderedlist"><ol type="1"><li><p>rollYear -&gt; use the date selection API to select a
+                certain date</p></li><li><p>rollMonth -&gt; use the date selection API to select a
+                certain date</p></li></ol></div></li><li><p>Added more methods for JDatePicker to support calendar
+            customization. We urge you to use these methods in order to
+            customize the date picker calendar as they allow for a cleaner
+            code and maintenance.</p><p>The following attributes have been added to
+            JDatePicker:</p><div class="orderedlist"><ol type="1"><li><p>calendarDisplayToday (setCalendarDisplayToday,
+                getCalendarDisplayToday)</p></li><li><p>calendarWeekNumbersVisible
+                (setCalendarWeekNumbersVisible,
+                getCalendarWeekNumbersVisible)</p></li></ol></div></li></ul></div><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p>Added more methods for JDatePicker to support calendar
+            customization.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>Improved the date selection mechanism. Setting the minimum
+            and maximum allowed dates is now part of the date selection model.
+            The AbstractDateSelectionModel class has been added, it contains a
+            basic implementation for the DateSelectionModel interface.</p></li><li><p>Improved the JDatePicker built-in editor. The editor acts
+            like a masked edit control where each field of the date can be
+            edited.</p></li><li><p>Improved tutorial documentation.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v2.1"></a>6.11.&nbsp;Version 2.1 (February 2, 2004)</h3></div></div><div></div></div><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p>Added an editor and two more fields (dateFormat, editable)
+            to JDatePicker.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Improvements</b></p><ul type="disc"><li><p>Improved Javadoc comments.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Bug Fixes</b></p><ul type="disc"><li><p>JDatePicker can now be used with any Look and Feel.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v2.0.1"></a>6.12.&nbsp;Version 2.0.1 (January 21, 2004)</h3></div></div><div></div></div><div class="itemizedlist"><p class="title"><b>New Features</b></p><ul type="disc"><li><p>Added two more methods (setPopupVisible, isPopupVisible) to
+            DatePickerUI and JDatePicker.</p></li></ul></div><div class="itemizedlist"><p class="title"><b>Bug Fixes</b></p><ul type="disc"><li><p>The popup for TableCellEditor is hidden only when a day is
+            explicitly selected.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="v2.0"></a>6.13.&nbsp;Version 2.0 (December 15, 2003)</h3></div></div><div></div></div><p>Initial release.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="knownissues.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="introduction.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="support.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">5.&nbsp;Known Issues&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;7.&nbsp;More Help</td></tr></table></div></body></html>

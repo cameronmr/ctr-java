@@ -1,0 +1,179 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>6.&nbsp;Using a JMonth Component</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="tutorial.html" title="Chapter&nbsp;2.&nbsp;How to Use the Components"><link rel="previous" href="jdatefield.html" title="5.&nbsp;Using the JDateField Component"><link rel="next" href="jmonth-expert.html" title="7.&nbsp;Using a JMonth Component - Expert Features"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">6.&nbsp;Using a JMonth Component</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="jdatefield.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;2.&nbsp;How to Use the Components</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="jmonth-expert.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jmonth"></a>6.&nbsp;Using a JMonth Component</h2></div></div><div></div></div><p>A <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JMonth.html">JMonth</a></tt>
+      component represents one month from the calendar in an intuitive way.
+      Users can navigate the component using the mouse or the keyboard. The
+      month in view can be selected from the popup that appears when the name
+      of the currently displayed month is clicked.</p><p>Here are the main features:</p><div class="itemizedlist"><ul type="disc"><li><p>Easy selection of dates</p></li><li><p>Customization of colors and font</p></li><li><p>Customization of calendar dates painting using a date
+          renderer</p></li><li><p>Grid customization</p></li><li><p>Easy keyboard navigation</p></li><li><p>API control over the currently displayed month</p></li></ul></div><p>To understand completely a <tt class="classname">JMonth</tt>
+      component, you might also want to look at <a href="jdatecomponent.html" title="2.&nbsp;Using a JDateComponent">JDateComponent</a>.</p><p>This section uses the application shown below to explore all these
+      capabilities.</p><div class="figure"><a name="d0e2387"></a><p class="title"><b>Figure&nbsp;2.5.&nbsp;A demo application for a JMonth component</b></p><div class="mediaobject"><img src="images/MonthDemo.jpg" alt="A demo application for a JMonth component"></div></div><div class="orderedlist"><p class="title"><b>Try this:</b></p><ol type="1"><li><p><a href="http://www.javadatepicker.com/docs/tutorial/MonthDemo.jnlp" target="_top">Run
+          MonthDemo</a> using Java Web Start or consult the <a href="../demo/com/standbysoft/demo/date/MonthDemo.java.html" target="_top">source
+          code</a> for yourself.</p></li><li><p>Click one of the fonts to change the font used by the
+          component.</p></li><li><p>Click on the Foreground color button and select a color. The
+          dates of the month are now painted with this color.</p></li><li><p>Click one a date from the component to select it. The default
+          renderer displays it using an oval. Now, click on the date renderer
+          combo box and select Custom. The new renderer displays selected
+          dates using a rectangle.</p></li><li><p>Press the "Selection Model" combo box and choose "No
+          Weekends". This will change the selection model used by the
+          component. With the new model, the weekends are not selectable and
+          are marked with a red X.</p></li><li><p>Click on the "Selection Type" combo box to change the way you
+          can select dates from the component. By choosing Single, you can
+          select only one date at a time. Single Interval allows you to select
+          an interval of dates by dragging the mouse. Multiple Interval allows
+          you to select multiple dates.</p></li><li><p>To show/hide vertical or horizontal lines click on "Show
+          Vertical Lines" and "Show Horizontal Lines" check boxes. Press the
+          color button to set a color for them.</p></li><li><p>Click on "Show Week Names" and "Show Week Numbers" to
+          show/hide week numbers and week names.</p></li><li><p>Click the "Locale" combo box and change the language to
+          German. The name of the month and week days are changed
+          accordingly.</p></li><li><p>Click the component and press HOME to select the first day of
+          month, then press END to select the last day of month. See below for
+          all the available keyboard shortcuts.</p></li><li><p>Check the "Toggled Date Selection" box and make sure the
+          "Multiple Interval" selection type is selected. Clicking on several
+          dates from the component will select/unselect them. Now uncheck the
+          "Toggled Date Selection" box. Clicking on several dates from the
+          component will keep selected only the last clicked date.</p></li></ol></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="selecting-dates"></a>6.1.&nbsp;Selecting Dates</h3></div></div><div></div></div><p>Because <tt class="classname">JMonth</tt> is in fact a
+        <tt class="classname">JDateComponent</tt>, you can use the <a href="jdatecomponent.html#selecting-date" title="2.1.&nbsp;Selecting a Date">setSelectedDate</a> method to select a
+        single date. But there are situations when you might want to select a
+        set of dates. For that, this component has a
+        <tt class="function">setSelectedDates</tt> method that allows the selection
+        of more than one date.</p><p>The following lines of code show how you can select a set of
+        dates in a <tt class="classname">JMonth</tt> component:</p><pre class="programlisting">Date[] dates = ...this is your array of dates
+
+month.setSelectedDates(dates);</pre><p>This <tt class="function">setSelectedDates</tt> method is just a
+        convenient way of selecting more dates instead of using the underlying
+        date selection model. For other operations like adding another date to
+        the set of selected dates from a <tt class="classname">JMonth</tt>
+        component you would have to use the date selection model.</p><p>The following example shows how you can add another date to the
+        set of selected dates:</p><pre class="programlisting">Date date = ...this is your date
+
+month.getDateSelectionModel().addDateSelectionInterval(date, date);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2470"></a>6.2.&nbsp;Changing the Selection Type</h3></div></div><div></div></div><p>Whenever working with dates, users might need to select more
+        that just one date. Perhaps they need to select a whole range of
+        dates. To suit these needs, a <tt class="classname">JMonth</tt> component
+        can be configured for a specific type of selection. There are three
+        such types:</p><div class="itemizedlist"><ul type="disc"><li><p><span class="bold"><b>single date selection</b></span>
+            allows the selection of only one date at a time</p></li><li><p><span class="bold"><b>single interval date
+            selection</b></span> allows the selection of only one range of
+            dates</p></li><li><p><span class="bold"><b>multiple interval date
+            selection</b></span> allows the selection of multiple date
+            ranges</p></li></ul></div><p>Use <tt class="function">setSelectionMode</tt> and
+        <tt class="function">getSelectionMode</tt> methods in order to specify and
+        determine the selection mode that is used. The following lines of code
+        show how you can set each of these types:</p><pre class="programlisting">//changes the selection mode to accept a single selected date
+month.setSelectionMode(SelectionMode.SINGLE);
+
+//changes the selection mode to accept a single interval of selected dates
+month.setSelectionMode(SelectionMode.SINGLE_INTERVAL);
+
+//changes the selection mode to accept multiple intervals of selected dates
+month.setSelectionMode(SelectionMode.MULTIPLE_INTERVAL);</pre><p>To select a range of dates, click on the first date of the
+        interval and then you can either drag the mouse to the last date or
+        press SHIFT and click on the last date.</p><p>To select multiple dates, press CTRL and click a date to add it
+        to the set of selected dates.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2508"></a>6.3.&nbsp;Localizing the Component</h3></div></div><div></div></div><p>One important feature of the <tt class="classname">JMonth</tt> is
+        that you can localize it for various languages and regions. The names
+        of the week days, the first day of week, the names of the months are
+        determined on locale basis. By default, the system's locale is used
+        but it can be configured to use any locale.</p><p>To change the locale, use the <tt class="function">setLocale</tt>
+        method. The following line of code changes the locale to
+        Spanish:</p><pre class="programlisting">month.setLocale(new Locale("es", "ES"));</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2523"></a>6.4.&nbsp;Changing Colors and Font</h3></div></div><div></div></div><p>The calendar is configured by default with a specific font and
+        with a set of colors specific to the used look and feel. So, on
+        different look and feels it will use a different set of colors. If you
+        are not satisfied how it looks, you can change the colors to suit your
+        needs. Here is how you can do it.</p><p>The following lines of code customize the font and colors of a
+        <tt class="classname">JMonth</tt> component:</p><pre class="programlisting">month.setForeground(Color.black);
+month.setTitleBackground(new Color(50, 100, 255));
+month.setTitleForeground(Color.white);
+month.setTrailingForeground(Color.gray);
+month.setMonthBackground(new Color(255, 255, 100));
+
+month.setFont(new Font("Arial", Font.PLAIN, 13));</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2536"></a>6.5.&nbsp;Concepts: About Date Renderers</h3></div></div><div></div></div><p>The <tt class="classname">JMonth</tt> components use a date renderer
+        to paint the dates from the calendar. There would be no need for such
+        a mechanism if all the dates from the calendar would be the same but
+        they are not.</p><p>By default, we have the dates of the currently displayed month,
+        trailing dates, restricted dates, selected dates and even a today date
+        which must differentiate one from another in some way. And the only
+        way is to paint them differently. Somebody might decide that they need
+        to have special dates (company dates, holidays, etc) that must be
+        painted differently from all the others and this rendering mechanism
+        is a very flexible solution for such a problem.</p><p>A date renderer is similar to other Swing renderers and is an
+        instance of a class that implements the <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/DateRenderer.html">DateRenderer</a></tt>
+        interface. The
+        <tt class="classname">com.standbysoft.component.date.swing</tt> package
+        provides a <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/DefaultDateRenderer.html">DefaultDateRenderer</a></tt>
+        that is the renderer used by default in all
+        <tt class="classname">JMonth</tt> components.</p><p>The <tt class="classname">DefaultDateRenderer</tt>
+        paints the selected dates as ovals using the title foreground and
+        background colors. The other dates are painted using the other colors
+        specified for <tt class="classname">JMonth</tt>.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2568"></a>6.6.&nbsp;Implementing a Date Renderer</h3></div></div><div></div></div><p>The <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/DefaultDateRenderer.html">DefaultDateRenderer</a></tt>
+        displays the selected dates as ovals and marks the today date with a
+        red border. Here, we create a custom renderer based on the default one
+        to display the selected dates as rectangles. The following line of
+        code registers an instance of
+        <tt class="classname">CustomDateRenderer</tt> as a date renderer for the
+        <tt class="classname">JMonth</tt> component:</p><pre class="programlisting">month.setDateRenderer(new CustomDateRenderer());</pre><p>Here's the implementation for
+        <tt class="classname">CustomDateRenderer</tt>:</p><pre class="programlisting">/**
+ * Custom date renderer that extends the default one to display the selected
+ * dates as rectangles and not like ovals.
+ */
+public class CustomDateRenderer extends DefaultDateRenderer {
+    /**
+     * Paints a selected date as a rectangle.
+     */
+    protected void paintSelected(Graphics g) {
+        g.setColor(month.getTitleBackground());
+        g.fillRect(1, 1, getWidth() - 1, getHeight() - 1);
+    }
+
+    /**
+     * Paints the today date as a rectangle with a red border.
+     */
+    protected void paintToday(Graphics g) {
+        g.setColor(Color.red);
+        g.drawRect(1, 1, getWidth() - 2, getHeight() - 2);
+    }
+}</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="grid"></a>6.7.&nbsp;Configuring the Grid</h3></div></div><div></div></div><p>The <tt class="classname">JMonth</tt> component has a grid that can
+        be used to emphasize the dates from the calendar. You can control the
+        visibility of the vertical and/or horizontal grid lines. The color of
+        the grid can also be customized. By default, the grid is not displayed
+        and the following lines of code show how it can be activated:</p><pre class="programlisting">month.setGridColor(Color.blue);
+month.setHorizontalLinesVisible(true);
+month.setVerticalLinesVisible(true);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="trailing"></a>6.8.&nbsp;Showing Trailing Dates</h3></div></div><div></div></div><p>The dates of a month are displayed on a 6x7 grid leaving a lot
+        of date positions open. Usually, these positions are filled with
+        trailing dates from the previous or the next month. By default, these
+        dates are enabled but you can disabled them.</p><p>You can enable or disable trailing dates using the
+        <tt class="function">setTrailingPreviousEnabled</tt> and
+        <tt class="function">setTrailingNextEnabled</tt> methods. The following
+        lines of code hide the trailing dates of a month:</p><pre class="programlisting">month.setTrailingPreviousEnabled(false);
+month.setTrailingNextEnabled(false);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="week-names-numbers"></a>6.9.&nbsp;Showing Week Numbers and Day Names</h3></div></div><div></div></div><p>The week numbers just give more contextual information about the
+        selected dates. They do not have some special functionality. By
+        default, the week numbers are visible. You can show or hide them using
+        the <tt class="function">setWeekNumbersVisible</tt> method. The following
+        line of code hides the week numbers:</p><pre class="programlisting">month.setWeekNumbersVisible(false);</pre><p>By week names we mean the names of the days of week (Monday,
+        Tuesday, etc). Although it is unlikely that you will want to
+        deactivate week names alone, this feature is useful when you want to
+        deactivate both week names and week numbers. The following lines of
+        code hide both week names and numbers:</p><pre class="programlisting">month.setWeekNamesVisible(false);
+month.setWeekNumbersVisible(false);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="toggledateselectionenabled"></a>6.10.&nbsp;Selecting Dates with Simple Mouse-Clicks</h3></div></div><div></div></div><p>As we have said above, if you want to select multiple dates,
+        just use the multiple interval selection mode and then CTRL click the
+        dates you want to select. But as you do this, you may find it
+        irritating to hold down the CTRL key. Sometimes, it is more intuitive
+        to use simple mouse clicks to select or unselect the dates that you
+        need.</p><p>To solve this problem, the <tt class="classname">JMonth</tt>
+        components have the <span class="property">toggleDateSelectionEnabled</span>
+        property that specifies how it should behave when a date is clicked.
+        When this property is enabled, clicked dates just toggle their state
+        from selected to unselected and conversely. But if it is disabled,
+        clicking on a date means that only that date is selected.</p><p>By default, this property is disabled. The following line of
+        code shows how to enable it:</p><pre class="programlisting">month.setToggleDateSelectionEnabled(true);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2647"></a>6.11.&nbsp;Using the Keyboard</h3></div></div><div></div></div><p>One important feature of a month component is its keyboard
+        interface. Users can use the keyboard shortcuts presented in the table
+        below to quickly select a date.</p><div class="table"><a name="d0e2652"></a><p class="title"><b>Table&nbsp;2.1.&nbsp;Keyboard Interface</b></p><table summary="Keyboard Interface" border="1"><colgroup><col><col></colgroup><thead><tr><th>Key</th><th>Description</th></tr></thead><tbody><tr><td>LEFT ARROW</td><td>Select the previous day</td></tr><tr><td>RIGHT ARROW</td><td>Select the next day</td></tr><tr><td>UP ARROW</td><td>Select the same day of week in the previous
+                week</td></tr><tr><td>DOWN ARROW</td><td>Select the same day of week in the next week</td></tr><tr><td>PAGE UP</td><td>Scrolls the display to past months</td></tr><tr><td>PAGE DOWN</td><td>Scrolls the display to future months</td></tr><tr><td>CTRL + PAGE UP</td><td>Scrolls the display to the previous year</td></tr><tr><td>CTRL + PAGE DOWN</td><td>Scrolls the display to the next year</td></tr><tr><td>HOME</td><td>Select the first day in month</td></tr><tr><td>END</td><td>Select the last day in month</td></tr><tr><td>DELETE</td><td>Select none</td></tr><tr><td>BACKSPACE</td><td>Select none</td></tr></tbody></table></div><p>When one tries to select a date with the keyboard and that date
+        is disabled (cannot be selected) then an adjacent date will be
+        selected. This rule applies to the following keys: LEFT, RIGHT, PAGE
+        UP, PAGE DOWN, CTRL + PAGE UP, CTRL + PAGE DOWN.</p><p>For instance if the current date is April 23, 2003 and I want to
+        select May 23, 2003 (PAGE DOWN) but it is disabled then the next date
+        after May 23, 2003 that is not disabled will be selected (perhaps May
+        24, 2003).</p><p>The rule does not apply for UP and DOWN keys because it is not
+        so intuitive. If the same day of week in the previous week is not
+        selectable then it will try to go back until it finds the first week
+        that has the same day of week selectable.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jdatefield.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="tutorial.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jmonth-expert.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">5.&nbsp;Using the JDateField Component&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;7.&nbsp;Using a JMonth Component - Expert Features</td></tr></table></div></body></html>

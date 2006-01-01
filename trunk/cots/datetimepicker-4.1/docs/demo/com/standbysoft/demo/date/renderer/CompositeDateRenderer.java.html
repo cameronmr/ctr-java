@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title></title>
+  <style type="text/css">
+    <!--code { font-family: Courier New, Courier; font-size: 10pt; margin: 0px; }-->
+  </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+</head><body>
+
+
+<!-- ======================================================== -->
+<!-- = Java Sourcecode to HTML automatically converted code = -->
+<!-- =   Java2Html Converter V4.1 2004 by Markus Gebhard  markus@jave.de   = -->
+<!-- =     Further information: http://www.java2html.de     = -->
+<div align="left" class="java">
+<table border="0" cellpadding="3" cellspacing="0" bgcolor="#ffffff">
+   <tr>
+  <!-- start source code -->
+   <td nowrap="nowrap" valign="top" align="left">
+    <code>
+<font color="#3f7f5f">/*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;@(#)CompositeDateRenderer.java</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;Copyright&nbsp;(c)&nbsp;2003-2004&nbsp;Stand&nbsp;By&nbsp;Soft,&nbsp;Ltd.&nbsp;All&nbsp;rights&nbsp;reserved.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;This&nbsp;software&nbsp;is&nbsp;the&nbsp;proprietary&nbsp;information&nbsp;of&nbsp;Stand&nbsp;By&nbsp;Soft,&nbsp;Ltd.&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;Use&nbsp;is&nbsp;subject&nbsp;to&nbsp;license&nbsp;terms.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*/</font><br/>
+<font color="#7f0055"><b>package&nbsp;</b></font><font color="#000000">com.standbysoft.demo.date.renderer;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.awt.Component;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.awt.Graphics;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.util.ArrayList;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.util.Date;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.util.Iterator;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.util.List;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">javax.swing.JLabel;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">com.standbysoft.component.date.swing.DateRenderer;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">com.standbysoft.component.date.swing.JMonth;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#3f5fbf">/**</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;</font><font color="#7f7f9f">&lt;p&gt;</font><font color="#3f5fbf">A&nbsp;composite&nbsp;date&nbsp;renderer&nbsp;uses&nbsp;several&nbsp;other&nbsp;renderers&nbsp;to&nbsp;display&nbsp;a&nbsp;date.&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;A&nbsp;certain&nbsp;date&nbsp;could&nbsp;represent&nbsp;several&nbsp;aspects&nbsp;like:&nbsp;disabled&nbsp;and&nbsp;trailing&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;and&nbsp;today&nbsp;date.&nbsp;</font><font color="#7f7f9f">&lt;/p&gt;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;</font><font color="#7f7f9f">&lt;p&gt;</font><font color="#3f5fbf">This&nbsp;renderer&nbsp;uses&nbsp;a&nbsp;list&nbsp;of&nbsp;renderers&nbsp;that&nbsp;deal&nbsp;only&nbsp;with&nbsp;a&nbsp;specific&nbsp;date&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;aspect.&nbsp;For&nbsp;instance&nbsp;the&nbsp;</font><font color="#7f7f9f">&lt;code&gt;</font><font color="#3f5fbf">TodayDateRenderer</font><font color="#7f7f9f">&lt;/code&gt;&nbsp;</font><font color="#3f5fbf">draws&nbsp;a&nbsp;red&nbsp;circle&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;around&nbsp;the&nbsp;today&nbsp;date.</font><font color="#7f7f9f">&lt;/p&gt;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*/</font><br/>
+<font color="#7f0055"><b>public&nbsp;class&nbsp;</b></font><font color="#000000">CompositeDateRenderer&nbsp;</font><font color="#7f0055"><b>extends&nbsp;</b></font><font color="#000000">JLabel&nbsp;</font><font color="#7f0055"><b>implements&nbsp;</b></font><font color="#000000">DateRenderer&nbsp;</font><font color="#000000">{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>protected&nbsp;</b></font><font color="#000000">List&nbsp;renderers;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>private&nbsp;</b></font><font color="#000000">Date&nbsp;date;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>private&nbsp;</b></font><font color="#000000">JMonth&nbsp;month;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">/**</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;Creates&nbsp;a&nbsp;composite&nbsp;date&nbsp;renderer&nbsp;with&nbsp;no&nbsp;registered&nbsp;renderer.&nbsp;You&nbsp;need</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;to&nbsp;register&nbsp;your&nbsp;own&nbsp;date&nbsp;renderers,&nbsp;in&nbsp;order&nbsp;for&nbsp;this&nbsp;object&nbsp;to&nbsp;be&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;functional.</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*/</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#000000">CompositeDateRenderer</font><font color="#000000">()&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setOpaque</font><font color="#000000">(</font><font color="#7f0055"><b>false</b></font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">renderers&nbsp;=&nbsp;</font><font color="#7f0055"><b>new&nbsp;</b></font><font color="#000000">ArrayList</font><font color="#000000">()</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">/**</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;Returns&nbsp;this&nbsp;component&nbsp;as&nbsp;the&nbsp;component&nbsp;that&nbsp;renders&nbsp;the&nbsp;specified&nbsp;date.&nbsp;The</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;</font><font color="#3f3fbf">{@link&nbsp;#paint(Graphics)}&nbsp;</font><font color="#3f5fbf">method&nbsp;is&nbsp;used&nbsp;to&nbsp;paint&nbsp;the&nbsp;date&nbsp;appropriately.</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*/</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#000000">Component&nbsp;getDateRendererComponent</font><font color="#000000">(</font><font color="#000000">JMonth&nbsp;month,&nbsp;Date&nbsp;date</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f7f5f">//keep&nbsp;the&nbsp;state&nbsp;of&nbsp;this&nbsp;renderer&nbsp;consistent&nbsp;for&nbsp;the&nbsp;paint&nbsp;method</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>this</b></font><font color="#000000">.date&nbsp;=&nbsp;date;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>this</b></font><font color="#000000">.month&nbsp;=&nbsp;month;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>if&nbsp;</b></font><font color="#000000">(</font><font color="#000000">month.getMonthModel</font><font color="#000000">()</font><font color="#000000">.isTrailingNext</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">))&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>if&nbsp;</b></font><font color="#000000">(</font><font color="#000000">month.isTrailingNextEnabled</font><font color="#000000">())&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setForeground</font><font color="#000000">(</font><font color="#000000">month.getTrailingForeground</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}&nbsp;</font><font color="#7f0055"><b>else&nbsp;</b></font><font color="#000000">{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setForeground</font><font color="#000000">(</font><font color="#000000">month.getMonthBackground</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}&nbsp;</font><font color="#7f0055"><b>else&nbsp;if&nbsp;</b></font><font color="#000000">(</font><font color="#000000">month.getMonthModel</font><font color="#000000">()</font><font color="#000000">.isTrailingPrevious</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">))&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>if&nbsp;</b></font><font color="#000000">(</font><font color="#000000">month.isTrailingPreviousEnabled</font><font color="#000000">())&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setForeground</font><font color="#000000">(</font><font color="#000000">month.getTrailingForeground</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}&nbsp;</font><font color="#7f0055"><b>else&nbsp;</b></font><font color="#000000">{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setForeground</font><font color="#000000">(</font><font color="#000000">month.getMonthBackground</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}&nbsp;</font><font color="#7f0055"><b>else&nbsp;</b></font><font color="#000000">{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setForeground</font><font color="#000000">(</font><font color="#000000">month.getForeground</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>return&nbsp;this</b></font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">/**</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;The&nbsp;painting&nbsp;of&nbsp;the&nbsp;date&nbsp;is&nbsp;handled&nbsp;here.&nbsp;Every&nbsp;registered&nbsp;renderer&nbsp;is&nbsp;used</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;to&nbsp;render&nbsp;a&nbsp;certain&nbsp;aspect&nbsp;of&nbsp;the&nbsp;current&nbsp;date.</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*/&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#7f0055"><b>void&nbsp;</b></font><font color="#000000">paint</font><font color="#000000">(</font><font color="#000000">Graphics&nbsp;g</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>for&nbsp;</b></font><font color="#000000">(</font><font color="#000000">Iterator&nbsp;i&nbsp;=&nbsp;renderers.iterator</font><font color="#000000">()</font><font color="#000000">;&nbsp;i.hasNext</font><font color="#000000">()</font><font color="#000000">;</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">DateRenderer&nbsp;r&nbsp;=&nbsp;</font><font color="#000000">(</font><font color="#000000">DateRenderer</font><font color="#000000">)</font><font color="#000000">i.next</font><font color="#000000">()</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">Component&nbsp;c&nbsp;=&nbsp;r.getDateRendererComponent</font><font color="#000000">(</font><font color="#000000">month,&nbsp;date</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f7f5f">//&nbsp;if&nbsp;the&nbsp;renderer&nbsp;can&nbsp;render&nbsp;for&nbsp;the&nbsp;specified&nbsp;context&nbsp;(month,&nbsp;date)</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f7f5f">//&nbsp;then&nbsp;use&nbsp;the&nbsp;same&nbsp;graphic&nbsp;context&nbsp;to&nbsp;draw&nbsp;whatever&nbsp;is&nbsp;needed</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>if&nbsp;</b></font><font color="#000000">((</font><font color="#000000">month.getMonthModel</font><font color="#000000">()</font><font color="#000000">.isTrailingNext</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">)&nbsp;</font><font color="#000000">&amp;&amp;&nbsp;month.isTrailingNextEnabled</font><font color="#000000">())&nbsp;</font><font color="#000000">||</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">(</font><font color="#000000">month.getMonthModel</font><font color="#000000">()</font><font color="#000000">.isTrailingPrevious</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">)&nbsp;</font><font color="#000000">&amp;&amp;&nbsp;month.isTrailingPreviousEnabled</font><font color="#000000">())&nbsp;</font><font color="#000000">||</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">(</font><font color="#000000">!month.getMonthModel</font><font color="#000000">()</font><font color="#000000">.isTrailingPrevious</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">)&nbsp;</font><font color="#000000">&amp;&amp;&nbsp;!month.getMonthModel</font><font color="#000000">()</font><font color="#000000">.isTrailingNext</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">)))&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>if&nbsp;</b></font><font color="#000000">(</font><font color="#000000">c&nbsp;!=&nbsp;</font><font color="#7f0055"><b>null</b></font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">c.setSize</font><font color="#000000">(</font><font color="#000000">getSize</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">c.paint</font><font color="#000000">(</font><font color="#000000">g</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#000000">}</font></code>
+    
+   </td>
+  <!-- end source code -->
+   </tr>
+</table>
+</div>
+<!-- =       END of automatically generated HTML code       = -->
+<!-- ======================================================== -->
+
+
+</body></html>

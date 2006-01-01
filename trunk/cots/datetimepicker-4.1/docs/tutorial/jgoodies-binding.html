@@ -1,0 +1,20 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>2.&nbsp;JGoodies Binding</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="advanced.html" title="Chapter&nbsp;3.&nbsp;Advanced Topics"><link rel="previous" href="advanced.html" title="Chapter&nbsp;3.&nbsp;Advanced Topics"><link rel="next" href="license.html" title="Appendix&nbsp;A.&nbsp;License Agreement"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.&nbsp;JGoodies Binding</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="advanced.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;3.&nbsp;Advanced Topics</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="license.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jgoodies-binding"></a>2.&nbsp;JGoodies Binding</h2></div></div><div></div></div><p>The Java Date Picker suite can be used with the JGoodies data
+      binding framework. This section uses the application shown below to
+      demonstrate that.</p><div class="figure"><a name="d0e3485"></a><p class="title"><b>Figure&nbsp;3.1.&nbsp;A demo application for the JGoodies data binding
+        framework</b></p><div class="mediaobject"><img src="images/DataBindingDemo.jpg" alt="A demo application for the JGoodies data binding framework"></div></div><div class="orderedlist"><p class="title"><b>Try this:</b></p><ol type="1"><li><p><a href="http://www.javadatepicker.com/docs/tutorial/DataBindingDemo.jnlp" target="_top">Run
+          DataBindingDemo</a> using Java Web Start or consult the <a href="../demo/com/standbysoft/demo/date/binding/DataBindingDemo.java.html" target="_top">source
+          code</a> for yourself.</p></li><li><p>Modify the dates or the task name. The changes will be
+          notified in the bottom text area.</p></li><li><p>Click the Reset Dates button to modify the underlying model.
+          The changes will be reflected by the date components.</p></li></ol></div><p>In order to allow the date editing components to work with the
+      binding framework, we provide an adapter for
+      <tt class="classname">ValueModel</tt>s. The <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/binding/DateEditComponentAdapter.html">
+      DateEditComponentAdapter</a></tt> converts ValueModels to DateModels
+      that are specific for Java Date Picker date edit components.</p><pre class="programlisting">ValueModel model = new PropertyAdapter(book, "published", date);
+JDateField dateField = new JDateField();
+
+DateEditComponentAdapter.bind(dateField, model);</pre><p>The adapter is placed in the javadatepicker-binding.jar file. Be
+      sure to include it in your classpath. You can also access the adapter's
+      source code to see how it is implemented. See the src/binding
+      directory.</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="advanced.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="advanced.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="license.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter&nbsp;3.&nbsp;Advanced Topics&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Appendix&nbsp;A.&nbsp;License Agreement</td></tr></table></div></body></html>

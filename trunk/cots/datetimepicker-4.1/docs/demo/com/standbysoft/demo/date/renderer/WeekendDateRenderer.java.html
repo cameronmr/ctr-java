@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title></title>
+  <style type="text/css">
+    <!--code { font-family: Courier New, Courier; font-size: 10pt; margin: 0px; }-->
+  </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+</head><body>
+
+
+<!-- ======================================================== -->
+<!-- = Java Sourcecode to HTML automatically converted code = -->
+<!-- =   Java2Html Converter V4.1 2004 by Markus Gebhard  markus@jave.de   = -->
+<!-- =     Further information: http://www.java2html.de     = -->
+<div align="left" class="java">
+<table border="0" cellpadding="3" cellspacing="0" bgcolor="#ffffff">
+   <tr>
+  <!-- start source code -->
+   <td nowrap="nowrap" valign="top" align="left">
+    <code>
+<font color="#3f7f5f">/*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;@(#)WeekendDateRenderer.java</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;Copyright&nbsp;(c)&nbsp;2003-2004&nbsp;Stand&nbsp;By&nbsp;Soft,&nbsp;Ltd.&nbsp;All&nbsp;rights&nbsp;reserved.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;This&nbsp;software&nbsp;is&nbsp;the&nbsp;proprietary&nbsp;information&nbsp;of&nbsp;Stand&nbsp;By&nbsp;Soft,&nbsp;Ltd.&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;Use&nbsp;is&nbsp;subject&nbsp;to&nbsp;license&nbsp;terms.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*/</font><br/>
+<font color="#7f0055"><b>package&nbsp;</b></font><font color="#000000">com.standbysoft.demo.date.renderer;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.awt.Color;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.awt.Component;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.util.Calendar;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.util.Date;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">com.standbysoft.component.date.swing.JMonth;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#3f5fbf">/**</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;Renders&nbsp;weekend&nbsp;dates&nbsp;using&nbsp;a&nbsp;red&nbsp;foreground.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*/</font><br/>
+<font color="#7f0055"><b>public&nbsp;class&nbsp;</b></font><font color="#000000">WeekendDateRenderer&nbsp;</font><font color="#7f0055"><b>extends&nbsp;</b></font><font color="#000000">RegularDateRenderer&nbsp;</font><font color="#000000">{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>private&nbsp;</b></font><font color="#000000">Calendar&nbsp;calendar&nbsp;=&nbsp;Calendar.getInstance</font><font color="#000000">()</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#000000">Component&nbsp;getDateRendererComponent</font><font color="#000000">(</font><font color="#000000">JMonth&nbsp;month,&nbsp;Date&nbsp;date</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">calendar.setTime</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>if&nbsp;</b></font><font color="#000000">(</font><font color="#000000">calendar.get</font><font color="#000000">(</font><font color="#000000">Calendar.DAY_OF_WEEK</font><font color="#000000">)&nbsp;</font><font color="#000000">==&nbsp;Calendar.SATURDAY&nbsp;||&nbsp;calendar.get</font><font color="#000000">(</font><font color="#000000">Calendar.DAY_OF_WEEK</font><font color="#000000">)&nbsp;</font><font color="#000000">==&nbsp;Calendar.SUNDAY</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setForeground</font><font color="#000000">(</font><font color="#000000">Color.red</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setFont</font><font color="#000000">(</font><font color="#000000">month.getFont</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setValue</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>return&nbsp;this</b></font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>return&nbsp;null</b></font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#000000">}</font></code>
+    
+   </td>
+  <!-- end source code -->
+   </tr>
+</table>
+</div>
+<!-- =       END of automatically generated HTML code       = -->
+<!-- ======================================================== -->
+
+
+</body></html>

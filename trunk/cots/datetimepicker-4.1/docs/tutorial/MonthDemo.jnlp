@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for MonthDemo -->
+<jnlp
+  spec="1.0+"
+  codebase="http://www.javadatepicker.com/demo/" 
+  href="../docs/tutorial/MonthDemo.jnlp">
+  <information>
+    <title>MonthDemo</title>
+    <vendor>Stand By Soft, Ltd.</vendor>
+    <homepage href="http://www.javadatepicker.com/"/>
+    <description>MonthDemo</description>
+    <description kind="short"></description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.4"/>
+    <j2se version="1.3"/>
+        <jar href="lib/javadatepicker.jar"/>
+        <jar href="lib/javadatepicker-demo.jar" main="true"/>
+  </resources>
+  <application-desc main-class="com.standbysoft.demo.date.MonthDemo"/>
+</jnlp> 

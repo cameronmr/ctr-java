@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<body>
+
+<p>Contains classes that define a rule based date rendering system. The
+big idea is to have a composite date renderer that will use a set of other 
+renderers, each one of them rendering only a certain date aspect, to render 
+a date.</p>
+
+<p>THIS IS AN EXPERIMENTAL PACKAGE THAT MIGHT BE ADDED IN THE JAVA DATE PICKER API 
+IN FUTURE VERSIONS.</p>
+
+<p>For instance, a date can have one or more of the following aspects: regular, 
+trailing, selected, today date, disabled, weekend date, special, etc. If the 
+today date is a trailing date that is disabled then it could be:</p>
+
+<ul>
+<li>painted using a gray foreground color to show its trailing aspect</li>
+<li>red crossed to show it is disabled</li>
+<li>with a red circle around it to show its is the today date</li>
+</ul>
+
+<p>Each renderer paints only a certain date aspect. This means that some
+renderers will not render any date, only some of them. The composite renderer 
+will ask all its aspect renderers to render a date and use its painting scheme 
+to determine the final look for that date.</p>
+
+<p><code>CompositeDateRenderer</code> is the composite renderer and assembles
+a set of aspect renderers.</p>
+</body>
+</html>

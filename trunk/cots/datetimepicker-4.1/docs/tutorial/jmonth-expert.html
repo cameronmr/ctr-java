@@ -1,0 +1,161 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>7.&nbsp;Using a JMonth Component - Expert Features</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="tutorial.html" title="Chapter&nbsp;2.&nbsp;How to Use the Components"><link rel="previous" href="jmonth.html" title="6.&nbsp;Using a JMonth Component"><link rel="next" href="jmonthview.html" title="8.&nbsp;Using the JMonthView Component"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">7.&nbsp;Using a JMonth Component - Expert Features</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="jmonth.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;2.&nbsp;How to Use the Components</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="jmonthview.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jmonth-expert"></a>7.&nbsp;Using a JMonth Component - Expert Features</h2></div></div><div></div></div><p>This section discusses features of a <tt class="classname">JMonth</tt>
+      component that are rarely used but which may help fine-tune it in
+      various contexts. All these features are managed by a month model and a
+      week model.</p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="monthmodel"></a>7.1.&nbsp;Concepts: About Month Models</h3></div></div><div></div></div><p>A <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/MonthModel.html">MonthModel</a></tt>
+        is used to configure basic properties of a month from the calendar.
+        Such a model is not something that you will use very often, it is more
+        for internal API use. The properties are:</p><div class="itemizedlist"><ul type="disc"><li><p>Displayed month (month and year)</p></li><li><p>Names of the months (short: Jan, Feb, etc or long: January,
+            February, etc)</p></li></ul></div><p>The <tt class="classname">com.standbysoft.component.date.swing</tt>
+        package provides a <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/DefaultMonthModel.html">DefaultMonthModel</a></tt>
+        that is the model used by default in all <tt class="classname">JMonth</tt>
+        components. For extra functionality it is recommended that you extend
+        the default model. Generally, this extra functionality is related to
+        custom month names which is explained below.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="monthmodellistener"></a>7.2.&nbsp;Listening for Changes on Month Model</h3></div></div><div></div></div><p>Listening for changes on the month model may be interesting when
+        the displayed month changes. The following line of code registers an
+        instance of MyMonthModelListener as a listener on the month's month
+        model:</p><pre class="programlisting">month.addMonthModelListener(new MyMonthModelListener());</pre><p>Here's the implementation of MyMonthModelListener:</p><pre class="programlisting">class MyMonthModelListener extends MonthModelAdapter {
+  public void monthChanged(MonthModelEvent evt) {
+    //your action here
+  }
+}</pre><p>It extends <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/event/MonthModelAdapter.html">MonthModelAdapter</a></tt>
+        because we do not need to provide an implementation for all the
+        methods of the interface.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="custommonthmodel"></a>7.3.&nbsp;Implementing a Month Model</h3></div></div><div></div></div><p>As we said above, <tt class="classname">DefaultMonthModel</tt> is
+        the default implementation for a <tt class="classname">MonthModel</tt>. It
+        is not an exhaustive implementation and that is why you might want to
+        create your own month model in certain circumstances.</p><p>For instance, the default model lets you specify the names of
+        the months using a format (SHORT or LONG) and a locale. It won't let
+        you set an array with the names of these months. To do that you can
+        extend it and override <tt class="function">getMonthNames</tt> to return
+        the names that you see fit. The following lines show a custom month
+        model that returns the month names in Latin:</p><pre class="programlisting">/**
+ * A month model with month names in Latin.
+ */
+public class LatinMonthModel extends DefaultMonthModel {
+  /**
+   * The month names in Latin.
+   */
+  private String[] names = {"Ianuarius", "Februarius", "Martius", "Aprilis", "Maius", "Iunius", "Iulius", "Augustus", "September", "October", "November", "December"};
+
+  public String[] getMonthNames() {
+    return names;
+  }
+}</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="monthmodelmethods"></a>7.4.&nbsp;Change the Displayed Month</h3></div></div><div></div></div><p>As explained in the previous section, a month model let's you
+        configure the month displayed by the <tt class="classname">JMonth</tt>
+        that uses it. You can change it using directly the month model or
+        using <tt class="classname">JMonth</tt>'s wrapper methods. The following
+        lines of code show how you can do that:</p><pre class="programlisting">//use the component's API directly
+month.setMonth(Calendar.JANUARY);
+month.setYear(2004);
+
+//use the component's supporting month model
+month.getMonthModel().setMonth(Calendar.JANUARY);
+month.getMonthModel().setYear(2004);</pre><p>By displayed month we mean both the month of the year (January,
+        February, etc) and the year. You might want to specify the displayed
+        month by using the API to make it easier for the user. For instance,
+        if the user must return an object in two months from today just scroll
+        the month from the API instead of putting this burden on the
+        user.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="enableweekselections"></a>7.5.&nbsp;Enabling Week Selections</h3></div></div><div></div></div><p>By week selections we mean the posibility to select a week
+        and/or a day of week, Tuesday for instance. These selections are
+        handled by the <tt class="classname">WeekModel</tt> which is discussed
+        below.</p><p>As a user, selecting a week means clicking on its number.
+        Selecting a day of week means clicking on its label. But for a
+        <tt class="classname">JMonth</tt> this is possible only if these
+        operations are enabled. The following code shows how you can enable a
+        <tt class="classname">JMonth</tt> component to select a day of week or a
+        week when their labels are clicked:</p><pre class="programlisting">JMonth month = new JMonth();
+
+//enable day of week selection. when a dow label is clicked, the respective day is selected
+month.setDowSelectionAllowed(true);
+
+//enable week selection. when a week label is clicked, the respective day is selected
+month.setWeekSelectionAllowed(true);
+
+//when set to TRUE, the selected week and day of week are highlighted to appear selected
+month.putClientProperty("JMonth.isWeekLabelsHighlighted", Boolean.TRUE);</pre><p>The <a href="../api/com/standbysoft/component/date/swing/plaf/basic/package-summary.html#uidelegate" target="_top">How
+        to Configure UI Delegates</a> API section explains why we use
+        client properties to configure the components.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="weekmodel"></a>7.6.&nbsp;Concepts: About Week Models</h3></div></div><div></div></div><p>Just as a <tt class="classname">MonthModel</tt>, a
+        <tt class="classname">WeekModel</tt> is something that you as developer
+        will rarely use. But it is there for all those finely week-related
+        adjustments that you would want to make. Such a model is represented
+        by the <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/WeekModel.html">WeekModel</a></tt>
+        interface which handles week settings that are needed by a
+        <tt class="classname">JMonth</tt> component. These settings are:</p><div class="itemizedlist"><ul type="disc"><li><p>First day of week</p></li><li><p>Names of the days of week (Sunday, Monday, etc)</p></li><li><p>Selected day of week</p></li><li><p>Selected week of year</p></li></ul></div><p>A <tt class="classname">JMonth</tt> <span class="bold"><b>selects a
+        day of week or a week</b></span> when their labels are clicked. The
+        <span class="bold"><b>names</b></span> are used to paint the labels
+        for the days of week and the <span class="bold"><b>first day of
+        week</b></span> is used to determine when the week starts.</p><p>The <tt class="classname">com.standbysoft.component.date.swing</tt>
+        package provides a <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/DefaultWeekModel.html">DefaultWeekModel</a></tt>
+        that is the week model used by default in all
+        <tt class="classname">JMonth</tt> components. For extra functionality it
+        is recommended that you extend the default model. Generally, this
+        extra functionality is related to custom days names which is explained
+        below.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="weekmodellistener"></a>7.7.&nbsp;Listening for Changes on Week Model</h3></div></div><div></div></div><p>Listening for changes on the week model may be interesting when
+        the selection of the week day or week changes.</p><p>The <tt class="classname">WeekDemo</tt> program uses a week model
+        istener to display a message when the selected day of week or week
+        changes. The following line of code registers an instance of
+        MyWeekModelListener as a listener on the month's week model:</p><pre class="programlisting">month.addWeekModelListener(new MyWeekModelListener());</pre><p>Here's the implementation of MyWeekModelListener:</p><pre class="programlisting">class MyWeekModelListener extends WeekModelAdapter {
+  private JTextArea messageArea;
+
+  private JMonth month;
+
+  public MyWeekModelListener(JTextArea messageArea, JMonth month) {
+    this.messageArea = messageArea;
+    this.month = month;
+  }
+
+  public void selectedDowChanged(WeekModelEvent evt) {
+    messageArea.append("New selected dow: " + month.getWeekModel().getSelectedDow() + "\n");
+  }
+
+  public void selectedWeekChanged(WeekModelEvent evt) {
+    messageArea.append("New selected week: " + month.getWeekModel().getSelectedWeek() + "/" + month.getWeekModel().getSelectedYear() + "\n");
+  }
+}</pre><p>It extends <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/event/WeekModelAdapter.html">WeekModelAdapter</a></tt>
+        because we do not need to provide an implementation for all the
+        methods of the interface.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="customweekmodel"></a>7.8.&nbsp;Implementing a Week Model</h3></div></div><div></div></div><p>As we said above, <tt class="classname">DefaultWeekModel</tt> is the
+        default implementation for a <tt class="classname">WeekModel</tt>. It is
+        not an exhaustive implementation and that is why you might want to
+        create your own week model in certain circumstances.</p><p>For instance, the default model lets you specify the names of
+        the week days using a format (SHORT or LONG) and a locale. It won't
+        let you set an array with the names of these days. To do that you can
+        extend it and override <tt class="function">getDowNames</tt> to return the
+        names that you see fit. <a href="../demo/com/standbysoft/demo/date/LatinWeekModel.java.html" target="_top">Click
+        here</a> to see a custom week model that returns the week days
+        names in Latin.</p><p>Another reason for creating your own model might be to modify
+        the selection behavior. A <tt class="classname">JMonth</tt> component uses
+        its week model to select a week when its number is clicked. In some
+        application if the same number is clicked twice that might be
+        interpreted as a deselection. But this is not JMonth's problem.</p><p>To obtain this behavior you might extend the default model so
+        that when the same week is selected twice, it should be interpreted as
+        a deselection. <a href="../demo/com/standbysoft/demo/date/ToggleWeekModel.java.html" target="_top">Click
+        here</a> to see a custom week model that toggles the selection of
+        week or week days.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="weekmodelmethods"></a>7.9.&nbsp;Specify when the Week Starts</h3></div></div><div></div></div><p>As explained in the previous section, a week model let's you
+        configure the first day of week of a <tt class="classname">JMonth</tt>.
+        You can change it using the week model or using the
+        <tt class="classname">JMonth</tt>'s wrapper method. The following lines of
+        code show how you can do that:</p><pre class="programlisting">//use the component's API directly
+month.setDowFirst(Calendar.MONDAY);
+
+//use the component's supporting week model
+month.getWeekModel().setDowFirst(Calendar.MONDAY);</pre><p>The first day of week is one of the things that change when a
+        new locale is chosen. But sometimes, this change may not be what you
+        want, so we have added the possibility of explicitly specify this
+        property.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="isoweeknumbers"></a>7.10.&nbsp;Using ISO week numbers</h3></div></div><div></div></div><p>The ISO 8601 standard defines the numeric representations of
+        date and time which includes information on how the weeks are
+        numbered. The standard defines the week 01 of a year as the first week
+        that has the Thursday in this year, which is equivalent to the week
+        that contains the fourth day of January. In other words, the first
+        week of a new year is the week that has the majority of its days in
+        the new year.</p><p>By default, a <tt class="classname">JMonth</tt> component displays
+        its week numbers using the default java.util.Calendar information. But
+        this might not be enough for people accustomed with the ISO format.
+        The following lines of code show how you can configure a
+        <tt class="classname">JMonth</tt> to use this format:</p><pre class="programlisting">DefaultWeekModel model = new DefaultWeekModel();
+model.setWeekNumberISOFormatEnabled(true);
+
+month.setWeekModel(model);</pre><p>Setting the weekNumberISOFormatEnabled to true, makes sure the
+        minimal days in the first week is 4. It does not change the first day
+        of week to Monday. If you are using a locale like France for instance,
+        then the first day of week is automatically set to Monday.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jmonth.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="tutorial.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jmonthview.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">6.&nbsp;Using a JMonth Component&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;8.&nbsp;Using the JMonthView Component</td></tr></table></div></body></html>

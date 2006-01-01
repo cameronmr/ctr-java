@@ -1,0 +1,254 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Chapter&nbsp;3.&nbsp;Advanced Topics</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="index.html" title="Date Selection with Java Date Picker"><link rel="previous" href="jmonthview.html" title="8.&nbsp;Using the JMonthView Component"><link rel="next" href="jgoodies-binding.html" title="2.&nbsp;JGoodies Binding"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter&nbsp;3.&nbsp;Advanced Topics</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="jmonthview.html">Prev</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="jgoodies-binding.html">Next</a></td></tr></table><hr></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="advanced"></a>Chapter&nbsp;3.&nbsp;Advanced Topics</h2></div></div><div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="advanced.html#uidelegate">1. How to Create a Completely New Look for the Components</a></span></dt><dd><dl><dt><span class="section"><a href="advanced.html#d0e3185">1.1. Concepts: About UI delegates</a></span></dt><dt><span class="section"><a href="advanced.html#d0e3239">1.2. Per-Application vs Per-Component Customization</a></span></dt><dt><span class="section"><a href="advanced.html#d0e3325">1.3. Creating a Custom UI Delegate</a></span></dt><dt><span class="section"><a href="advanced.html#d0e3360">1.4. Example 1: Read-Only Calendar Title</a></span></dt><dt><span class="section"><a href="advanced.html#d0e3409">1.5. Example 2: Spinner Calendar (Windows Date/Time
+        Calendar)</a></span></dt><dt><span class="section"><a href="advanced.html#d0e3442">1.6. Example 3: Image Scroll Buttons for the Calendar</a></span></dt></dl></dd><dt><span class="section"><a href="jgoodies-binding.html">2. JGoodies Binding</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="uidelegate"></a>1.&nbsp;How to Create a Completely New Look for the Components</h2></div></div><div></div></div><p>The Java Date Picker components were designed using the same
+      philosophy as the standard Swing components. This means, among other
+      things, that their actual look and feel is separated (isolated) in a UI
+      delegate object. It is this delegate that builds the graphical interface
+      of the component that is seen and used by the final users.</p><p>This section discusses how you can take advantage of the delegate
+      mechanism to further customize the components to fit even the wildest
+      requirements. It shows what the UI delegates are and how you can
+      register them on the corresponding components. A few examples of custom
+      UI delegates are also presented.</p><p>Before reading further, keep in mind that you should consider
+      using a custom UI delegate only if you cannot configure the component to
+      do what you need. This section is here for reference purposes. Usually,
+      if you need a custom delegate, we will help you implement it.</p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3185"></a>1.1.&nbsp;Concepts: About UI delegates</h3></div></div><div></div></div><p>You might want to skip this section if you are familiar to the
+        Swing architecture. It discusses what UI delegates are and why they
+        are important for Swing. A detailed article on this subject is <a href="http://java.sun.com/products/jfc/tsc/articles/architecture/index.html" target="_top">A
+        Swing Architecture Overview</a>.</p><p>When someone refers to a Swing component, it usually means an
+        instance of a class derived from <tt class="classname">JComponent</tt>.
+        But a Swing component is more than that. It is composed of:</p><div class="itemizedlist"><ul type="disc"><li><p>a <span class="bold"><b>model</b></span></p></li><li><p>a <span class="bold"><b>component</b></span> (extends
+            JComponent)</p></li><li><p>a <span class="bold"><b>UI delegate</b></span> (extends
+            ComponentUI)</p></li></ul></div><p>The model maintains data specific for the Swing component.
+        Whenever this data changes, the registered listeners are notified
+        about it. The component contains the actual API, many of its methods
+        being wrapper methods for the model. The UI delegate controls how the
+        component is painted on the screen. It is that part of the component
+        that the user sees and interacts with.</p><p>Both the model and the UI delegate are defined by interfaces
+        which means that there can be various implementations for them. In the
+        case of the UI delegate, we could have more than one way of presenting
+        the component to the user.</p><p>In fact, it is this mechanism that allows Swing to support
+        multiple look and feels. For instance, the
+        <tt class="classname">JButton</tt> component can have multiple delegates
+        like <tt class="classname">MetalButtonUI</tt>,
+        <tt class="classname">WindowsButtonUI</tt> and
+        <tt class="classname">MotifButtonUI</tt>. Each of these delegates is
+        registered on <tt class="classname">JButton</tt> when a certain look and
+        feel is active.</p><p>UI delegates can be used to provide a completely different face
+        for a component. If you find that the UI delegate of a component is
+        not appropriate for your application, you might decide to create a new
+        one. Depending on the complexity of the component, this might prove to
+        be a very complicated thing to do.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3239"></a>1.2.&nbsp;Per-Application vs Per-Component Customization</h3></div></div><div></div></div><p>The Java Date Picker components can be customized to use a UI
+        delegate in two different ways. You can have a default delegate for
+        all the instances of a component (per-application) or a particular
+        delegate for only some instances of a component
+        (per-component).</p><p>All components are configured to use a default UI delegate. For
+        instance, the default UI delegate for <tt class="classname">JMonth</tt> is
+        <tt class="classname">DefaultMonthUI</tt>. This means that whenever you
+        are using a <tt class="classname">JMonth</tt> component, it will use a
+        <tt class="classname">DefaultMonthUI</tt> delegate to present the
+        component. You can change this setting and use whatever UI delegate as
+        the default one for <tt class="classname">JMonth</tt>. This is
+        per-application customization.</p><p>To change the default UI delegate for a Java Date Picker
+        component, you have to register it with the
+        <tt class="classname">UIManager</tt>. Let's assume that you have a UI
+        delegate for <tt class="classname">JMonth</tt> called
+        <tt class="classname">SimpleTitleMonthUI</tt> and you want to make it the
+        default delegate. The following line of code shows how you can do
+        that:</p><pre class="programlisting">UIManager.put("MonthUI", SimpleTitleMonthUI.class.getName());</pre><p>In this example, MonthUI is the identifier for the default
+        <tt class="classname">JMonth</tt> UI delegate. The identifiers for the
+        other components are: DatePickerUI for
+        <tt class="classname">JDatePicker</tt>, DateFieldUI for
+        <tt class="classname">JDateField</tt> and MonthViewUI for
+        <tt class="classname">JMonthView</tt>.</p><p>But some of the <tt class="classname">JMonth</tt> components that
+        you may use in an application might require a slightly modified user
+        interface. Let's say that <span class="bold"><b>only</b></span> in one
+        input dialog you need to use a <tt class="classname">JMonth</tt> with a
+        modified title. To accomplish this, you need to make <span class="bold"><b>that</b></span> <tt class="classname">JMonth</tt> use a
+        different UI delegate than the default one. This is per-component
+        customization.</p><p>To have a particular delegate for only some instances of a
+        component you need to explicitly specify it using the
+        <tt class="function">setUI</tt> method. Let's say that you don't want
+        <tt class="classname">SimpleTitleMonthUI</tt> to replace the default UI
+        delegate. You want to use it only for a certain instance of a
+        <tt class="classname">JMonth</tt>. The following lines of code show how
+        you can do that:</p><pre class="programlisting">JMonth jMonth = new JMonth();
+jMonth.setUI((DateUI)SimpleTitleMonthUI.createUI(jMonth));</pre><p>But if the Look and Feel is changed, the specified UI delegate
+        is lost and the default one is used. To avoid this problem you should
+        override the <tt class="function">updateUI</tt> method like this:</p><pre class="programlisting">JMonth jMonth = new JMonth() {
+  public void updateUI() {
+    setUI((DateUI)SimpleTitleMonthUI.createUI(this));
+    invalidate();
+  }
+};</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3325"></a>1.3.&nbsp;Creating a Custom UI Delegate</h3></div></div><div></div></div><p>The whole purpose of this discussion on UI delegates is to show
+        how you can further customize the look of the components. You can
+        create UI delegates for the Java Date Picker components or any other
+        Swing components from scratch or starting from some basic
+        implementation.</p><p>Swing contains basic UI delegates for all of its components. For
+        <tt class="classname">JButton</tt> there is a
+        <tt class="classname">BasicButtonUI</tt> delegate. When you decide to
+        create a new <tt class="classname">ButtonUI</tt> delegate you should
+        consider extending <tt class="classname">BasicButtonUI</tt> instead of
+        creating one from scratch.</p><p>The same is true for the Java Date Picker components. Instead of
+        creating UI delegates from scratch, the API provides some basic
+        implementations that can be extended to save time. For instance, there
+        is a <tt class="classname">BasicMonthUI</tt> delegate that can be extended
+        to create delegates for <tt class="classname">JMonth</tt>. The UI delegate
+        API is explained in the <a href="../api/com/standbysoft/component/date/swing/plaf/basic/package-summary.html" target="_top">com.standbysoft.component.date.swing.plaf.basic</a>
+        package.</p><p>Creating a UI delegate usually means extending one of the basic
+        implementations (like <tt class="classname">BasicMonthUI</tt>) and then
+        overriding some base methods to plug your own behavior. The following
+        examples are a good starting point for getting hands on
+        experience.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3360"></a>1.4.&nbsp;Example 1: Read-Only Calendar Title</h3></div></div><div></div></div><p>This section shows how to create a simple UI delegate for
+        <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JMonth.html">JMonth</a></tt>.
+        It has a title that only displays the name of the current month and
+        year. The source code for this delegate can be consulted <a href="../demo/com/standbysoft/demo/date/plaf/MonthROTitleUI.java.html" target="_top">here</a>.</p><p>Step 1: Create the class</p><pre class="programlisting">public class MonthROTitleUI extends BasicMonthUI {
+  public static ComponentUI createUI(JComponent c) {
+    return new MonthROTitleUI();
+  }
+}</pre><p>To start, you have to create a class that extends <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/plaf/basic/BasicMonthUI.html">BasicMonthUI</a></tt>
+        and overrides the <tt class="function">createUI</tt> factory method. This
+        method is used internally by Swing when this UI delegate is registered
+        on a <tt class="classname">JMonth</tt> component.</p><p>Step 2: Create the title label</p><pre class="programlisting">public class MonthROTitleUI extends BasicMonthUI {
+  protected JLabel monthYearTitle;
+  ...
+  protected JComponent createTitleMonth() {
+    monthYearTitle = new JLabel("", SwingConstants.CENTER);
+    return monthYearTitle;
+  }
+}</pre><p>The delegate uses a label to display the current month name and
+        year in the title. The class <tt class="classname">BasicMonthUI</tt> uses
+        the <tt class="function">createTitleMonth</tt> method to create the
+        component that represents the month in the title area. If the method
+        returns null then it means that there is no such component. But in our
+        case, it will return the label that shows the month.</p><p>Step 3: Keep the title updated</p><pre class="programlisting">public class MonthROTitleUI extends BasicMonthUI {
+  ...
+  protected void updateTitle() {
+    int m = month.getMonth();
+    int y = month.getYear();
+    monthYearTitle.setText(getMonthNames()[m] + " " + y);
+  }
+}</pre><p>Having created the month representing label is not enough
+        because it must show accurate information. To do that, you must
+        override the <tt class="function">updateTitle</tt> method that is called
+        whenever this information changes (locale, changed month, changed
+        year) and change the text displayed on the label.</p><p>And you're done.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3409"></a>1.5.&nbsp;Example 2: Spinner Calendar (Windows Date/Time
+        Calendar)</h3></div></div><div></div></div><p>This example shows a more sophisticated UI delegate than the one
+        presented above. It also displays in the title area the month and the
+        year but not with just a simple label. It uses a
+        <tt class="classname">JComboBox</tt> to represent the months and a
+        <tt class="classname">JSpinner</tt> to represent the years. Using this
+        delegate, will make <tt class="classname">JMonth</tt> resemble more to the
+        Windows Date/Time Properties calendar. The source code for this
+        delegate can be consulted <a href="../demo/com/standbysoft/demo/date/plaf/MonthWindowsDateTimeUI.java.html" target="_top">here</a>.</p><p>Step 1: Create the class</p><pre class="programlisting">public class MonthWindowsDateTimeUI extends BasicMonthUI {
+  public static ComponentUI createUI(JComponent c) {
+    return new MonthWindowsDateTimeUI();
+  }
+}</pre><p>Step 2: Create the title month combo box</p><pre class="programlisting">public class MonthWindowsDateTimeUI extends BasicMonthUI {
+  protected JComboBox monthTitleComboBox;
+  ...
+  protected JComponent createTitleMonth() {
+    monthTitleComboBox = new JComboBox(new Integer[]{
+      new Integer(Calendar.JANUARY), new Integer(Calendar.FEBRUARY), new Integer(Calendar.MARCH), 
+      new Integer(Calendar.APRIL), new Integer(Calendar.MAY), new Integer(Calendar.JUNE), 
+      new Integer(Calendar.JULY), new Integer(Calendar.AUGUST), new Integer(Calendar.SEPTEMBER), 
+      new Integer(Calendar.OCTOBER), new Integer(Calendar.NOVEMBER), new Integer(Calendar.DECEMBER)
+      });
+
+    monthTitleComboBox.setMaximumRowCount(12);
+
+    //make sure the combo displays the name of the month correctly
+    monthTitleComboBox.setRenderer(new DefaultListCellRenderer() {
+      public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        JLabel label = (JLabel)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+        int month = ((Integer)value).intValue();
+        label.setText(getMonthNames()[month]);
+     
+        return label;
+      }
+    });
+
+    //the combo controls the displayed month
+    monthTitleComboBox.addItemListener(new ItemListener() {
+      public void itemStateChanged(ItemEvent e) {
+        month.setMonth(((Integer)monthTitleComboBox.getSelectedItem()).intValue());
+      }
+    });
+
+    return monthTitleComboBox;
+  }
+}</pre><p>Step 3: Create the title year spinner</p><pre class="programlisting">public class MonthWindowsDateTimeUI extends BasicMonthUI {
+  protected JSpinner yearTitleSpinner;
+  ...
+  protected JComponent createTitleYear() {
+    yearTitleSpinner = new JSpinner(new SpinnerNumberModel(month.getYear(), 0, 9999, 1));
+    yearTitleSpinner.setEditor(new JSpinner.NumberEditor(yearTitleSpinner, "#"));
+
+    //the spinner controls the displayed year
+    yearTitleSpinner.addChangeListener(new ChangeListener() {
+      public void stateChanged(ChangeEvent e) {
+        Integer value = (Integer)yearTitleSpinner.getValue();
+        month.setYear(value.intValue());
+      }
+    });
+
+    return yearTitleSpinner;
+  }
+}</pre><p>Step 4: Keep the title updated</p><pre class="programlisting">public class MonthWindowsDateTimeUI extends BasicMonthUI {
+  ...
+  protected void updateTitle() {
+    int m = month.getMonth();
+    int y = month.getYear();
+
+    monthTitleComboBox.setSelectedItem(new Integer(m));
+    yearTitleSpinner.setValue(new Integer(y));
+  }
+}</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3442"></a>1.6.&nbsp;Example 3: Image Scroll Buttons for the Calendar</h3></div></div><div></div></div><p>This example shows how to create a MonthViewUI delegate that
+        creates custom image scrolling buttons. The source code for this
+        delegate can be consulted <a href="../demo/com/standbysoft/demo/date/plaf/MonthViewYearButtonsUI.java.html" target="_top">here</a>.</p><p>Step 1: Create the class</p><pre class="programlisting">public class MonthViewYearButtonsUI extends DefaultMonthViewUI {
+  public static ComponentUI createUI(JComponent c) {
+    return new MonthViewYearButtonsUI();
+  }
+}</pre><p>We extend <tt class="classname">DefaultMonthViewUI</tt> because it
+        provides implementations for the today and none buttons.
+        <tt class="classname">BasicMonthViewUI</tt> provides a basic
+        implementation without such buttons.</p><p>Step 2: Create the buttons</p><pre class="programlisting">public class MonthViewYearButtonsUI extends DefaultMonthViewUI {
+  ...
+  protected JButton createPreviousMonthButton() {
+    JButton button = new ScrollButton(new ImageIcon(getClass().getResource("/toolbarButtonGraphics/media/StepBack16.gif")));
+    return button; 
+  }
+
+  protected JButton createNextMonthButton() {
+    JButton button = new ScrollButton(new ImageIcon(getClass().getResource("/toolbarButtonGraphics/media/StepForward16.gif")));
+    return button;
+  }
+    
+  protected JButton createPreviousYearButton() {
+    JButton button = new ScrollButton(new ImageIcon(getClass().getResource("/toolbarButtonGraphics/media/Rewind16.gif")));
+    return button;
+  }
+
+  protected JButton createNextYearButton() {
+    JButton button = new ScrollButton(new ImageIcon(getClass().getResource("/toolbarButtonGraphics/media/FastForward16.gif")));
+    return button;
+  }
+}
+
+class ScrollButton extends JButton {
+    public ScrollButton(Icon icon) {
+        super(icon);
+        setContentAreaFilled(false);
+        setBorder(new EmptyBorder(new Insets(0, 0, 0, 0)));
+    }
+    
+    public boolean isFocusTraversable() {
+        return false;
+    }
+}</pre><p>Just like with the other UI delegates, customization means
+        overriding some protected methods. In this case, you have to override
+        the <tt class="function">createNextMonthButton</tt>,
+        <tt class="function">createPreviousMonthButton</tt>,
+        <tt class="function">createNextYearButton</tt> and the
+        <tt class="function">createPreviousYearButton</tt> methods.</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jmonthview.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="index.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jgoodies-binding.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">8.&nbsp;Using the JMonthView Component&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;2.&nbsp;JGoodies Binding</td></tr></table></div></body></html>

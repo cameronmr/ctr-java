@@ -1,0 +1,144 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>2.&nbsp;Using a JDateComponent</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="tutorial.html" title="Chapter&nbsp;2.&nbsp;How to Use the Components"><link rel="previous" href="tutorial.html" title="Chapter&nbsp;2.&nbsp;How to Use the Components"><link rel="next" href="jdateeditcomponent.html" title="3.&nbsp;Using a JDateEditComponent"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.&nbsp;Using a JDateComponent</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="tutorial.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;2.&nbsp;How to Use the Components</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="jdateeditcomponent.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jdatecomponent"></a>2.&nbsp;Using a JDateComponent</h2></div></div><div></div></div><p><tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JDateComponent.html">JDateComponent</a></tt>
+      is the foundation for all Java Date Picker's date components, and
+      provides the following features for all of its descendants:</p><div class="itemizedlist"><ul type="disc"><li><p>A date selection model, which manages selected dates and can
+          define the selectable dates</p></li><li><p>A set of actions, which perform various date selections on the
+          component's model</p></li></ul></div><p>This section uses the application shown below to explore all these
+      capabilities. Although the demo application contains a customized
+      instance of <tt class="classname">JMonthView</tt>, the capabilities
+      discussed in this section are inherited by all of
+      <tt class="classname">JDateComponent</tt>'s subclasses.</p><div class="figure"><a name="d0e1553"></a><p class="title"><b>Figure&nbsp;2.2.&nbsp;A demo application for a JDateComponent</b></p><div class="mediaobject"><img src="images/DateComponentDemo.jpg" alt="A demo application for a JDateComponent"></div></div><p>The top left component is the customized month view. The bottom
+      right text component is an instance of JTextArea, which serves as a log
+      that reports all changes made to the date selection model of the month
+      view.</p><div class="orderedlist"><p class="title"><b>Try this:</b></p><ol type="1"><li><p><a href="http://www.javadatepicker.com/docs/tutorial/DateComponentDemo.jnlp" target="_top">Run
+          DateComponentDemo</a> using Java Web Start or consult the <a href="../demo/com/standbysoft/demo/date/DateComponentDemo.java.html" target="_top">source
+          code</a> for yourself.</p></li><li><p>Select a date with mouse or keyboard. Information about date
+          selection changes is displayed in the log text area. Dates marked
+          with a red X are disabled and cannot be selected.</p></li><li><p>Click on the Selection Model combo box and choose "Disable at
+          your choice". Now toggle the "Mark displayed dates" and click on the
+          dates that you want to be disabled. These dates will be marked with
+          a red X and cannot be selected. Click again on "Mark displayed
+          dates" to stop disabling dates.</p></li><li><p>Change the displayed month using the two top arrow buttons or
+          the popup menu associated with the name of the month. The month is
+          also changed if a trailing date is selected.</p></li><li><p>Click on the None button to remove all selected dates.</p></li><li><p>Use the SPACE key to select the next selectable date. This is
+          a custom key binding associated with the component.</p></li></ol></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="selecting-date"></a>2.1.&nbsp;Selecting a Date</h3></div></div><div></div></div><p>By definition, a <tt class="classname">JDateComponent</tt> manages
+        one or more dates by means of its date selection model. A date could
+        be selected directly by using its date selection model or its
+        <tt class="function">setSelectedDate</tt> method. The following code shows
+        how to select a date:</p><pre class="programlisting">//use the component's API directly
+component.setSelectedDate(date);
+
+//use the component's supporting date selection model
+component.getDateSelectionModel().setDateSelectionInterval(date, date);</pre><p>Although dates can be selected using the underlying date
+        selection model, the <tt class="function">setSelectedDate</tt> method makes
+        the code cleaner. Not only that but this method can also be used to
+        specify a null date (empty selection), if <a href="jdatecomponent.html#dsmallowemptyselection" title="2.2.&nbsp;Allowing Empty Selection or Null Dates">allowed</a>. The following code
+        shows how to select a null date:</p><pre class="programlisting">//use the component's API directly
+component.setSelectedDate(null);
+
+//use the component's supporting date selection model
+component.getDateSelectionModel().removeAllDates();</pre><p><tt class="classname">JDateComponent</tt> is the foundation of all
+        date selection components and it provides the
+        <tt class="function">setSelectedDate</tt> method because it is common for
+        all of them. Other components might supply their own selection
+        methods. For instance, <tt class="classname">JMonth</tt> provides the
+        method <a href="jmonth.html#selecting-dates" title="6.1.&nbsp;Selecting Dates">setSelectedDates</a> which
+        allows to select more than one date.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="dsmallowemptyselection"></a>2.2.&nbsp;Allowing Empty Selection or Null Dates</h3></div></div><div></div></div><p>Date selection means not only selecting one or more dates, but
+        also selecting no date at all. By empty selection we mean no selected
+        date. Empty selection is also known as null date selection.</p><p>The <tt class="classname">DateComponentDemo</tt> program configures
+        the month view to accept empty date selections. Although this is
+        enabled by default, it is shown here for learning purposes.</p><p>The following line of code enables empty date selection for the
+        month view date component:</p><pre class="programlisting">try {
+  component.setEmptySelectionAllowed(true);
+} catch (Exception e) {
+}</pre><p>When empty selection is not allowed, no matter what operation is
+        performed, at least one date is kept as selected. Changing the model
+        from <span class="emphasis"><em>empty selection allowed</em></span> to <span class="emphasis"><em>empty
+        selection not allowed</em></span> there must be at least one date
+        selected because otherwise the model would be in an inconsistent
+        state.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1645"></a>2.3.&nbsp;Concepts: About Date Selection Models</h3></div></div><div></div></div><p>The Java Date Picker components use a selection mechanism to
+        control dates' selection. If you want to know all the details about
+        this mechanism, the javadoc has a detailed <a href="../api/com/standbysoft/component/date/package-summary.html#selection" target="_top">description</a>.</p><p>A date component's selection model is an instance of a class
+        that implements <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/DateSelectionModel.html">DateSelectionModel</a></tt>
+        interface. The services this model offers are:</p><div class="itemizedlist"><ul type="disc"><li><p>Controls the selection type (single, single interval or
+            multiple interval)</p></li><li><p>Manages selected dates</p></li><li><p>Imposes restrictions on selectable dates</p></li><li><p>Controls if empty selection (null date) is allowed</p></li><li><p>Notifies listeners about date selection changes</p></li></ul></div><p>The <tt class="classname">com.standbysoft.component.date</tt>
+        package provides an <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/AbstractDateSelectionModel.html">AbstractDateSelectionModel</a></tt>
+        that contains an implementation of almost all methods and a <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/DefaultDateSelectionModel.html">DefaultDateSelectionModel</a></tt>
+        that is the selection model used by default in all date
+        components.</p><p>If you find these implementations are not enough, it is
+        recommended that you extend the default one to provide the extra
+        functionality you need. Generally, this extra functionality is related
+        to date restriction which is explained below.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1687"></a>2.4.&nbsp;Listening for Changes on Date Selection Model</h3></div></div><div></div></div><p>Sometimes you might just want to check what happens with the
+        selection model. Perhaps to see when the selected dates change.</p><p>The <tt class="classname">DateComponentDemo</tt> program uses a date
+        selection listener to display a message when the selected dates
+        change. The following line of code registers an instance of
+        <tt class="classname">MyDateSelectionListener</tt> as a listener on the
+        month view's date selection model:</p><pre class="programlisting">component.addDateSelectionListener(new MyDateSelectionListener());</pre><p>Here's
+        the implementation of
+        <tt class="classname">MyDateSelectionListener</tt>:</p><pre class="programlisting">class MyDateSelectionListener implements DateSelectionListener {
+  public void dateSelectionChanged(DateSelectionEvent evt) {
+    messageArea.append("[" + evt.getFirstDate() + ", " + evt.getLastDate() + "]\n");
+  }
+  public void disabledDatesChanged(DateSelectionEvent evt) {}
+  public void selectionModeChanged(DateSelectionEvent evt) {}
+  public void emptySelectionAllowedChanged(DateSelectionEvent evt) {}
+}</pre><p>You can also extend <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/event/DateSelectionAdapter.html">DateSelectionAdapter</a></tt>
+        if you do not need to provide an implementation for all the methods of
+        the interface as the adapter has an empty implementation for all of
+        them.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1713"></a>2.5.&nbsp;Implementing a Date Selection Model</h3></div></div><div></div></div><p>Often the business logic imposes restrictions on the dates that
+        can be selected by users. Possible solutions are to validate the
+        selected dates against the list of selectable dates or to make it
+        impossible in the first place for those dates to be selected. The date
+        selection model helps you implement the second approach in a flexible
+        manner.</p><p>It is most likely that you will not have to create your own
+        model, at least not from scratch by implementing the
+        <tt class="classname">DateSelectionModel</tt> interface. But you will need
+        a custom date selection model if you have to provide your own logic
+        for date restriction.</p><p>The <tt class="classname">DateComponentDemo</tt> program uses a
+        custom date selection model to forbid the selection of weekend dates.
+        The following line of code registers an instance of
+        <tt class="classname">MyDateSelectionModel</tt> as a date selection model
+        for month view:</p><pre class="programlisting">DefaultDateSelectionModel model = new MyDateSelectionModel();
+model.setMinimumAllowed(new Date());
+component.setDateSelectionModel(model);</pre><p>Here's the implementation of
+        <tt class="classname">MyDateSelectionModel</tt>:</p><pre class="programlisting">class MyDateSelectionModel extends DefaultDateSelectionModel {
+  private Calendar cal = Calendar.getInstance();
+
+  public boolean isDisabled(Date date) {
+    cal.setTime(date);
+    return (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY);
+  }
+}</pre><p>In addition to restricting weekend dates, all the dates previous
+        to current date are also restricted. The <tt class="function">setMinimumAllowed
+        </tt>method which is available from classes extended from
+        <tt class="classname">AbstractDateSelectionModel</tt> is used to
+        accomplish this.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="action-events"></a>2.6.&nbsp;Listening for Action Events</h3></div></div><div></div></div><p>Action events are a complementary mechanism for outside world
+        notification. For instance, date selection events are fired as the
+        date selection model changes but action events are fired when
+        something happens with the component that cannot be notified somehow
+        else.</p><p>Because the action events are generic, one can differentiate
+        between them using the name of the command. Each date component
+        defines its own command names. Context information about the event is
+        supplied by the component itself.</p><p>For now, only the <tt class="classname">JMonth</tt> and
+        <tt class="classname">JMonthView</tt> components fire action events when a
+        selectable date is double clicked.</p><pre class="programlisting">component.addActionListener(new ActionListener() {
+  public void actionPerformed(ActionEvent e) {
+    messageArea.append(e + "\n");
+  }
+});</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1767"></a>2.7.&nbsp;Associating Date Actions with Key Strokes</h3></div></div><div></div></div><p>The month view in the <tt class="classname">DateComponentDemo</tt>
+        supports an extra key binding not provided by default. Pressing SPACE
+        selects the next selectable date.</p><p>The following code adds the SPACE key binding to the month
+        view:</p><pre class="programlisting">InputMap im = component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+ActionMap am = component.getActionMap();
+
+KeyStroke keyForward = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0);
+im.put(keyForward, JDateComponent.selectNextDayAction);
+am.put(JDateComponent.selectNextDayAction, new JDateComponent.RollDateAction(Calendar.DATE, true));</pre><p>A <tt class="classname">JDateComponent</tt> contains a few other
+        actions that act on the date selection model, changing the selected
+        dates.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1785"></a>2.8.&nbsp;Disabling the Component</h3></div></div><div></div></div><p>Sometimes, users should only see the selected days and not
+        select them. For this, you can disable the calendar to receive any
+        kind of input (mouse or keyboard).</p><p>You can enable or disable a date component using the
+        <tt class="function">setEnabled</tt> method. To find out whether it is
+        enabled or not use <tt class="function">isEnabled</tt> method. The
+        following line of code disables a component:</p><pre class="programlisting">component.setEnabled(false);</pre></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="tutorial.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="tutorial.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jdateeditcomponent.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter&nbsp;2.&nbsp;How to Use the Components&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;3.&nbsp;Using a JDateEditComponent</td></tr></table></div></body></html>

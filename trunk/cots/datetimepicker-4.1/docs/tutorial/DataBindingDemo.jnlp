@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for DataBindingDemo -->
+<jnlp
+  spec="1.0+"
+  codebase="http://www.javadatepicker.com/demo/" 
+  href="../docs/tutorial/DataBindingDemo.jnlp">
+  <information>
+    <title>DataBindingDemo</title>
+    <vendor>Stand By Soft, Ltd.</vendor>
+    <homepage href="http://www.javadatepicker.com/"/>
+    <description>DataBindingDemo</description>
+    <description kind="short"></description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.4"/>
+    <j2se version="1.3"/>
+        <jar href="lib/javadatepicker.jar"/>
+        <jar href="lib/javadatepicker-binding.jar"/>
+        <jar href="lib/javadatepicker-demo.jar" main="true"/>
+  </resources>
+  <application-desc main-class="com.standbysoft.demo.date.binding.DataBindingDemo"/>
+</jnlp> 

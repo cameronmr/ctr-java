@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for DateComponentDemo -->
+<jnlp
+  spec="1.0+"
+  codebase="http://www.javadatepicker.com/demo/" 
+  href="../docs/tutorial/DateComponentDemo.jnlp">
+  <information>
+    <title>DateComponentDemo</title>
+    <vendor>Stand By Soft, Ltd.</vendor>
+    <homepage href="http://www.javadatepicker.com/"/>
+    <description>DateComponentDemo</description>
+    <description kind="short">Customizes a month view to illustrate
+    many date component features.
+    </description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.4"/>
+    <j2se version="1.3"/>
+        <jar href="lib/javadatepicker.jar"/>
+        <jar href="lib/jlfgr-1_0.jar"/>
+        <jar href="lib/javadatepicker-demo.jar" main="true"/>
+  </resources>
+  <application-desc main-class="com.standbysoft.demo.date.DateComponentDemo"/>
+</jnlp> 
