@@ -1,0 +1,131 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>3.&nbsp;Using a JDateEditComponent</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="tutorial.html" title="Chapter&nbsp;2.&nbsp;How to Use the Components"><link rel="previous" href="jdatecomponent.html" title="2.&nbsp;Using a JDateComponent"><link rel="next" href="jdatepicker.html" title="4.&nbsp;Using the JDatePicker Component"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.&nbsp;Using a JDateEditComponent</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="jdatecomponent.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;2.&nbsp;How to Use the Components</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="jdatepicker.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jdateeditcomponent"></a>3.&nbsp;Using a JDateEditComponent</h2></div></div><div></div></div><p><tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JDateEditComponent.html">JDateEditComponent</a></tt>
+      is the base class for all date editing components and inherits from
+      <tt class="classname">JDateComponent</tt>. The inherited features are
+      explained in the respective <a href="jdatecomponent.html" title="2.&nbsp;Using a JDateComponent">tutorial
+      section</a>. A date edit component provides the following features
+      for all of its descendants:</p><div class="itemizedlist"><ul type="disc"><li><p>A date model to manage the edited date.</p></li><li><p>Custom date formats to allow the editing of any date
+          aspect.</p></li><li><p>Built-in structured date editor that forces users to type
+          correct dates. Users can type in a new value or use the up and down
+          arrows to increment or decrement it.</p></li><li><p>Free text entries that are converted to dates using a custom
+          date parser. This makes it possible to plug special parsers that can
+          convert shortcut strings like 'today' to an appropriate date.</p></li></ul></div><p>For now, the editor is best at editing dates represented in a
+      numeric format like "MM/dd/yyyy" (02/15/2003). For instance, if the
+      editor displays 02/15/2003, moving the cursor at the beginning and
+      typing 01022004 would set the date "01/02/2004".</p><p>This section uses the application shown below to explore all these
+      capabilities. Although the demo application contains a customized
+      instance of <tt class="classname">JDateField</tt>, the capabilities
+      discussed in this section are inherited by all of
+      <tt class="classname">JDateEditComponent</tt>'s subclasses.</p><div class="figure"><a name="d0e1836"></a><p class="title"><b>Figure&nbsp;2.3.&nbsp;A demo application for a JDateEditComponent</b></p><div class="mediaobject"><img src="images/DateEditComponentDemo.jpg" alt="A demo application for a JDateEditComponent"></div></div><div class="orderedlist"><p class="title"><b>Try this:</b></p><ol type="1"><li><p><a href="http://www.javadatepicker.com/docs/tutorial/DateEditComponentDemo.jnlp" target="_top">Run
+          DateEditComponentDemo</a> using Java Web Start or consult the
+          <a href="../demo/com/standbysoft/demo/date/DateEditComponentDemo.java.html" target="_top">source
+          code</a> for yourself.</p></li><li><p>Use different date formats (including custom ones) and
+          locales.</p></li><li><p>Click on the Free Text Editing check box to enable free text
+          editing. The component will be configured with a date parser that
+          converts the "today" text to the today date. Then type "today" and
+          press ENTER to tell the component to select the today date.</p></li><li><p>Click on the Selection Model combo box and choose "No
+          Weekends". Then try typing a weekend date. It cannot be selected as
+          it is not allowed by the date selection model.</p></li><li><p>Use various combinations of autoValidation, autoRestore and
+          beepOnError to see what happens at validation time.</p></li><li><p>Click on the Null Date Text text field to change the text used
+          to represent null dates and press Apply. Then click in the date
+          field, erase the whole date and press ENTER. The component will
+          display the null date using the specified null date text.</p></li></ol></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1868"></a>3.1.&nbsp;Setting an Appropriate Date Format</h3></div></div><div></div></div><p>The date edit component in the
+        <tt class="classname">DateEditComponentDemo</tt> can be configured to edit
+        a date according to a predefined or custom date format.</p><p>The predefined formats are
+        <tt class="constant">DateFormat.SHORT</tt>,
+        <tt class="constant">DateFormat.MEDIUM</tt>,
+        <tt class="constant">DateFormat.LONG</tt> or
+        <tt class="constant">DateFormat.FULL</tt> and together with the locale they
+        determine how dates are displayed by the component. The default value
+        for the format is <tt class="constant">DateFormat.DEFAULT</tt> (=
+        <tt class="constant">DateFormat.MEDIUM</tt>).</p><p>The following code changes the date format to
+        DateFormat.FULL:</p><pre class="programlisting">editComponent.setDateFormat(DateFormat.FULL);</pre><p>A custom format can be used whenever the predefined formats are
+        not enough. This includes time representation. Such custom formats are
+        described using the <a href="http://java.sun.com/docs/books/tutorial/i18n/format/datepattern.html" target="_top">Date
+        Format Pattern Syntax</a>. For instance if you want to format
+        dates like "12:08 PM" you must use "h:mm a" as custom date
+        pattern.</p><p>The following code changes the date format to "h:mm a":</p><pre class="programlisting">editComponent.setCustomDateFormat("h:mm a");</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1909"></a>3.2.&nbsp;Concepts: About Date Models</h3></div></div><div></div></div><p>As with any other Swing component, date edit components use a
+        model to represent the edited date. A date edit component's model is
+        an instance of a class that implements the <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/DateModel.html">DateModel</a></tt>
+        interface. It provides the following services:</p><div class="itemizedlist"><ul type="disc"><li><p>Manages the edited date and its fields</p></li><li><p>Notifies listeners about date and date field changes</p></li></ul></div><p>The <tt class="classname">com.standbysoft.component.date</tt>
+        package provides an <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/DefaultDateModel.html">DefaultDateModel</a></tt>
+        that is the model used by default in all date edit components.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="datemodellistener"></a>3.3.&nbsp;Listening for Changes on Date Model</h3></div></div><div></div></div><p>For different reasons, like activating a save action, you might
+        want to know when a date field has changed.</p><p>The <tt class="classname">DateEditComponentDemo</tt> program uses a
+        date listener to display a message when a date field changes. The
+        following line of code registers an instance of
+        <tt class="classname">MyDateListener</tt> as a listener on the date edit
+        component's date model:</p><pre class="programlisting">editComponent.addDateListener(new MyDateListener());</pre><p>Here's
+        the implementation of <tt class="classname">MyDateListener</tt>:</p><pre class="programlisting">class MyDateListener implements DateListener {
+  public void dateFieldChanged(DateEvent evt) {
+    messageArea.append(evt + "\n");
+  }
+
+  public void dateChanged(DateEvent evt) {
+    messageArea.append(evt + "\n");
+  }
+}</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1954"></a>3.4.&nbsp;Concepts: About Date Parsers</h3></div></div><div></div></div><p>The date edit components can be configured to have a very
+        flexible input. Once the free text feature is enabled, a date parser
+        can be registered to transform shortcut strings into dates. For
+        instance, one could create a parser that translates strings like
+        'today', 'yesterday', '3 days ago' or 'next month' to appropriate
+        dates.</p><p>A date parser is an instance of a class that implements
+        <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/DateParser.html">DateParser</a></tt>
+        interface. The <tt class="classname">com.standbysoft.component.date
+        </tt>package provides a <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/DefaultDateParser.html">DefaultDateParser</a></tt>
+        that is the date parser used by default in all date edit components.
+        The default parser tries to build a date from specified text only if
+        it matches the specified date pattern. For advanced parsers, you would
+        have to do your own implementation.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1970"></a>3.5.&nbsp;Implementing a Date Parser</h3></div></div><div></div></div><p>The <tt class="classname">DateEditComponentDemo</tt> program uses a
+        custom date parser that extends a default date parser to convert the
+        "today" string to the today date. The following line of code registers
+        an instance of <tt class="classname">MyDateParser</tt> as a date parser
+        for date edit component:</p><pre class="programlisting">editComponent.setDateParser(new MyDateParser());</pre><p>Here's the implementation of
+        <tt class="classname">MyDateParser</tt>:</p><pre class="programlisting">class MyDateParser extends DefaultDateParser {
+  private Calendar cal = Calendar.getInstance();
+
+  public MyDateParser() {
+    cal.clear(Calendar.HOUR);
+    cal.clear(Calendar.HOUR_OF_DAY);
+    cal.clear(Calendar.MINUTE);
+    cal.clear(Calendar.SECOND);
+    cal.clear(Calendar.MILLISECOND);
+  }
+
+  public Date parse(String text, Date reference, DateFormat format) throws DateParserException {
+    if (text.toLowerCase().equals("today")) {
+      return cal.getTime();
+    } else {
+      return super.parse(text, reference, format);
+    }
+  }
+}</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="validation"></a>3.6.&nbsp;Configuring Validation Behavior</h3></div></div><div></div></div><p>The validation of a date is one of the most important issues
+        when it comes to typing or selecting one. The date selection model
+        contains all the rules that indicate semantically valid dates while
+        the built in date editor forces the users to enter syntactically valid
+        dates.</p><p>A date edit component can detect a semantically invalid date
+        only when the editing finishes. This happens when the user requests
+        it, hits ENTER, or when the component loses focus. Validation on lost
+        focus can be configured using the <span class="property">autoValidation</span>
+        property.</p><p>The following line of code disables automatic validation:</p><pre class="programlisting">editComponent.setAutoValidation(false);</pre><p>You can also request a date edit to be validated from the API by
+        calling the <tt class="function">commitEdit</tt> method. To detect whether
+        the current edited date is valid or not use the
+        <tt class="function">isEditValid</tt> method.</p><p>Because the entered date might not be semantically valid, some
+        actions could be triggered at validation time. Such actions are
+        automatic restoring of the last valid date and sounding a beep. In
+        addition to this configurable actions, you could build your own policy
+        for handling invalid edits by overridding the
+        <tt class="function">invalidEdit</tt> method.</p><p>The following code listing disables automatic date restoring and
+        enables beep on error:</p><pre class="programlisting">editComponent.setAutoRestore(false);
+editComponent.setBeepOnError(true);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="editing"></a>3.7.&nbsp;Configuring Editing Behavior</h3></div></div><div></div></div><p>By default, if a user initiates an edit on a
+        <tt class="classname">JDateEditComponent</tt> component with the keyboard,
+        the entered values are inserted where the cursor is positioned. This
+        behavior can be configured using the
+        JDateEditComponent.clearDateOnEdit client property.</p><p>If JDateEditComponent.clearDateOnEdit is set on Boolean.TRUE,
+        the date is cleared when the user initiates an edit with the keyboard.
+        But, if the user initiates an edit by clicking in the field with the
+        mouse, the date is NOT cleared and the cursor is placed exactly where
+        the user clicked.</p><p>The following example shows how you can enable the "clear on
+        edit" behavior:</p><pre class="programlisting">editComponent.putClientProperty("JDateEditComponent.clearDateOnEdit", Boolean.TRUE);</pre><p>The <a href="../api/com/standbysoft/component/date/swing/plaf/basic/package-summary.html#uidelegate" target="_top">How
+        to Configure UI Delegates</a> API section explains why we use
+        client properties to configure the components.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jdatecomponent.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="tutorial.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jdatepicker.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">2.&nbsp;Using a JDateComponent&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;4.&nbsp;Using the JDatePicker Component</td></tr></table></div></body></html>

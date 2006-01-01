@@ -1,0 +1,142 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>4.&nbsp;Using the JDatePicker Component</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="tutorial.html" title="Chapter&nbsp;2.&nbsp;How to Use the Components"><link rel="previous" href="jdateeditcomponent.html" title="3.&nbsp;Using a JDateEditComponent"><link rel="next" href="jdatefield.html" title="5.&nbsp;Using the JDateField Component"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.&nbsp;Using the JDatePicker Component</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="jdateeditcomponent.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;2.&nbsp;How to Use the Components</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="jdatefield.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jdatepicker"></a>4.&nbsp;Using the JDatePicker Component</h2></div></div><div></div></div><p>The <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JDatePicker.html">JDatePicker</a></tt>
+      is a component that can edit a date and also select it using a drop down
+      calendar. It inherits all the date editing features from <a href="jdateeditcomponent.html" title="3.&nbsp;Using a JDateEditComponent">JDateEditComponent</a>. Here are the
+      features this component provides:</p><div class="itemizedlist"><ul type="disc"><li><p>Editable or non-editable behavior.</p></li><li><p>Customization of the drop down calendar.</p></li><li><p>Possibility to use it as a JTable cell editor for Date
+          objects.</p></li></ul></div><p>This section uses the application shown below to explore all these
+      capabilities. Not all editing features are presented here as they are
+      presented in the <a href="jdateeditcomponent.html" title="3.&nbsp;Using a JDateEditComponent">date editing
+      section</a>.</p><div class="figure"><a name="d0e2068"></a><p class="title"><b>Figure&nbsp;2.4.&nbsp;A demo application for the JDatePicker component</b></p><div class="mediaobject"><img src="images/DatePickerDemo.jpg" alt="A demo application for the JDatePicker component"></div></div><div class="orderedlist"><p class="title"><b>Try this:</b></p><ol type="1"><li><p><a href="http://www.javadatepicker.com/docs/tutorial/DatePickerDemo.jnlp" target="_top">Run
+          DatePickerDemo</a> using Java Web Start or consult the <a href="../demo/com/standbysoft/demo/date/DatePickerDemo.java.html" target="_top">source
+          code</a> for yourself.</p></li><li><p>Click the date picker component to display the drop down
+          calendar. Then click on a date from the calendar. The date will be
+          displayed by the component.</p></li><li><p>Press the DOWN arrow key on the date picker component to
+          display the drop down calendar. Now, use the arrows keys (LEFT,
+          RIGHT, UP, DOWN) to select a date and then press ENTER. The last
+          selected date will be displayed by the component.</p></li><li><p>Click the Editable check box to make the date picker editable.
+          Then click on the date picker, type 11112004 and press ENTER;
+          November 11, 2004 will be selected.</p></li><li><p>Click on the Foreground button and select a color. The dates
+          from the drop down calendar will be painted using this color.</p></li><li><p>Click on the Date Format combo box and select Short. The date
+          selected by the date picker will be displayed using this
+          format.</p></li><li><p>In the bottom table, click on one of the cells from the Start
+          column. Use the date picker cell editor to select a different
+          date.</p></li></ol></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2103"></a>4.1.&nbsp;Working with an Editable Date Picker</h3></div></div><div></div></div><p>There are applications where users prefer to use the keyboard
+        rather than the mouse. <tt class="classname">JDatePicker</tt> can act like
+        a regular date edit component but only if activated using the
+        <tt class="classname">setEditable</tt> method. It is not active by
+        default. More about the date editing features is presented in the
+        <a href="jdateeditcomponent.html" title="3.&nbsp;Using a JDateEditComponent">JDateEditComponent</a> tutorial
+        section.</p><p>The following line of code turns the date picker into an
+        editable one:</p><pre class="programlisting">datePicker.setEditable(true);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="jdatepicker-background"></a>4.2.&nbsp;Changing the Background Color</h3></div></div><div></div></div><p>Setting the background color for
+        <tt class="classname">JDatePicker</tt> is easy to do. Just use the
+        <tt class="function">setBackground</tt> method and specify your
+        color.</p><p>If the date picker is editable, the background color for its
+        date field is not changed. You have to register the
+        <span class="emphasis"><em>JDatePicker.backgroundOnEditable</em></span> client property
+        in order for the background color to be set on the date field too. The
+        following line of code shows how the background color can be
+        set:</p><pre class="programlisting">datePicker.putClientProperty("JDatePicker.backgroundOnEditable", Boolean.TRUE);
+datePicker.setBackground(Color.red);</pre><p>This might seem very complicated but we are trying to preserve
+        the <tt class="classname">JComboBox</tt> behavior.
+        <tt class="classname">JDatePicker</tt> uses a modified
+        <tt class="classname">JComboBox</tt> so when you specify a background
+        color, it is in fact set on the supporting
+        <tt class="classname">JComboBox</tt>.</p><p>If the combo box is editable, the background color is not set on
+        the editing component (Swing implementation bug?).
+        <tt class="classname">JDatePicker</tt> uses the
+        <span class="emphasis"><em>JDatePicker.backgroundOnEditable</em></span> client property
+        to correct this behavior.</p><p>The <a href="../api/com/standbysoft/component/date/swing/plaf/basic/package-summary.html#uidelegate" target="_top">How
+        to Configure UI Delegates</a> API section explains why we use
+        client properties to configure the components.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2166"></a>4.3.&nbsp;Configuring the Drop Down Calendar</h3></div></div><div></div></div><p>The drop down calendar is an important part of a date picker
+        because it allows to select a date easily. As a programmer, you might
+        want to configure it to better suit your needs. For instance, show the
+        week numbers that are hidden by default. For such operations, the date
+        picker does not provide a reference to the calendar but a set of
+        methods through which you can change it.</p><p>We prefer this design because the calendar can be made
+        implementation dependant. In the current implementation, we use
+        <tt class="classname">JMonthView</tt> to represent the calendar. The
+        methods that configure the calendar are of the form
+        setCalendar&lt;property&gt;
+        (<tt class="function">setCalendarBackground</tt>,
+        <tt class="function">setCalendarForeground</tt>, etc). Here is a list with
+        all the calendar properties that can be set through the
+        <tt class="classname">JDatePicker</tt> API:</p><div class="itemizedlist"><ul type="disc"><li><p><span class="property">calendarDisplayToday</span> indicates whether
+            the today button is visible or not</p></li><li><p><span class="property">calendarWeekNumbersVisible</span> indicates
+            whether the week numbers are visible or not</p></li><li><p><span class="property">calendarBackground</span> refers to the
+            background color of the calendar</p></li><li><p><span class="property">calendarForeground</span> refers to the
+            foreground color of the calendar</p></li><li><p><span class="property">calendarTitleBackground</span> refers to the
+            background color of the calendar title</p></li><li><p><span class="property">calendarTitleForeground</span> refers to the
+            foreground color of the calendar title</p></li><li><p><span class="property">calendarTrailingForeground</span> refers to
+            the foreground color of the trailing days</p></li><li><p><span class="property">calendarDateRenderer</span> refers to the date
+            renderer used to display the calendar days</p></li></ul></div><p>The following lines of code customize the calendar of a date
+        picker:</p><pre class="programlisting">datePicker.setForeground(Color.black);
+datePicker.setCalendarTitleBackground(new Color(50, 100, 255));
+datePicker.setCalendarTitleForeground(Color.white);
+datePicker.setCalendarTrailingForeground(Color.gray);
+datePicker.setCalendarBackground(new Color(255, 255, 100));
+datePicker.setCalendarDateRenderer(new DefaultDateRenderer());
+datePicker.setFont(new Font("Arial", Font.PLAIN, 15));</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2230"></a>4.4.&nbsp;Localizing the Component</h3></div></div><div></div></div><p>Like any other <tt class="classname">JDateComponent</tt>, the
+        <tt class="classname">JDatePicker</tt> can be localized for various
+        languages and regions. The localization acts upon the calendar used by
+        the date picker and on how it displays the selected date.</p><p>By default, the system's locale is used but it can be configured
+        to use any locale. To change the locale, use the
+        <tt class="function">setLocale</tt> method.</p><p>The following line of code changes the locale to Spanish:</p><pre class="programlisting">datePicker.setLocale(new Locale("es", "ES"));
+datePicker.setDateFormat(DateFormat.FULL);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="customlf"></a>4.5.&nbsp;Using a Custom Look and Feel</h3></div></div><div></div></div><p><tt class="classname">JDatePicker</tt> can be used with any look and
+        feel. The default ones are : Metal, Motif, Windows and Aqua but others
+        can be supported as this section explains.</p><p>The <tt class="classname">JDatePicker</tt> implementation uses a
+        modified <tt class="classname">JComboBox</tt> to represent the drop-down
+        calendar. Actually, what is modified is its implementation,
+        <tt class="classname">ComboBoxUI</tt>, for which the popup is changed. Let
+        us see how this is done for a custom look and feel like JGoodies
+        Plastic.</p><p>First of all, create a class that extends the
+        <tt class="classname">PlasticComboBoxUI</tt> and implements <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/util/swing/ComboBoxUIExt.html">ComboBoxUIExt</a></tt>
+        (this interface is used internally by
+        <tt class="classname">JDatePicker</tt> to change the popup when the look
+        and feel changes).</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>We assume that the respective ComboBoxUI can be extended and
+          it is not final. <tt class="classname">PlasticComboBoxUI</tt> is final
+          but one can use the sources to modify it and clear the final
+          modifier. The looks jar that comes with the demo has the
+          <tt class="classname">PlasticComboBoxUI</tt> file modified.</p></div><pre class="programlisting">import com.jgoodies.looks.plastic.PlasticComboBoxUI;
+import com.standbysoft.component.util.swing.ComboBoxUIExt;
+
+public class PlasticComboBoxUIExt extends PlasticComboBoxUI implements ComboBoxUIExt {
+  public void setComboPopup(ComboPopup popup) {
+  }
+}</pre><p>Then, the popup set by the <tt class="function">setComboPopup</tt>
+        method must be returned by the <tt class="function">createPopup</tt> method
+        (overridden from <tt class="classname">BasicComboBoxUI</tt>).</p><pre class="programlisting">import com.jgoodies.looks.plastic.PlasticComboBoxUI;
+import com.standbysoft.component.util.swing.ComboBoxUIExt;
+
+public class PlasticComboBoxUIExt extends PlasticComboBoxUI implements ComboBoxUIExt {
+  private ComboPopup popup;
+
+  protected ComboPopup createPopup() {
+    if (popup == null) {
+      return super.createPopup();
+    } else {
+      return popup;
+    }
+  }
+
+  public void setComboPopup(ComboPopup popup) {
+    this.popup = popup;
+  }
+}</pre><p>Once you have created an extended
+        <tt class="classname">ComboBoxUI</tt> for a certain look and feel, just
+        register it with the date picker. This is done in the main code of the
+        application, before the application is started.</p><p><span class="bold"><b>But make sure the new
+        <tt class="classname">ComboBoxUI</tt> can be instantiated. It must be
+        public and if it is an inner class it also must be
+        static.</b></span></p><pre class="programlisting">import com.standbysoft.component.date.swing.plaf.basic.BasicDatePickerUI;
+...
+BasicDatePickerUI.registerDateComboBoxUI("com.jgoodies.looks.plastic.Plastic3DLookAndFeel", PlasticComboBoxUIExt.class);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e2316"></a>4.6.&nbsp;Installing a Date Cell Editor for JTable</h3></div></div><div></div></div><p>Setting a date picker as a table cell editor is simple, as the
+        following example shows. The code sets up a date picker as the editor
+        for <tt class="classname">Date</tt> objects.</p><pre class="programlisting">JTable table = new JTable();
+...
+JDatePicker datePicker = new JDatePicker();
+datePicker.setCustomDateFormat("MMMM/dd yyyy");
+table.setDefaultEditor(Date.class, JDatePicker.createTableCellEditor(datePicker));</pre><p>You can use <tt class="function">createTableCellEditor()</tt> or
+        <tt class="function">createTableCellEditor(JDatePicker)</tt> to create
+        table cell editor. The second method can be used to create a table
+        cell editor with a configured date picker.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jdateeditcomponent.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="tutorial.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="jdatefield.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">3.&nbsp;Using a JDateEditComponent&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;5.&nbsp;Using the JDateField Component</td></tr></table></div></body></html>

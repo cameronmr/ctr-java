@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title></title>
+  <style type="text/css">
+    <!--code { font-family: Courier New, Courier; font-size: 10pt; margin: 0px; }-->
+  </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+</head><body>
+
+
+<!-- ======================================================== -->
+<!-- = Java Sourcecode to HTML automatically converted code = -->
+<!-- =   Java2Html Converter V4.1 2004 by Markus Gebhard  markus@jave.de   = -->
+<!-- =     Further information: http://www.java2html.de     = -->
+<div align="left" class="java">
+<table border="0" cellpadding="3" cellspacing="0" bgcolor="#ffffff">
+   <tr>
+  <!-- start source code -->
+   <td nowrap="nowrap" valign="top" align="left">
+    <code>
+<font color="#3f7f5f">/*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;@(#)ToggleWeekModel.java</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;Copyright&nbsp;(c)&nbsp;2003-2004&nbsp;Stand&nbsp;By&nbsp;Soft,&nbsp;Ltd.&nbsp;All&nbsp;rights&nbsp;reserved.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;This&nbsp;software&nbsp;is&nbsp;the&nbsp;proprietary&nbsp;information&nbsp;of&nbsp;Stand&nbsp;By&nbsp;Soft,&nbsp;Ltd.&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;Use&nbsp;is&nbsp;subject&nbsp;to&nbsp;license&nbsp;terms.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*/</font><br/>
+<font color="#7f0055"><b>package&nbsp;</b></font><font color="#000000">com.standbysoft.demo.date;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">com.standbysoft.component.date.swing.DefaultWeekModel;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">com.standbysoft.component.date.swing.event.WeekModelEvent;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#3f5fbf">/**</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;A&nbsp;custom&nbsp;week&nbsp;model&nbsp;that&nbsp;toggles&nbsp;the&nbsp;selection&nbsp;of&nbsp;a&nbsp;day&nbsp;of&nbsp;week&nbsp;or&nbsp;week&nbsp;if&nbsp;it&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;is&nbsp;reselected.&nbsp;If&nbsp;a&nbsp;user&nbsp;clicks&nbsp;on&nbsp;a&nbsp;day&nbsp;of&nbsp;week&nbsp;and&nbsp;then&nbsp;clicks&nbsp;again,&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;that&nbsp;day&nbsp;of&nbsp;week&nbsp;is&nbsp;unselected.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*/</font><br/>
+<font color="#7f0055"><b>public&nbsp;class&nbsp;</b></font><font color="#000000">ToggleWeekModel&nbsp;</font><font color="#7f0055"><b>extends&nbsp;</b></font><font color="#000000">DefaultWeekModel&nbsp;</font><font color="#000000">{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">/**</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;Toggles&nbsp;the&nbsp;selection&nbsp;of&nbsp;a&nbsp;day&nbsp;of&nbsp;week&nbsp;if&nbsp;it&nbsp;is&nbsp;reselected.</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;</font><font color="#7f9fbf">@param&nbsp;</font><font color="#3f5fbf">dow&nbsp;new&nbsp;day&nbsp;of&nbsp;week&nbsp;that&nbsp;is&nbsp;selected.&nbsp;Accepted&nbsp;values&nbsp;are:&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;WeekModel.NO_SELECTED_DOW,&nbsp;Calendar.MONDAY,&nbsp;Calendar.TUESDAY,&nbsp;etc.&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*/</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#7f0055"><b>void&nbsp;</b></font><font color="#000000">setSelectedDow</font><font color="#000000">(</font><font color="#7f0055"><b>int&nbsp;</b></font><font color="#000000">dow</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>if&nbsp;</b></font><font color="#000000">(</font><font color="#7f0055"><b>this</b></font><font color="#000000">.dow&nbsp;==&nbsp;dow</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>this</b></font><font color="#000000">.dow&nbsp;=&nbsp;NO_SELECTED_DOW;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">fireDowChanged</font><font color="#000000">(</font><font color="#7f0055"><b>new&nbsp;</b></font><font color="#000000">WeekModelEvent</font><font color="#000000">(</font><font color="#7f0055"><b>this</b></font><font color="#000000">))</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}&nbsp;</font><font color="#7f0055"><b>else&nbsp;</b></font><font color="#000000">{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>super</b></font><font color="#000000">.setSelectedDow</font><font color="#000000">(</font><font color="#000000">dow</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">/**</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;Toggles&nbsp;the&nbsp;selection&nbsp;of&nbsp;a&nbsp;week&nbsp;if&nbsp;it&nbsp;is&nbsp;reselected.</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;</font><font color="#7f9fbf">@param&nbsp;</font><font color="#3f5fbf">year&nbsp;year&nbsp;to&nbsp;which&nbsp;the&nbsp;selected&nbsp;week&nbsp;belongs&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*&nbsp;</font><font color="#7f9fbf">@param&nbsp;</font><font color="#3f5fbf">week&nbsp;selected&nbsp;week</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f5fbf">*/</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#7f0055"><b>void&nbsp;</b></font><font color="#000000">setSelectedWeek</font><font color="#000000">(</font><font color="#7f0055"><b>int&nbsp;</b></font><font color="#000000">year,&nbsp;</font><font color="#7f0055"><b>int&nbsp;</b></font><font color="#000000">week</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>if&nbsp;</b></font><font color="#000000">(</font><font color="#7f0055"><b>this</b></font><font color="#000000">.week&nbsp;==&nbsp;week&nbsp;&amp;&amp;&nbsp;</font><font color="#7f0055"><b>this</b></font><font color="#000000">.year&nbsp;==&nbsp;year</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>this</b></font><font color="#000000">.week&nbsp;=&nbsp;NO_SELECTED_WEEK;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>this</b></font><font color="#000000">.year&nbsp;=&nbsp;NO_SELECTED_YEAR;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">fireWeekChanged</font><font color="#000000">(</font><font color="#7f0055"><b>new&nbsp;</b></font><font color="#000000">WeekModelEvent</font><font color="#000000">(</font><font color="#7f0055"><b>this</b></font><font color="#000000">))</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}&nbsp;</font><font color="#7f0055"><b>else&nbsp;</b></font><font color="#000000">{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>super</b></font><font color="#000000">.setSelectedWeek</font><font color="#000000">(</font><font color="#000000">year,&nbsp;week</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#000000">}</font></code>
+    
+   </td>
+  <!-- end source code -->
+   </tr>
+</table>
+</div>
+<!-- =       END of automatically generated HTML code       = -->
+<!-- ======================================================== -->
+
+
+</body></html>

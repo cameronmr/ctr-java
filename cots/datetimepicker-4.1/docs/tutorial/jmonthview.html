@@ -1,0 +1,79 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>8.&nbsp;Using the JMonthView Component</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="tutorial.html" title="Chapter&nbsp;2.&nbsp;How to Use the Components"><link rel="previous" href="jmonth-expert.html" title="7.&nbsp;Using a JMonth Component - Expert Features"><link rel="next" href="advanced.html" title="Chapter&nbsp;3.&nbsp;Advanced Topics"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">8.&nbsp;Using the JMonthView Component</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="jmonth-expert.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;2.&nbsp;How to Use the Components</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="advanced.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jmonthview"></a>8.&nbsp;Using the JMonthView Component</h2></div></div><div></div></div><p>The <tt class="classname"><a target="_blank" href="../api/com/standbysoft/component/date/swing/JMonthView.html">JMonthView</a></tt>
+      component enables users to view and select dates by means of an
+      intuitive calendar interface. It can display one or more months.</p><p>It extends <a href="jmonth.html" title="6.&nbsp;Using a JMonth Component">JMonth</a> and the inherited
+      methods affect all the months represented by this component. In
+      addition, a <tt class="classname">JMonthView</tt> provides the
+      following:</p><div class="itemizedlist"><ul type="disc"><li><p>Methods to specify how many months are displayed (rows,
+          columns)</p></li><li><p>Two buttons at the top to scroll the month in view</p></li><li><p>A scrolling property that is used to determine how many months
+          are scrolled from view</p></li><li><p>A status bar that contains a today button that selects the
+          today date and a none button that unselects all selected
+          dates</p></li></ul></div><p>This section uses the application shown below to explore all these
+      capabilities.</p><div class="figure"><a name="d0e3003"></a><p class="title"><b>Figure&nbsp;2.6.&nbsp;A demo application for the JMonthView component</b></p><div class="mediaobject"><img src="images/MonthViewDemo.jpg" alt="A demo application for the JMonthView component"></div></div><div class="orderedlist"><p class="title"><b>Try this:</b></p><ol type="1"><li><p><a href="http://www.javadatepicker.com/docs/tutorial/MonthViewDemo.jnlp" target="_top">Run
+          MonthViewDemo</a> using Java Web Start or consult the <a href="../demo/com/standbysoft/demo/date/MonthViewDemo.java.html" target="_top">source
+          code</a> for yourself.</p></li><li><p>Click the Rows and Columns combo boxes to change th egrid
+          configuration.</p></li><li><p>Click on the top buttons to scroll the month in view.</p></li><li><p>Click on the Scrolling Delta combo box to specify the number
+          of months to be scrolled by the top buttons.</p></li><li><p>Click on the today button to select the today date.</p></li><li><p>Click the Show Status Bar check box to hide the calendar
+          status bar.</p></li><li><p>Click the Locale combo box and select German. The names of the
+          week days and the names of the months are changed. Also the texts
+          displayed on the Today and None buttons are changed.</p></li><li><p>Click the Locale combo box and select Czech. Notice that the
+          texts displayed on the Today and None buttons appear in English
+          because the component hasn't been localized for this language. We
+          discuss below how to do that.</p></li></ol></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="multiple"></a>8.1.&nbsp;Using Multiple Months</h3></div></div><div></div></div><p><tt class="classname">JMonthView</tt> can be configured to display
+        one or more months. The months are arranged on a grid with a specified
+        number of rows and columns.</p><p>By default, the component displays only one month. To change the
+        number of rows and columns used to display the months, use the
+        <tt class="function">setRows</tt> and <tt class="function">setColumns</tt>
+        methods. The following lines of code configure the calendar to display
+        two months horizontally:</p><pre class="programlisting">monthView.setColumns(2);
+monthView.setRows(1);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="monthview-locale"></a>8.2.&nbsp;Localizing the Component</h3></div></div><div></div></div><p>One important feature of the <tt class="classname">JMonthView</tt>
+        is that you can localize it for various languages and regions. The
+        names of the week days, the first day of week, the names of the months
+        and even the way the today date is displayed on the today label are
+        determined on locale basis.</p><p>By default, the system's locale is used but it can be configured
+        to use any locale. To change the locale, use the
+        <tt class="function">setLocale</tt> method.</p><p>The following line of code changes the locale to Spanish:</p><pre class="programlisting">monthView.setLocale(new Locale("es", "ES"));</pre><p>By default, the texts displayed on the "Today" and "None" labels
+        are configured from the <span class="emphasis"><em>monthview.properties</em></span> file
+        which is placed in
+        <span class="emphasis"><em>com.standbysoft.component.date.swing</em></span> package. The
+        reason for this is that we can determine the names of week days and
+        months from the system but we cannot do that for strings like "Today"
+        or "None".</p><p>The following code shows the syntax for this file:</p><pre class="programlisting">Calendar.todayLabel=Today: {0,date,short}
+Calendar.noneLabel=None</pre><p>This file, along with other code that is needed to use the Java
+        Date Picker components is included in the
+        <span class="emphasis"><em>javadatepicker.jar</em></span> jar file. The distribution
+        also includes the <span class="emphasis"><em>javadatepicker-i18n.jar</em></span> file
+        which contains localizations of the
+        <span class="emphasis"><em>monthview.properties</em></span> file.</p><p>For instance, the Spanish localization is:</p><pre class="programlisting">Calendar.todayLabel=Hoy: {0,date,short}
+Calendar.noneLabel=Ninguno</pre><p>If you find there is not an appropriate
+        <span class="emphasis"><em>monthview.properties</em></span> file for your locale or want
+        to change an existing one, just alter the
+        <span class="emphasis"><em>javadatepicker-i18n.jar</em></span> file. In this way, all
+        changes are isolated in one place.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3110"></a>8.3.&nbsp;Allowing Empty Selection</h3></div></div><div></div></div><p>The <tt class="function">setEmptySelectionAllowed</tt> method is
+        inherited from <tt class="classname">JDateComponent</tt> and we re discuss
+        it here because it controls whether the None button is displayed or
+        not.</p><p>When empty selection is allowed, the <span class="emphasis"><em>None</em></span>
+        button is displayed in the bottom-right corner. When clicked, no date
+        will be selected anymore. To clear all selected dates, one can also
+        use the DELETE or BACKSPACE keys.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="scrolling"></a>8.4.&nbsp;Changing Scrolling Behavior</h3></div></div><div></div></div><p>The default implementation of <tt class="classname">JMonthView</tt>
+        has two top buttons that scroll the month(s) in view. When the
+        calendar has only one month, it is natural to scroll to the next or
+        previous month when the buttons are clicked. But when there are
+        displayed three months, for instance, should it scroll one month or
+        three months?</p><p>To support this decision, the component provides the
+        <span class="property">scrollingDelta</span> property which is used to indicate
+        the number of months that are scrolled when a scrolling button is
+        clicked. The following lines of code show how to configure a three
+        months calendar to scroll three months:</p><pre class="programlisting">monthView.setRows(1);
+monthView.setColumns(3);
+monthView.setScrollingDelta(3);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3141"></a>8.5.&nbsp;Showing the Today Button</h3></div></div><div></div></div><p>The today button is meant to help users locate the today date
+        faster. Left-clicking on it selects the today date. By default, the
+        today button is visible. The <i class="parameter"><tt>DateFormat.SHORT</tt></i>
+        format and the current locale are used to format the current date
+        displayed by the button.</p><p>You can show or hide it using the
+        <tt class="function">setDisplayToday</tt> method. To find out whether it is
+        displayed or not use <tt class="function">isDisplayToday</tt>
+        method.</p><p>The following line of code hides the today button:</p><pre class="programlisting">monthView.setDisplayToday(false);</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="statusbar"></a>8.6.&nbsp;Showing the Status Bar</h3></div></div><div></div></div><p>The Status Bar refers to the bottom section of a JMonthView that
+        contains the Today and None buttons. You can show or hide it using the
+        <tt class="function">setStatusVisible</tt> method.</p><p>The following line of code hides the status bar:</p><pre class="programlisting">monthView.setStatusVisible(false);</pre></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="jmonth-expert.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="tutorial.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="advanced.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">7.&nbsp;Using a JMonth Component - Expert Features&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;Chapter&nbsp;3.&nbsp;Advanced Topics</td></tr></table></div></body></html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title></title>
+  <style type="text/css">
+    <!--code { font-family: Courier New, Courier; font-size: 10pt; margin: 0px; }-->
+  </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+</head><body>
+
+
+<!-- ======================================================== -->
+<!-- = Java Sourcecode to HTML automatically converted code = -->
+<!-- =   Java2Html Converter V4.1 2004 by Markus Gebhard  markus@jave.de   = -->
+<!-- =     Further information: http://www.java2html.de     = -->
+<div align="left" class="java">
+<table border="0" cellpadding="3" cellspacing="0" bgcolor="#ffffff">
+   <tr>
+  <!-- start source code -->
+   <td nowrap="nowrap" valign="top" align="left">
+    <code>
+<font color="#3f7f5f">/*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;@(#)RegularDateRenderer.java</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;Copyright&nbsp;(c)&nbsp;2003-2004&nbsp;Stand&nbsp;By&nbsp;Soft,&nbsp;Ltd.&nbsp;All&nbsp;rights&nbsp;reserved.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;This&nbsp;software&nbsp;is&nbsp;the&nbsp;proprietary&nbsp;information&nbsp;of&nbsp;Stand&nbsp;By&nbsp;Soft,&nbsp;Ltd.&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*&nbsp;Use&nbsp;is&nbsp;subject&nbsp;to&nbsp;license&nbsp;terms.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f7f5f">*/</font><br/>
+<font color="#7f0055"><b>package&nbsp;</b></font><font color="#000000">com.standbysoft.demo.date.renderer;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.awt.Color;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.awt.Component;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.awt.FontMetrics;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.awt.Graphics;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.util.Calendar;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">java.util.Date;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">javax.swing.JLabel;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">com.standbysoft.component.date.swing.DateRenderer;</font><br/>
+<font color="#7f0055"><b>import&nbsp;</b></font><font color="#000000">com.standbysoft.component.date.swing.JMonth;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#3f5fbf">/**</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;Renders&nbsp;all&nbsp;dates&nbsp;in&nbsp;a&nbsp;standard&nbsp;way.&nbsp;Paints&nbsp;their&nbsp;value&nbsp;using&nbsp;some&nbsp;default</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*&nbsp;colors.</font><br/>
+<font color="#ffffff">&nbsp;</font><font color="#3f5fbf">*/</font><br/>
+<font color="#7f0055"><b>public&nbsp;class&nbsp;</b></font><font color="#000000">RegularDateRenderer&nbsp;</font><font color="#7f0055"><b>extends&nbsp;</b></font><font color="#000000">JLabel&nbsp;</font><font color="#7f0055"><b>implements&nbsp;</b></font><font color="#000000">DateRenderer&nbsp;</font><font color="#000000">{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#000000">RegularDateRenderer</font><font color="#000000">()&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f7f5f">//use&nbsp;this&nbsp;font&nbsp;to&nbsp;paint&nbsp;the&nbsp;dates.&nbsp;it&nbsp;will&nbsp;be&nbsp;used&nbsp;to&nbsp;override&nbsp;the</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f7f5f">//default&nbsp;font.&nbsp;see&nbsp;paint&nbsp;method.</font><br/>
+<font color="#3f7f5f">//&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setFont(new&nbsp;Font(&#34;Arial&#34;,&nbsp;Font.PLAIN,&nbsp;12));</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#7f0055"><b>void&nbsp;</b></font><font color="#000000">setValue</font><font color="#000000">(</font><font color="#000000">Date&nbsp;date</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">Calendar&nbsp;cal&nbsp;=&nbsp;Calendar.getInstance</font><font color="#000000">()</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">cal.setTime</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setText</font><font color="#000000">(</font><font color="#000000">cal.get</font><font color="#000000">(</font><font color="#000000">Calendar.DATE</font><font color="#000000">)&nbsp;</font><font color="#000000">+&nbsp;</font><font color="#2a00ff">&#34;&#34;</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#000000">Component&nbsp;getDateRendererComponent</font><font color="#000000">(</font><font color="#000000">JMonth&nbsp;month,&nbsp;Date&nbsp;date</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setForeground</font><font color="#000000">(</font><font color="#000000">month.getForeground</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setBackground</font><font color="#000000">(</font><font color="#000000">month.getMonthBackground</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setFont</font><font color="#000000">(</font><font color="#000000">month.getFont</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">setValue</font><font color="#000000">(</font><font color="#000000">date</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>return&nbsp;this</b></font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>public&nbsp;</b></font><font color="#7f0055"><b>void&nbsp;</b></font><font color="#000000">paint</font><font color="#000000">(</font><font color="#000000">Graphics&nbsp;g</font><font color="#000000">)&nbsp;{</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">Color&nbsp;oldColor&nbsp;=&nbsp;g.getColor</font><font color="#000000">()</font><font color="#000000">;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#3f7f5f">//use&nbsp;current&nbsp;font&nbsp;to&nbsp;override&nbsp;the&nbsp;font&nbsp;of&nbsp;the&nbsp;graphics&nbsp;context</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">g.setColor</font><font color="#000000">(</font><font color="#000000">getForeground</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">FontMetrics&nbsp;fm&nbsp;=&nbsp;g.getFontMetrics</font><font color="#000000">(</font><font color="#000000">g.getFont</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#7f0055"><b>int&nbsp;</b></font><font color="#000000">sw&nbsp;=&nbsp;fm.stringWidth</font><font color="#000000">(</font><font color="#000000">getText</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">g.drawString</font><font color="#000000">(</font><font color="#000000">getText</font><font color="#000000">()</font><font color="#000000">,&nbsp;</font><font color="#000000">(</font><font color="#000000">getWidth</font><font color="#000000">()&nbsp;</font><font color="#000000">-&nbsp;sw</font><font color="#000000">)&nbsp;</font><font color="#000000">/&nbsp;</font><font color="#990000">2</font><font color="#000000">,&nbsp;</font><font color="#000000">(</font><font color="#000000">getHeight</font><font color="#000000">()&nbsp;</font><font color="#000000">-&nbsp;fm.getHeight</font><font color="#000000">())&nbsp;</font><font color="#000000">/&nbsp;</font><font color="#990000">2&nbsp;</font><font color="#000000">+&nbsp;fm.getAscent</font><font color="#000000">())</font><font color="#000000">;</font><br/>
+<font color="#ffffff"></font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">g.setColor</font><font color="#000000">(</font><font color="#000000">oldColor</font><font color="#000000">)</font><font color="#000000">;</font><br/>
+<font color="#ffffff">&nbsp;&nbsp;&nbsp;&nbsp;</font><font color="#000000">}</font><br/>
+<font color="#000000">}</font></code>
+    
+   </td>
+  <!-- end source code -->
+   </tr>
+</table>
+</div>
+<!-- =       END of automatically generated HTML code       = -->
+<!-- ======================================================== -->
+
+
+</body></html>

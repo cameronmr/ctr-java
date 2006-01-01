@@ -1,0 +1,63 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>5.&nbsp;Known Issues</title><link rel="stylesheet" href="style.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.62.4"><link rel="home" href="index.html" title="Date Selection with Java Date Picker"><link rel="up" href="introduction.html" title="Chapter&nbsp;1.&nbsp;Introduction"><link rel="previous" href="requirements.html" title="4.&nbsp;Requirements"><link rel="next" href="changes.html" title="6.&nbsp;What's New"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">5.&nbsp;Known Issues</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="requirements.html">Prev</a>&nbsp;</td><th width="60%" align="center">Chapter&nbsp;1.&nbsp;Introduction</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="changes.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="knownissues"></a>5.&nbsp;Known Issues</h2></div></div><div></div></div><p>This section contains issues that prevent the Java Date Picker
+      components to work properly and are beyond our control.</p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e277"></a>5.1.&nbsp;Instantiation fails on applet reload</h3></div></div><div></div></div><p>When an applet is reloaded, static blocks of the loaded classes
+        are not reexecuted. The Java Date Picker components use such blocks to
+        initialize the UI delegates and this results in a "UIDefaults.getUI()
+        failed: no ComponentUI class for: " exception.</p><p>To fix this problem, you should make the initializations that
+        are lost in the static blocks, explicitly. In the init() method of
+        your applet, before calling the code that creates the Java Date Picker
+        components add the following code:</p><pre class="programlisting">UIManager.put("MonthUI", DefaultMonthUI.class.getName());
+UIManager.put("MonthViewUI", DefaultMonthViewUI.class.getName());
+UIManager.put("DatePickerUI", BasicDatePickerUI.class.getName());
+UIManager.put("DateFieldUI", BasicDateFieldUI.class.getName()); </pre><p>Here is how this is done in our <a href="../demo/com/standbysoft/demo/date/MainApplet.java.html" target="_top">demo
+        applet</a>. This is just an example with the UI delegates used by
+        default. For more information about UI delegates, please read this
+        <a href="advanced.html#uidelegate" title="1.&nbsp;How to Create a Completely New Look for the Components">section</a>.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e294"></a>5.2.&nbsp;ColorUIResource NPE</h3></div></div><div></div></div><p>An important responsibility of a <a href="http://java.sun.com/products/jfc/tsc/articles/lookandfeel_reference/" target="_top">Swing
+        look and feel</a> is to provide a defaults table. Among other
+        things, this table must define a set of system colors. The Java Date
+        Picker components use such colors to initialize their color scheme and
+        if these colors are not defined in the defaults table, a
+        ColorUIResource NullPointerException is thrown.</p><p>The following lines show how such an exception might
+        look:</p><pre class="programlisting">Failed to register a UI delegate for null 
+
+java.lang.NullPointerException 
+    at javax.swing.plaf.ColorUIResource.&lt;init&gt;(ColorUIResource.java:47) 
+    at com.standbysoft.component.date.swing.plaf.basic.AbstractDatePickerUI.bt(Unknown Source) 
+    at com.standbysoft.component.date.swing.plaf.basic.AbstractDatePickerUI.installDefaults(Unknown Source) 
+    at com.standbysoft.component.date.swing.plaf.basic.AbstractDatePickerUI.installUI(Unknown Source) 
+    at javax.swing.JComponent.setUI(JComponent.java:650) 
+    at com.standbysoft.component.date.swing.JDateComponent.setUI(Unknown Source) 
+    at com.standbysoft.component.date.swing.JDateComponent.updateUI(Unknown Source) 
+    at com.standbysoft.component.date.swing.JDateEditComponent.&lt;init&gt;(Unknown Source) 
+    at com.standbysoft.component.date.swing.JDateEditComponent.&lt;init&gt;(Unknown Source) 
+    at com.standbysoft.component.date.swing.JDatePicker.&lt;init&gt;(Unknown Source) 
+    at com.standbysoft.component.date.swing.JDatePicker.&lt;init&gt;(Unknown Source) 
+    ... </pre><p>The system colors we use for initialization are:
+        "activeCaption", "activeCaptionText", "controlText", "controlShadow"
+        and "window". If they are not defined then their value is null.</p><p>The following line of code shows how such a system color might
+        be used. If the color is not defined in the defaults table, a NPE is
+        thrown.</p><pre class="programlisting">component.setForeground(new ColorUIResource(UIManager.getColor("controlText")));</pre><p>This line says that the component will be initialized with the
+        color "controlText" which is retrieved by the UIManager from the
+        current look and feel. This sample code is common for all Swing
+        components. Here's what happens in ColorUIResource when a null color
+        is passed:</p><pre class="programlisting">public ColorUIResource(Color c) {
+    super(c.getRed(), c.getGreen(), c.getBlue());
+}</pre><p>To fix the problem, you must register all these colors in the
+        look and feel after it is actually registered. In this way, when your
+        application starts and creates a component, it will be able to
+        retrieve the "controlText" color.</p><pre class="programlisting">try {
+    UIManager.installLookAndFeel("Kunststoff", "com.incors.plaf.kunststoff.KunststoffLookAndFeel");
+    UIManager.setLookAndFeel("com.incors.plaf.kunststoff.KunststoffLookAndFeel");
+    UIManager.put("controlText", Color.black);
+} catch (Exception ex) { 
+}</pre><p>The Kunststoff LF does define the "controlText" color. The above
+        example is just to show how you could use it with your custom LF that
+        does not define the system colors.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="d0e322"></a>5.3.&nbsp;JGoodies Plastic LF integration</h3></div></div><div></div></div><p>The <tt class="classname">JDatePicker</tt> component can be
+        integrated with the JGoodies Plastic LF only if it is recompiled to
+        allow inheritance for the <tt class="classname">PlasticComboBoxUI</tt>
+        class. It must be done only for <tt class="classname">JDatePicker</tt> and
+        not the other components because it uses a modified
+        <tt class="classname">JComboBox</tt> to look like a combo box.</p><p>Read this <a href="jdatepicker.html#customlf" title="4.5.&nbsp;Using a Custom Look and Feel">section</a> for more
+        information on how to integrate <tt class="classname">JDatePicker</tt>
+        with custom look and feels.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="requirements.html">Prev</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="introduction.html">Up</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="changes.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">4.&nbsp;Requirements&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top">&nbsp;6.&nbsp;What's New</td></tr></table></div></body></html>

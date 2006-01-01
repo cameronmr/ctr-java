@@ -1,0 +1,91 @@
+body {
+	font-family: arial, verdana, trebuchet ms, tahoma;
+	font-size: 82%;
+	margin: 0.5in;
+}
+
+p {
+	text-align: justify;
+}
+
+.figure .title {
+	text-align: center;
+}
+
+.figure {
+	text-align: center;
+}
+
+.table p.title {
+	text-align: center;
+}
+
+.table {
+	text-align: center;
+}
+
+div.table>table {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.orderedlist, .remark, div.sect1>p, div.sect2>p, ul {
+	margin-left: 30px;
+	margin-right: 30px;
+}
+
+.programlisting {
+	padding-top: 8px;
+	padding-left: 60px;
+	padding-right: 8px;
+	padding-bottom: 8px;
+	border: 1px solid #FFA500;
+	background: #FFE7BA;
+}
+
+
+.sidebar {
+	border: 1px solid #FFA500;
+	background: #FFE7BA;
+	padding: 5px;
+}
+
+.navheader, .navfooter
+{
+    background: #29479C;
+    color: red;
+}
+
+.navheader tr, .navfooter tr
+{
+    color: white;
+}
+
+.navheader tr a, .navfooter tr a
+{
+    color: white;
+}
+
+.navheader HR, .navfooter HR
+{
+    display: none;
+}
+
+div.table table {
+	border: 1px solid #FFA500;
+    border-collapse: collapse;
+}
+
+div.table table th {
+	border: 1px solid #FFA500;
+    background: #FFE7BA;
+    text-align: left;
+	padding-left: 5px;
+}
+
+div.table table td {
+	border: 1px solid #FFA500;
+	padding-left: 5px;
+	padding-right: 5px;
+	text-align: justify;
+}
