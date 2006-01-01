@@ -5,9 +5,11 @@
  */
 
 package com.rochester.budget.gui;
+import com.rochester.budget.core.IAccount;
 import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
@@ -24,6 +26,8 @@ public class TransactionTable extends JTable
     {
         super( model );
         this.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+        
+        setDefaultRenderer( IAccount.class, new DefaultTableCellRenderer() );
         
         initColumnSizes( );        
     }    

@@ -25,7 +25,7 @@ public class ReconciliationTab implements IGUIComponent, IGUITab
     /** Creates a new instance of ReconciliationTab */
     public ReconciliationTab()
     { 
-        ReconciliationPanel reconciliationPanel = new ReconciliationPanel();   
+        ReconciliationPanel reconciliationPanel = new ReconciliationPanel();  
         TransactionPanel transactionPanel = new TransactionPanel();         
         
         /* The ReconciliationPanel listens for changes to transaction selection */   
@@ -53,10 +53,7 @@ public class ReconciliationTab implements IGUIComponent, IGUITab
     
     public void stateChanged( ChangeEvent evt ) 
     {
-        // Selection has changed
-        
-        // Set the divider to be 16% of the screen size
-        m_theComponent.setDividerLocation( 0.16 );  
+        // Selection has changed        
     }
     
     private JSplitPane m_theComponent = null;

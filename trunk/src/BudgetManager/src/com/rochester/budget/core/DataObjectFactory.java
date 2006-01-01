@@ -15,15 +15,18 @@ import com.Ostermiller.util.LabeledCSVParser;
 import com.rochester.budget.core.exceptions.AccountNotFoundException;
 import com.rochester.budget.core.exceptions.CategoryNotFoundException;
 import com.rochester.budget.core.exceptions.ReconciliationNotFoundException;
+import com.rochester.budget.core.exceptions.RuleCriterionNotFoundException;
+import com.rochester.budget.core.exceptions.RuleNotFoundException;
+import com.rochester.budget.core.exceptions.StatementNotFoundException;
 import com.rochester.budget.core.exceptions.TransactionNotFoundException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.UUID;
-
+import java.util.HashMap;
 
 /**
  *
@@ -162,6 +165,229 @@ public class DataObjectFactory
         return m_transactions.values();
     }
     
+    /***************************** RULE STUFF *******************************/
+    
+    public static IRule loadRule( final String pkey ) throws RuleNotFoundException
+    {
+        if ( pkey == null )
+        {
+            return null;
+        }
+        
+        // This will throw an exception if the account is not available
+        IRule rule = m_rules.get( pkey );
+        if ( null == rule )
+        {
+            rule = new Rule( pkey );
+            
+            m_rules.put( pkey, rule );
+        }
+        
+        return rule;
+    }
+    
+    public static Collection<IRule> loadRules( )
+    {
+        if ( ! m_rules.allLoaded() )
+        {
+            
+            ArrayList<IRule> rules = new ArrayList<IRule>();
+            try
+            {
+                String sql = new String( "select PKEY from RULE" );
+
+                // the statement object will be automatically cleaned up when garbage collected
+                ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+                while ( results.next() )
+                {
+                    try
+                    {
+                        rules.add( loadRule( results.getString("PKEY") ) );
+                    }
+                    catch( RuleNotFoundException e )
+                    {
+                        // TODO: handling creation of new account 
+                        System.out.println( e.toString() );
+                    }
+                }
+
+                results.close();
+            }
+            catch ( Exception t )
+            {
+                t.printStackTrace();
+                // TODO: error handling
+                return null;
+            }
+        }
+        
+        return m_rules.values();
+    }
+    
+    public static IRule newRule( )
+    {
+        return new Rule( );
+    }
+    
+    public static IRuleCriterion loadRuleCriterion( final String pkey, final String type ) throws RuleCriterionNotFoundException
+    {
+        // Set up the available criteria
+        if ( m_availableCriteria.isEmpty() )
+        {
+            IRuleCriterion criteria = new DescriptionRuleCriterion();
+            m_availableCriteria.put( criteria.getCriteria(), criteria );
+            
+            criteria = new AccountRuleCriterion();
+            m_availableCriteria.put( criteria.getCriteria(), criteria );
+        }
+        
+        if ( pkey == null )
+        {
+            return null;
+        }
+        
+        // This will throw an exception if the account is not available
+        IRuleCriterion criterion = m_ruleCriteria.get( pkey );
+        if ( null == criterion )
+        {            
+            // Get the available criterion
+            criterion = m_availableCriteria.get( type );
+            
+            // Create a new one of that type
+            criterion = criterion.getNew( pkey );
+            
+            m_ruleCriteria.put( pkey, criterion );
+        }
+        
+        return criterion;
+    }
+    
+    public static Collection<IRuleCriterion> loadCriteriaForRule( final IRule rule ) throws RuleCriterionNotFoundException
+    {        
+        ArrayList<IRuleCriterion> criteria = new ArrayList<IRuleCriterion>();
+        try
+        {
+            String sql = new String( "select PKEY,CRITERIA from RULE_CRITERIA where RULE_FKEY = '" + rule.getKey() + "'" );
+
+            // the statement object will be automatically cleaned up when garbage collected
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
+            {
+                try
+                {
+                    criteria.add( loadRuleCriterion( results.getString("PKEY"), results.getString( "CRITERIA" ) ) );
+                }
+                catch( RuleCriterionNotFoundException e )
+                {
+                    // TODO: handling creation of new account 
+                    System.out.println( e.toString() );
+                }
+            }
+            
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            // TODO: error handling
+            return null;
+        }
+        
+        return criteria;
+    }
+    
+    public static Collection<IRuleCriterion> getAvailableCriteria( final IRuleCriterion selected )
+    {
+        // Set up the available criteria
+        if ( m_availableCriteria.isEmpty() )
+        {
+            IRuleCriterion criteria = new DescriptionRuleCriterion();
+            m_availableCriteria.put( criteria.getCriteria(), criteria );
+            
+            criteria = new AccountRuleCriterion();
+            m_availableCriteria.put( criteria.getCriteria(), criteria );
+        }
+        
+        ArrayList<IRuleCriterion> criteria = new ArrayList<IRuleCriterion>();
+        for( IRuleCriterion crit : m_availableCriteria.values() )
+        {
+            if ( selected != null &&
+                 crit.getCriteria().equals( selected.getCriteria() ) )
+            {
+                criteria.add( selected );
+            }
+            else
+            {
+                criteria.add( crit.getNew( ) );
+            }
+        }
+        
+        return criteria;
+    }
+        
+    /***************************** STATEMENT *******************************/
+    
+    public static IStatement loadStatement( final String pkey ) throws StatementNotFoundException
+    {
+        if ( pkey == null )
+        {
+            return null;
+        }
+        
+        // This will throw an exception if the account is not available
+        IStatement statement = m_statements.get( pkey );
+        if ( null == statement )
+        {
+            statement = new Statement( pkey );
+            
+            m_statements.put( pkey, statement );
+        }
+        
+        return statement;
+    }
+    
+    public static Collection<IStatement> loadStatementsForAccount( IAccount account )
+    {
+        ArrayList<IStatement> statements = new ArrayList<IStatement>();
+        try
+        {
+            String sql = new String( "select PKEY from STATEMENT where STATEMENT_ACC_FKEY = '" + account.getKey() + "'" );
+
+            // the statement object will be automatically cleaned up when garbage collected
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
+            {
+                try
+                {
+                    statements.add( loadStatement( results.getString("PKEY") ) );
+                }
+                catch( StatementNotFoundException e )
+                {
+                    // TODO: handling creation of new account 
+                    System.out.println( e.toString() );
+                }
+            }
+            
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            // TODO: error handling
+            return null;
+        }
+        
+        return statements;
+    }
+    
+    public static IStatement newStatement( IAccount account )
+    {
+        return new Statement( account );
+    }
+    
     /****************************** ACCOUNT ********************************/
     
     public static IAccount loadAccount( final String accountNumber ) throws AccountNotFoundException
@@ -221,6 +447,11 @@ public class DataObjectFactory
         
         return m_accounts.values();
     }
+    
+    public static IAccount newAccount( )
+    {
+        return new Account();
+    }    
     
     /******************************** CATEGORY ************************************/
     
@@ -349,6 +580,11 @@ public class DataObjectFactory
     // Storage for the database objects
     private static DataObjectMap<ITransaction> m_transactions = new DataObjectMap<ITransaction>();
     private static DataObjectMap<IAccount> m_accounts = new DataObjectMap<IAccount>();
+    private static DataObjectMap<IRule> m_rules = new DataObjectMap<IRule>();
+    private static DataObjectMap<IRuleCriterion> m_ruleCriteria = new DataObjectMap<IRuleCriterion>();
+    private static DataObjectMap<IStatement> m_statements = new DataObjectMap<IStatement>();
     private static DataObjectMap<ICategory> m_categories = new DataObjectMap<ICategory>();
     private static DataObjectMap<IReconciliation> m_reconciliations = new DataObjectMap<IReconciliation>();
+    
+    private static HashMap<String, IRuleCriterion> m_availableCriteria = new HashMap<String, IRuleCriterion>();
 }

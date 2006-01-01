@@ -15,16 +15,7 @@ import java.util.Comparator;
  * @author Cameron
  */
 public interface ITransaction extends IDatabaseObject
-{    
-    static final Comparator<ITransaction> TRANSACTION_DATE_ORDER = 
-                                 new Comparator<ITransaction>()
-    {
-        public int compare( ITransaction t1, ITransaction t2 ) 
-        {
-            return t1.getDate().compareTo( t2.getDate() );
-        }
-    };
-    
+{        
     enum ReconciliationState 
     {
         NONE,
@@ -46,9 +37,7 @@ public interface ITransaction extends IDatabaseObject
     
     IAccount getAccount();
     void setAccount( final IAccount account );
-        
-    Object getValue( int col );
-    
+            
     String toString();
     
     ReconciliationState getReconciliationState();

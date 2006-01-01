@@ -19,8 +19,7 @@ import java.sql.ResultSet;
  * @author Cam
  */
 public class Reconciliation extends AbstractDatabaseObject implements IReconciliation 
-{    
-    
+{   
     // Protected to ensure no access outside this package
     protected Reconciliation( final String reconKey ) throws ReconciliationNotFoundException
     {
@@ -148,7 +147,7 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
     
     public Memento getMemento()
     {
-        return new Memento( isValid(), 
+        return new Memento(
                 ( m_value == null ) ? null : new MonetaryValue( m_value ), 
                 m_category, // Don't want a new copy
                 ( m_transactionKey == null ) ? null : new String( m_transactionKey ), 

@@ -14,8 +14,6 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-
-
 /**
  * A transaction, once created, can not be deleted. It observes reconciliations to monitor the current reconciliation state
  * @author Cameron
@@ -89,13 +87,7 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
         
         storeMemento();
     }
-    
-    static public String[] getColumns()
-    {
-        String[] columnNames = { "Reconciled", "Date", "Account", "Description", "Value"};
-        return columnNames;
-    }
-    
+        
     public IAccount getAccount()
     {
         return m_account;
@@ -191,8 +183,7 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
                     break;
             }
         }
-    }
-            
+    }            
     
     protected void parseResultSet( ResultSet results ) throws Exception
     {        
@@ -220,28 +211,7 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
     public String getTableName()
     {
         return "TRANSACTION";
-    }
-            
-    /** 
-     * stuff for displaying values in the JTable
-     **/
-    public Object getValue( int col )
-    {
-        switch ( col )
-        {
-            case 0:
-                return getReconciliationState();
-            case 1:
-                return m_date;
-            case 2:
-                return m_account.getAccountName();
-            case 3:
-                return m_narrative;
-            case 4:
-                return m_value;
-        }
-        return "unknown";
-    }
+    }   
 
     public MonetaryValue getValueRemaining()
     {
@@ -262,7 +232,7 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
     
     public Memento getMemento()
     {
-        return new Memento( isValid(), 
+        return new Memento(
                 (m_note == null) ? null : new String( m_note ),
                 new MonetaryValue( m_value ), 
                 m_account,
@@ -293,7 +263,7 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
             // TODO;
         }
     }
-    
+        
     private void calculateValueRemaining() throws BudgetManagerException
     {
         MonetaryValue originalValue = new MonetaryValue( m_valueRemaining );
@@ -321,5 +291,5 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
     private IAccount m_account;
     private String m_narrative;
     private Date m_date;
-    private ArrayList<IReconciliation> m_reconciliations = new ArrayList<IReconciliation>();
+    private ArrayList<IReconciliation> m_reconciliations = new ArrayList<IReconciliation>();    
 }

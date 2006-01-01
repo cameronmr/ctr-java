@@ -21,14 +21,12 @@ public class Memento
 {
     
     /** Creates a new instance of Memento */
-    public Memento( boolean valid, Object... objects )
+    public Memento( Object... objects )
     {
         for ( Object obj : objects )
         {
             m_state.add( obj );
         }
-        
-        m_stateIsValid = valid;
     }
         
     public Object getSomeState( ) throws StateSyncException
@@ -50,8 +48,7 @@ public class Memento
         {
             Memento m2 = (Memento)obj;
             
-            if ( m_state.size() != m2.m_state.size() ||
-                    isValid() != m2.isValid() )
+            if ( m_state.size() != m2.m_state.size() )
             {
                 return false;
             }
@@ -87,12 +84,6 @@ public class Memento
         
         return false;
     }
-    
-    public boolean isValid()
-    {         
-        return m_stateIsValid;
-    }
-    
+        
     private ArrayList<Object> m_state = new ArrayList<Object>();
-    private boolean m_stateIsValid = false;
 }

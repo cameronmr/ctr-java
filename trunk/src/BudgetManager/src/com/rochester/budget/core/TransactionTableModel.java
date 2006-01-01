@@ -10,8 +10,11 @@
 
 package com.rochester.budget.core;
 
+import com.rochester.budget.core.IDataChangeObserver.ChangeType;
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -22,9 +25,27 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
 {
     public TransactionTableModel( )
     {
-        m_columns = Transaction.getColumns();
-        m_transactions = new Vector<ITransaction>( DataObjectFactory.loadTransactions( ) );
-        Collections.sort( m_transactions, ITransaction.TRANSACTION_DATE_ORDER );
+        
+    }
+    
+    public TransactionTableModel( Collection<ITransaction> transactions )
+    {
+        setTransactions(transactions);
+    }
+    
+    public void setTransactions( Collection<ITransaction> transactions )
+    {
+        // remove any observerss to the transactions
+        for ( ITransaction trans : m_transactions )
+        {
+            trans.deleteObserver( this );
+        }
+        
+        m_transactions.clear();
+        
+        m_transactions.addAll( transactions );
+        
+        Collections.sort( m_transactions, Comparators.TRANSACTION_DATE_ORDER );        
         
         // Observe any changes to the transactions
         for ( ITransaction trans : m_transactions )
@@ -50,18 +71,40 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
 
     public Object getValueAt( int row, int col )
     {
-        return m_transactions.get( row ).getValue( col );
+        ITransaction trans = m_transactions.get( row );
+        
+        switch ( col )
+        {
+            case 0:
+                return trans.getReconciliationState();
+            case 1:
+                return trans.getDate();
+            case 2:
+                return trans.getAccount();
+            case 3:
+                return trans.getNarrative();
+            case 4:
+                return trans.getMonetaryValue();
+        }
+        return null;
     }
 
     public Class getColumnClass(int c)
     {
-        Object o = getValueAt( 0, c );
-        if ( null != o )
+        switch ( c )
         {
-            return o.getClass();
+            case 0:
+                return ITransaction.ReconciliationState.class;
+            case 1:
+                return Date.class;
+            case 2:
+                return IAccount.class;
+            case 3:
+                return String.class;
+            case 4:
+                return MonetaryValue.class;
         }
-        
-        return String.class;
+        return null;
     }
     
     public ITransaction getTransactionAt( int row )
@@ -102,6 +145,6 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
         fireTableCellUpdated(row, col);
     }*/
     
-    private Vector<ITransaction> m_transactions;
-    private String[] m_columns;
+    private ArrayList<ITransaction> m_transactions = new ArrayList<ITransaction>();
+    private static final String[] m_columns = { "Reconciled", "Date", "Account", "Description", "Value" };
 }

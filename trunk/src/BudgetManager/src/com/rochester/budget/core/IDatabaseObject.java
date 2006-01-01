@@ -75,7 +75,8 @@ public interface IDatabaseObject
     
     void storeMemento();
     void restoreMemento( Memento state ) throws StateSyncException;
-    void rollbackToLastValidState() throws StateSyncException;
+    void rollbackToLastState() throws StateSyncException;
+    void rollbackToLastGoodState() throws StateSyncException;
     
     boolean isValid( );
 }

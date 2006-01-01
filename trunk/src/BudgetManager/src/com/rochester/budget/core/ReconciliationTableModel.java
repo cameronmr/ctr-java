@@ -11,6 +11,7 @@
 package com.rochester.budget.core;
 
 import com.rochester.budget.core.IDataChangeObserver.ChangeType;
+import com.rochester.budget.core.exceptions.UnsavedReconciliationException;
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 
@@ -26,23 +27,34 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
     {
     }
     
-    public void setTransaction( ITransaction transaction )
+    public void setTransaction( ITransaction transaction, boolean discardIncomplete ) throws UnsavedReconciliationException
     {                        
         // When the transaction is applied ask the existing transaction to apply any changes that are necessary
-        if ( null != m_newReconciliation )
+        // If the applied transaction is the same as the existing transaction then skip this bit
+        if ( ( null != m_newReconciliation ) &&
+             m_newReconciliation.isNew() &&
+             ( transaction != m_transaction )  )
         {
-            if ( m_newReconciliation.isNew() &&
-                    !m_newReconciliation.isModified() )
+            if( m_newReconciliation.isModified() && !discardIncomplete )
             {
-                // If it hasn't been modified just delete it
+                throw new UnsavedReconciliationException("");
+            }
+            else
+            {
+                // If it hasn't been modified, or we are discarding incomplete, just delete it                
                 m_newReconciliation.delete();
+                m_newReconciliation = null;
             }
         }
 
+        // Store the transaction 
+        m_transaction = transaction;
         m_reconciliations = new ArrayList<IReconciliation>( transaction.getReconciliations() );
 
         // If the transaction is not fully reconciled then create a reconciliation with the remaining amount
-        if ( transaction.getReconciliationState() != ITransaction.ReconciliationState.FULL )
+        // If a reconciliation still exists then we don't want to add anymore
+        if ( ( transaction.getReconciliationState() != ITransaction.ReconciliationState.FULL ) &&
+             ( null == m_newReconciliation ) )
         {
             m_newReconciliation = DataObjectFactory.newReconciliationForTransaction( transaction );
             m_reconciliations.add( m_newReconciliation );
@@ -103,12 +115,12 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
     
     public int getColumnCount() 
     {
-        return m_columns.length;
+        return m_labels.length;
     }
     
     public String getColumnName(int col) 
     {
-        return m_columns[col];
+        return m_labels[col];
     }
     
     public int getRowCount() 
@@ -152,19 +164,11 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
         return null;
     }    
     
-    /*
-     * Don't need to implement this method unless your table's
-     * editable.
-     */
     public boolean isCellEditable(int row, int col) 
     {
         return true;
     }
 
-    /*
-     * Don't need to implement this method unless your table's
-     * data can change.
-     */
     public void setValueAt(Object value, int row, int col)
     {
         if ( m_reconciliations.isEmpty() )
@@ -190,6 +194,7 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
         try
         {
             recon.commit();
+            m_newReconciliation = null;
         }
         catch ( Exception e )
         {
@@ -199,7 +204,8 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
         fireTableCellUpdated(row, col);
     }
     
-    private String[] m_columns = { "Category", "Reconciliation Note", "Amount" };
+    private static final String[] m_labels = { "Category", "Reconciliation Note", "Amount" };
     private ArrayList<IReconciliation> m_reconciliations = new ArrayList<IReconciliation>();
     private IReconciliation m_newReconciliation = null;
+    private ITransaction m_transaction = null;
 }

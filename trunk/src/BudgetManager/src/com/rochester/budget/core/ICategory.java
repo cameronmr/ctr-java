@@ -36,6 +36,9 @@ public interface ICategory extends IDatabaseObject
     IAccount getAccount();
     void setAccount( IAccount account );    
     
+    boolean isActive();
+    void setActive( boolean active );        
+    
     void addCategory( ICategory category );
     
     boolean hasChildren( );

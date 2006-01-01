@@ -11,7 +11,10 @@
 package com.rochester.budget.gui;
 
 import com.rochester.budget.core.IGUIComponent;
+import com.rochester.budget.core.StatementDetailsModel;
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.util.Date;
 import javax.swing.JPanel;
 
 /**
@@ -26,6 +29,8 @@ public class StatementSummaryPanel implements IGUIComponent
      */
     public StatementSummaryPanel()
     {
+        m_detailsPanel.setDefaultEditor( Date.class, new DateEditor() );
+        m_summaryPanel.add( m_detailsPanel.getComponent(), BorderLayout.NORTH );
     }
  
     public Component getComponent()
@@ -33,5 +38,12 @@ public class StatementSummaryPanel implements IGUIComponent
         return m_summaryPanel;
     }
     
-    private JPanel m_summaryPanel = new JPanel();
+    public void updateView( StatementDetailsModel model )
+    {
+        // Update the details pane & additional info as required
+        m_detailsPanel.updateView( model );
+    }
+    
+    private JPanel m_summaryPanel = new JPanel( new BorderLayout() );
+    private DetailsPanel m_detailsPanel = new DetailsPanel();
 }

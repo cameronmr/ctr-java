@@ -12,9 +12,12 @@ package com.rochester.budget.core;
  */
 public interface IAccount extends IDatabaseObject
 {
-    String getAccountNumber();
+    String getNumber();
+    void setNumber( final String number );
     
-    String getAccountName();
+    String getName();
+    void setName( final String name );
     
-    String getAccountDescription();
+    String getDescription();
+    void setDescription( final String description );
 }
