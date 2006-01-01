@@ -195,21 +195,21 @@ public abstract class AbstractDatabaseObject implements IDatabaseObject
         {
             case COMMITTED:
             {
-                Memento lastValidState = getLastValidMemento();
-                if ( null == lastValidState )
+                Memento lastState = getLastMemento();
+                if ( null == lastState )
                 {
-                    // If the item has no valid changes it has still been modified
+                    // If the item has no changes it has still been modified
                     return true;
                 }        
                 else
                 {
                     // If the items are both equal than nothing has been modified!
-                    return ! m_committedState.equals( lastValidState );
+                    return ! m_committedState.equals( lastState );
                 }
             }
             case NEW:
             {
-                // If there are any modifications at all then we must return false for        
+                // If there are any modifications at all then we must return true        
                 return true;
             }
         }    
@@ -218,11 +218,30 @@ public abstract class AbstractDatabaseObject implements IDatabaseObject
         return false;
     }
     
-    public void rollbackToLastValidState() throws StateSyncException
+    public void rollbackToLastGoodState() throws StateSyncException
     {
-        Memento state = getLastValidMemento();
+        if ( null != m_committedState )
+        {
+            // Restore the committed state
+            restoreMemento( m_committedState );
+            
+            // Clear any changes
+            m_modifiedState.clear();
+            
+            // Grab a new copy of the committed state because we have consumed the previous state
+            m_committedState = getMemento();
+        }
+        else
+        {
+            throw new StateSyncException( "No good state" );
+        }        
+    }
+    
+    public void rollbackToLastState() throws StateSyncException
+    {
+        Memento state = getLastMemento();
         
-        // TODO: what happens if there is no valid memento?
+        // TODO: what happens if there is no memento?
         if ( state != null )
         {
             // Restore the state
@@ -301,10 +320,12 @@ public abstract class AbstractDatabaseObject implements IDatabaseObject
         }
     }
     
-    private Memento getLastValidMemento()
+    private Memento getLastMemento()
     {
+        return m_modifiedState.get( m_modifiedState.size() - 1 );
+        
         // Go backwards through the list of changes and restore the last valid state!
-        ListIterator<Memento> it = m_modifiedState.listIterator( m_modifiedState.size() );
+        /*ListIterator<Memento> it = m_modifiedState.listIterator( m_modifiedState.size() );
         while ( it.hasPrevious() )
         {
             Memento state = it.previous();
@@ -312,11 +333,11 @@ public abstract class AbstractDatabaseObject implements IDatabaseObject
             if ( state.isValid() )
             {
                 // Restore the state
-                return  state;
+                return state;
             }
         }       
         
-        return null;
+        return null;*/
     }
         
     private String m_key;    

@@ -77,16 +77,8 @@ public class BudgetManagerFrame extends JFrame
         // Transactions & Reconciliations       
         recons = new ReconciliationTab();
         tabbedPane.add( recons.getTabTitle(), recons.getComponent() );
-        
-        // TODO: fix hack to make divider appear at the correct spot
-        javax.swing.SwingUtilities.invokeLater( new Runnable() 
-        {
-            public void run()
-            {
-                recons.stateChanged( null );
-            }
-        });        
-                
+        tabbedPane.addChangeListener( recons );
+                      
         // Categories
         CategoryTab categories = new CategoryTab();
         tabbedPane.add( categories.getTabTitle(), categories.getComponent() );
@@ -95,13 +87,17 @@ public class BudgetManagerFrame extends JFrame
         // Statements
         StatementTab statements = new StatementTab();
         tabbedPane.add( statements.getTabTitle(), statements.getComponent() );
+        tabbedPane.addChangeListener( statements );        
         
         // Accounts
         AccountTab accounts = new AccountTab();
         tabbedPane.add( accounts.getTabTitle(), accounts.getComponent() );
+        tabbedPane.addChangeListener( accounts );        
         
-        // TODO: Rules
-        tabbedPane.add( "Rules", new JTextField( "Rules" ) );        
+        //Rules
+        RuleTab rules = new RuleTab();
+        tabbedPane.add( rules.getTabTitle(), rules.getComponent() );        
+        tabbedPane.addChangeListener( rules );
     }
     
     private ReconciliationTab recons = null;

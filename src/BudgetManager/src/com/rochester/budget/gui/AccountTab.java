@@ -10,6 +10,7 @@
 
 package com.rochester.budget.gui;
 
+import com.rochester.budget.core.AccountDetailsModel;
 import com.rochester.budget.core.IAccount;
 import com.rochester.budget.core.IGUIComponent;
 import java.awt.Component;
@@ -31,12 +32,11 @@ public class AccountTab implements IGUITab, IGUIComponent, ListSelectionListener
     {
         AccountListPanel accountList = new AccountListPanel();
         accountList.addListSelectionListener( this );
-        m_details = new AccountDetailsPanel();
+        m_detailsPanel = new DetailsPanel();
         
         JSplitPane split1 = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
         split1.setLeftComponent( accountList.getComponent() );
-        split1.setRightComponent( m_details.getComponent() );
-        split1.setDividerLocation( 0.30 );
+        split1.setRightComponent( m_detailsPanel.getComponent() );
         
         m_theComponent = split1;
     }
@@ -53,18 +53,22 @@ public class AccountTab implements IGUITab, IGUIComponent, ListSelectionListener
     
     public void stateChanged( ChangeEvent evt ) 
     {
-        // Selection has changed
+        // Tab selection has changed
     }
         
     public void valueChanged( ListSelectionEvent e ) 
     {
+        // Account list selection has changed
+        if ( e.getValueIsAdjusting() ) return;
+        
         // Convert the value changed into an update on the ListDetailPanel
         JList source = (JList)e.getSource();
         
         // Single selection only. Returns null if none selected
-        m_details.displayAccountDetails( (IAccount) source.getSelectedValue() );
+        AccountDetailsModel model = new AccountDetailsModel( (IAccount) source.getSelectedValue() );
+        m_detailsPanel.updateView( model );
     }
     
     private Component m_theComponent = null;
-    private AccountDetailsPanel m_details = null;
+    private DetailsPanel m_detailsPanel = null;
 }

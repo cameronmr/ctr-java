@@ -43,6 +43,7 @@ public class Category extends AbstractDatabaseObject implements ICategory
         setParent( parent );
         m_name = new String( name );
         setAccount( account );
+        setActive( true );
         
         // We have enough info to commit here
         commit();
@@ -53,6 +54,7 @@ public class Category extends AbstractDatabaseObject implements ICategory
         setKey( results.getString( "PKEY" ) );
         m_name = results.getString( "CATEGORY_NAME" );
         m_description = results.getString( "CATEGORY_DESCRIPTION" );
+        m_isActive = results.getBoolean( "CATEGORY_ACTIVE" );
         
         // Look up the parent if it is something other than itself
         String parentKey = results.getString( "CATEGORY_PARENT_FKEY" );
@@ -134,6 +136,18 @@ public class Category extends AbstractDatabaseObject implements ICategory
         storeMemento();
     }
     
+    public boolean isActive()
+    {
+        return m_isActive;
+    }
+    
+    public void setActive( boolean active )
+    {
+        m_isActive = active;
+        
+        storeMemento();
+    }
+    
     public String toString()
     {
         ICategory parent = getParent();
@@ -207,7 +221,7 @@ public class Category extends AbstractDatabaseObject implements ICategory
     
     public Memento getMemento()
     {
-        return new Memento( isValid(), 
+        return new Memento(
                 ( m_name == null ) ? null : new String( m_name ), 
                 ( m_description == null ) ? null : new String( m_description ), 
                 m_isActive,

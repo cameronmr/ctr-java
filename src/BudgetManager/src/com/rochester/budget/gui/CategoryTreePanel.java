@@ -13,6 +13,7 @@ import com.rochester.budget.core.DataObjectFactory;
 import com.rochester.budget.core.ICategory;
 import com.rochester.budget.core.IGUIComponent;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -20,6 +21,7 @@ import java.awt.event.MouseListener;
 import java.util.Enumeration;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -27,6 +29,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -35,9 +38,9 @@ import javax.swing.tree.TreePath;
  *
  * @author Cam
  */
-public class CategoryTreePanel implements IGUIComponent, ChangeListener
+public class CategoryTreePanel implements IGUIComponent
 {
-    class CategoryNode extends DefaultMutableTreeNode
+    public class CategoryNode extends DefaultMutableTreeNode
     {
         CategoryNode( ICategory category )
         {
@@ -89,13 +92,16 @@ public class CategoryTreePanel implements IGUIComponent, ChangeListener
         {
             CategoryNode root = new CategoryNode( DataObjectFactory.loadRootCategory() );
             m_categoryTree = new JTree( m_treeModel = new DefaultTreeModel( root ) );
-            m_scrollPane = new JScrollPane( m_categoryTree );
         }
         catch( Exception ex )
         {
             // TODO: handle exception
+            JOptionPane.showMessageDialog( null, ex, "Error", JOptionPane.ERROR_MESSAGE );
             ex.printStackTrace();
         }
+        
+        m_scrollPane = new JScrollPane( m_categoryTree );
+        m_scrollPane.setPreferredSize( new Dimension( 180, 300 ) );
         
         // Add a mouse listener
         MouseListener ml = new MouseAdapter()
@@ -144,11 +150,8 @@ public class CategoryTreePanel implements IGUIComponent, ChangeListener
         return m_scrollPane;
     }
     
-    public void stateChanged( ChangeEvent evt ) 
+    public void setVisible( ) 
     {
-        // If we are selected
-        JTabbedPane pane = (JTabbedPane)evt.getSource();
-
         // TODO: redraw the tree
 	    // May need to make a generic listenr for new object types...
 	    // Create new category, receive event, update view.. That kind of
@@ -196,6 +199,11 @@ public class CategoryTreePanel implements IGUIComponent, ChangeListener
                 }
             }
         }
+    }
+    
+    public void addTreeSelectionListener( TreeSelectionListener listener )
+    {
+        m_categoryTree.addTreeSelectionListener( listener );
     }
     
     private void disableCategory( )

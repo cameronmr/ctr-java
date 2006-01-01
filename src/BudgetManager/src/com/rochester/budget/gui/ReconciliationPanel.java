@@ -10,12 +10,14 @@ import com.rochester.budget.core.IDataChangeObserver;
 import com.rochester.budget.core.IDataChangeObserver.ChangeType;
 import com.rochester.budget.core.IDatabaseObject;
 import com.rochester.budget.core.ReconciliationTableModel;
+import com.rochester.budget.core.exceptions.UnsavedReconciliationException;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import com.rochester.budget.core.ITransaction;
 import com.rochester.budget.core.ITransaction.ReconciliationState;
 import com.rochester.budget.core.exceptions.BudgetManagerException;
 import java.awt.AWTEventMulticaster;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,6 +29,7 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
@@ -51,6 +54,8 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
      */
     public void initComponents()
     {
+        setPreferredSize( new Dimension( -1, 140 ) );
+        
         m_reconciliationModel = new ReconciliationTableModel();
         m_reconciliationLabel = new javax.swing.JLabel();
         m_reconciliationTable = new ReconciliationTable( m_reconciliationModel );
@@ -144,7 +149,33 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
             case TRANS_SELECTION_CHANGED:
                 // Handle the changed transaction!
                 ITransaction trans = (ITransaction)e.getSource();
-                updateTransaction( trans );
+                try
+                {
+                    updateTransaction( trans, false );
+                }
+                catch ( UnsavedReconciliationException ex )
+                {
+                    // Ask whether we want to delete the unsaved reconciliation, or not
+                    if ( JOptionPane.CANCEL_OPTION == JOptionPane.showConfirmDialog( null,
+                            "There are unsaved reconciliations for this transaction. Press 'OK' to delete the incomplete reconcilation, or 'Cancel' to complete the reconciliation.", 
+                            "Delete Reconciliation?", JOptionPane.OK_CANCEL_OPTION ) )
+                    {
+                        fireActionEvent( PREV_TRANSACTION );
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // If we want to continue then we force the model to discard the 
+                            // reconciliation
+                            updateTransaction( trans, true );
+                        }
+                        catch( Exception ex2 )
+                        {
+                            // None thrown when forcing discard
+                        }
+                    }
+                }
                 break;
         }
     }
@@ -160,7 +191,7 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
             // transaction on the panel again to add another transaction
             if ( trans.getReconciliationState() != ReconciliationState.FULL )
             {
-                updateTransaction( trans );
+                updateTransaction( trans, false );
             }
         }
     }
@@ -188,23 +219,23 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
         }
     }    
         
-    private void updateTransaction( ITransaction trans )
+    private void updateTransaction( ITransaction trans, boolean discardIncomplete ) throws UnsavedReconciliationException
     {
         m_reconciliationTable.editingCanceled( null );
         m_reconciliationTable.requestFocusInWindow();
-                
+        
         // Listen to changes to the transaction so that we can update our labels
         // Note: even if we are already an observer this can be called.
         trans.addObserver( this );
         
-        // Update the labels
-        updateLabels( trans );
-        
         /* Pass to the ReconciliationTable to do some magic */
-        m_reconciliationModel.setTransaction( trans );
-        
+        m_reconciliationModel.setTransaction( trans, discardIncomplete );
+
+        // Update the labels
+        updateLabels( trans );        
+
         // select the item at the starting point..
-        m_reconciliationTable.changeSelection( 0, 0, false, false );         
+        m_reconciliationTable.changeSelection( 0, 0, false, false );   
     }
     
     private ImageIcon createImageIcon(String path) 

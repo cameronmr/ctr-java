@@ -10,19 +10,25 @@
 
 package com.rochester.budget.gui;
 
+import com.rochester.budget.core.Comparators;
 import com.rochester.budget.core.DataObjectFactory;
+import com.rochester.budget.core.GenericListModel;
+import com.rochester.budget.core.IAccount;
 import com.rochester.budget.core.IGUIComponent;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.ListSelectionListener;
 
 /**
@@ -31,18 +37,20 @@ import javax.swing.event.ListSelectionListener;
  */
 public class AccountListPanel implements IGUIComponent
 {
-    
     /** Creates a new instance of AccountListPanel */
     public AccountListPanel()
     {
         // Load the account list
-        m_accountList = new JList( );
-        m_accountList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+        m_accountModel = new GenericListModel<IAccount>( DataObjectFactory.loadAccounts() );
+        m_accountModel.setComparator( Comparators.ALPHABETICAL_ORDER );
         
-        loadList();
+        m_accountList = new JList( m_accountModel );
+        m_accountList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );        
+        
         JScrollPane scrollPane = new JScrollPane( m_accountList );
         scrollPane.setColumnHeaderView( new JLabel( "Accounts", JLabel.CENTER ) );
         m_accountPanel.add( scrollPane, BorderLayout.CENTER );
+        m_accountPanel.setPreferredSize( new Dimension( 180, -1 ) );
         
         // New Account Button
         JButton newAccount = new JButton( "New Account" );
@@ -50,12 +58,18 @@ public class AccountListPanel implements IGUIComponent
         {
             public void actionPerformed( ActionEvent evt )
             {
+                m_accountList.clearSelection();
                 // do something
-                JOptionPane.showMessageDialog( m_accountPanel, "woot" );
+                IAccount account = DataObjectFactory.newAccount();
+                m_accountModel.addItem( account );
+                
+                m_accountList.setSelectedValue( account, true );
             }
         });
         
         m_accountPanel.add( newAccount, BorderLayout.SOUTH );
+        
+        m_accountPanel.setBorder( BorderFactory.createEmptyBorder(5,5,5,5) );
     }    
     
     public Component getComponent()
@@ -67,13 +81,8 @@ public class AccountListPanel implements IGUIComponent
     {
         m_accountList.addListSelectionListener( listener );
     }
-    
-    private void loadList()
-    {
-        m_accountList.removeAll();
-        m_accountList.setListData( DataObjectFactory.loadAccounts().toArray() );
-    }
-    
+            
     private JPanel m_accountPanel = new JPanel( new BorderLayout( 5,5 ) );
     private JList m_accountList;
+    private GenericListModel<IAccount> m_accountModel;
 }

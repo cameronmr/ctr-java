@@ -10,6 +10,7 @@
 
 package com.rochester.budget.gui;
 
+import com.rochester.budget.core.DataObjectFactory;
 import com.rochester.budget.core.TransactionTableModel;
 import java.awt.Component;
 import com.rochester.budget.core.IGUIComponent;
@@ -37,7 +38,7 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
     
     private void initComponents()
     { 
-        m_transactionModel = new TransactionTableModel();
+        m_transactionModel = new TransactionTableModel( DataObjectFactory.loadTransactions( ) );
         m_transactionTable = new TransactionTable( m_transactionModel );
         m_scrollPane = new JScrollPane( m_transactionTable );
         
@@ -113,7 +114,7 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
     {   
         if (m_subscribers != null)
         {
-             m_subscribers.actionPerformed(new ActionEvent(object, id, "") );
+            m_subscribers.actionPerformed(new ActionEvent(object, id, "") );
         }
     }
     
