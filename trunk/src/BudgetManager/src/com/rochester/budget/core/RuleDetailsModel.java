@@ -111,7 +111,7 @@ public class RuleDetailsModel extends AbstractDetailsModel<IRule>
                 
         fireTableCellUpdated(row, col);
     }
-    
+        
     public String getTitle()
     {
         return "Rule Details";

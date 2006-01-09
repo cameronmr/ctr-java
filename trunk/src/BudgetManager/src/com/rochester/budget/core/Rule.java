@@ -58,6 +58,7 @@ public class Rule extends AbstractDatabaseObject implements IRule
         
         // Load the criteria
         m_criteria = new ArrayList<IRuleCriterion>( DataObjectFactory.loadCriteriaForRule( this ) );
+        synchronise();
     }
     
     protected void populateResultSet( ResultSet results ) throws Exception
@@ -67,6 +68,24 @@ public class Rule extends AbstractDatabaseObject implements IRule
         results.updateString( "RULE_NAME", m_ruleName );
         results.updateString( "RULE_DESCRIPTION", m_ruleDescription );
         results.updateString( "RULE_TYPE", m_ruleType.name() );
+        
+        // Remove the no longer used criteria
+        for ( IRuleCriterion criterion : m_criteria )
+        {
+            if ( ! m_newCriteria.contains( criterion ) )
+            {                
+                criterion.delete();
+            }
+        }    
+        
+        m_criteria.clear();
+        m_criteria.addAll( m_newCriteria );
+        
+        // Commit the changes
+        for ( IRuleCriterion criterion : m_newCriteria )
+        {
+            criterion.commit();
+        }
     }
 
     public String getTableName()
@@ -109,13 +128,13 @@ public class Rule extends AbstractDatabaseObject implements IRule
     
     public boolean matchTransaction( ITransaction transaction )
     {
-        if ( m_criteria.isEmpty() )
+        if ( m_newCriteria.isEmpty() )
         {
             return false;
         }
         
         // if one criterion fails, then we don't have a match
-        for ( IRuleCriterion criterion : m_criteria )
+        for ( IRuleCriterion criterion : m_newCriteria )
         {
             if ( !criterion.matchTransaction( transaction ) )
             {
@@ -136,17 +155,40 @@ public class Rule extends AbstractDatabaseObject implements IRule
         
     public Collection<IRuleCriterion> getCriteria( )
     {
-        return m_criteria;
+        return m_newCriteria;
     }
     
     public void setCriteria( Collection<IRuleCriterion> criteria )
     {
-        m_criteria = new ArrayList( criteria );
+        m_newCriteria = new ArrayList( criteria );
+        
+        storeMemento();
     }
     
-    public boolean criteriaValid( )
+    public void addCriterion( IRuleCriterion criteria )
     {
-        for ( IRuleCriterion criterion : m_criteria )                
+        m_newCriteria.add( criteria );
+        
+        storeMemento();
+    }
+    
+    public void removeCriterion()
+    {
+        // Remove the last criteria
+        m_newCriteria.remove( m_newCriteria.size() - 1 );
+        
+        storeMemento();
+    }
+    
+    private boolean criteriaValid( )
+    {
+        // Rules need at least one criteria
+        if ( m_newCriteria.isEmpty() )
+        {
+            return false;
+        }
+        
+        for ( IRuleCriterion criterion : m_newCriteria )                
         {
             // If one of the criteria is not valid, then return false;
             if ( !criterion.isValid() )
@@ -158,6 +200,14 @@ public class Rule extends AbstractDatabaseObject implements IRule
       
     public boolean isValid( )
     {
+        // We need at least one criteria
+        if ( ! criteriaValid() )
+        {
+            return false;
+        }
+        
+        // We need at least one outcome
+        
         // Check to see if this item is valid at this current time
         return m_ruleName != null &&
                 m_ruleDescription != null &&
@@ -171,7 +221,8 @@ public class Rule extends AbstractDatabaseObject implements IRule
         return new Memento(
                 ( m_ruleName == null ) ? null : new String(m_ruleName), 
                 ( m_ruleDescription == null ) ? null : new String(m_ruleDescription), 
-                ( m_ruleType == null ) ? null : m_ruleType );
+                ( m_ruleType == null ) ? null : m_ruleType,
+                new ArrayList<IRuleCriterion>(m_newCriteria) );
     }
     
     
@@ -180,11 +231,28 @@ public class Rule extends AbstractDatabaseObject implements IRule
         m_ruleName = (String)state.getSomeState();
         m_ruleDescription = (String)state.getSomeState();
         m_ruleType = (RULE_TYPE)state.getSomeState();
+        
+        // Load the criteria
+        try
+        {
+            m_criteria = new ArrayList<IRuleCriterion>( DataObjectFactory.loadCriteriaForRule( this ) );
+        }
+        catch( Exception e )
+        {}
+        
+        synchronise();
+    }
+    
+    private void synchronise()
+    {
+        m_newCriteria.clear();
+        m_newCriteria.addAll( m_criteria );
     }
     
     private String m_ruleName;
     private String m_ruleDescription; 
     private RULE_TYPE m_ruleType = null;
-    private ArrayList<IRuleCriterion> m_criteria;
+    private ArrayList<IRuleCriterion> m_criteria = new ArrayList<IRuleCriterion>();
+    private ArrayList<IRuleCriterion> m_newCriteria = new ArrayList<IRuleCriterion>();
     private ArrayList<IRuleResult> m_results = new ArrayList<IRuleResult>();
 }

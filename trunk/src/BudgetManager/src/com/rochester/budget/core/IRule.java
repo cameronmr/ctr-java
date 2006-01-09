@@ -49,5 +49,8 @@ public interface IRule extends IDatabaseObject
     Collection<IRuleCriterion> getCriteria( );
     void setCriteria( Collection<IRuleCriterion> criteria );
     
-    boolean criteriaValid( );
+    void addCriterion( IRuleCriterion criterion );
+    
+    // Remove the last criterion in the list
+    void removeCriterion( );
 }
