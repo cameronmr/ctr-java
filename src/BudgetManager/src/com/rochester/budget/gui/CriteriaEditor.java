@@ -11,7 +11,6 @@
 package com.rochester.budget.gui;
 import com.rochester.budget.core.DataObjectFactory;
 import com.rochester.budget.core.GenericComboBoxModel;
-import com.rochester.budget.core.IGUIComponent;
 import com.rochester.budget.core.IRule;
 import com.rochester.budget.core.IRuleCriterion;
 import java.awt.BorderLayout;
@@ -21,14 +20,13 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Collection;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
-import javax.swing.CellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -74,7 +72,7 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
                     populateTypeCombo( m_criteriaModel.getSelected() );
                     
                     // notify change
-                    m_editor.editingStopped();
+                    m_editor.editingStopped();                    
                 }
             });
         }
@@ -110,6 +108,17 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
             // Get the editor
             m_editorPanel.removeAll();
             m_editorPanel.add( m_text = new JTextField( criteria.getMatchValue() ));
+            
+            m_text.addKeyListener( new KeyAdapter()
+            {
+                public void keyTyped( KeyEvent e )
+                {
+                    if ( m_text.getText().length() > 0 )
+                    {
+                        m_editor.editingStopped();
+                    }
+                }
+            });
         }        
                         
         private GenericComboBoxModel<IRuleCriterion> m_criteriaModel = new GenericComboBoxModel<IRuleCriterion>();
@@ -132,7 +141,6 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
     {
         m_index = index;
         m_theRule = (IRule)value;
-        m_criteria = new ArrayList( m_theRule.getCriteria() );
         
         m_thePanel = new JPanel( new BorderLayout( 5, 0 ) );  
         m_thePanel.setPreferredSize( new Dimension( -1, 150) );
@@ -148,19 +156,27 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
         {
             public void actionPerformed( ActionEvent e )
             {
-                addCriterion( DataObjectFactory.getAvailableCriteria( null ).iterator().next() );
+                m_theRule.addCriterion( DataObjectFactory.getAvailableCriteria( null ).iterator().next() );
+                updatePanel();
             }
         });
         
-        m_fewerButton = new JButton( "fewer" );
+        m_fewerButton = new JButton( "fewer" ); 
+        m_fewerButton.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                m_theRule.removeCriterion( );
+                updatePanel();
+            }
+        });
         JPanel buttonPanel = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
         buttonPanel.add( m_moreButton );
         buttonPanel.add( m_fewerButton );
         
         m_thePanel.add( buttonPanel, BorderLayout.SOUTH );  
         
-        m_criteriaPanel.add( m_springPanel, BorderLayout.NORTH );
-        
+        m_criteriaPanel.add( m_springPanel, BorderLayout.NORTH );        
         
         updatePanel( );
     }
@@ -177,7 +193,15 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
 
     public Object getCellEditorValue()
     {       
-        return m_criteria;
+        ArrayList<IRuleCriterion> criteria = new ArrayList<IRuleCriterion>();
+        for ( CriterionPanelHelper helper : m_helpers )
+        {
+            IRuleCriterion crit = helper.getCriterion();           
+                        
+            criteria.add( crit );
+        }    
+        
+        return criteria;
     }
 
     public int getIndex( )
@@ -187,9 +211,10 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
     
     public void editingStopped()
     {          
+        m_thePanel.validate();
+        
         // Go through the helpers & get the criteria
         boolean allValid = true;
-        ArrayList<IRuleCriterion> criteria = new ArrayList<IRuleCriterion>();
         for ( CriterionPanelHelper helper : m_helpers )
         {
             IRuleCriterion crit = helper.getCriterion();
@@ -197,33 +222,16 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
             // The rules aren't set yet
             crit.setRule( m_theRule );
             
-            try
+            if( !crit.isValid() )
             {
-                crit.commit();
+                allValid = false;
             }
-            catch( Exception e )
-            {
-                JOptionPane.showMessageDialog( null, e, "Error", JOptionPane.ERROR_MESSAGE );
-            }
-                        
-            criteria.add( crit );
         }        
-                   
-        // delete any criteria in the original list that aren't in the new list
-        for ( IRuleCriterion criterion : m_criteria )
-        {
-            if ( ! criteria.contains( criterion ) )
-            {                
-                criterion.delete();
-            }
-        }    
-        
+                         
         if ( allValid )
         {
             stopCellEditing();
         }
-        
-        m_criteria = criteria;
     }
         
     private void updatePanel( )
@@ -231,37 +239,17 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
         m_springPanel.removeAll();
         m_helpers.clear();
 
-        for ( IRuleCriterion criterion : m_criteria )
+        for ( IRuleCriterion criterion : m_theRule.getCriteria() )
         {
             // Draw the three items
             m_helpers.add( new CriterionPanelHelper( this, criterion, m_springPanel ) );
         }
 
-        SpringUtilities.makeCompactGrid( m_springPanel, m_criteria.size(), 3, 3, 3, 5, 5 );
+        SpringUtilities.makeCompactGrid( m_springPanel, m_theRule.getCriteria().size(), 3, 3, 3, 5, 5 );
 
         m_thePanel.validate();        
     }
     
-    private void addCriterion( IRuleCriterion criterion )
-    {
-        
-        m_springPanel.removeAll();
-        m_helpers.clear();
-
-        for ( IRuleCriterion crit : m_criteria )
-        {
-            // Draw the three items
-            m_helpers.add( new CriterionPanelHelper( this, crit, m_springPanel ) );
-        }
-        
-        m_helpers.add( new CriterionPanelHelper( this, criterion, m_springPanel ) );
-
-        SpringUtilities.makeCompactGrid( m_springPanel, m_criteria.size() + 1, 3, 3, 3, 5, 5 );
-
-        m_thePanel.validate();        
-    }
-    
-
     private int m_index;
     private JPanel m_thePanel;
     private JButton m_moreButton;
@@ -269,7 +257,6 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
     
     private JPanel m_criteriaPanel = new JPanel( new BorderLayout() );
     private JPanel m_springPanel = new JPanel( new SpringLayout() );
-    private ArrayList<IRuleCriterion> m_criteria;
     private IRule m_theRule;
     private ArrayList<CriterionPanelHelper> m_helpers = new ArrayList<CriterionPanelHelper>();
 }

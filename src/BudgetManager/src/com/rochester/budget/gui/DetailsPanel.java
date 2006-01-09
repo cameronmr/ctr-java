@@ -92,19 +92,6 @@ public class DetailsPanel implements IGUIComponent, CellEditorListener, IBudgetA
                     editingStopped( );
                 }
             }); 
-            
-            m_field.addFocusListener( new FocusListener()
-            {
-                public void focusGained( FocusEvent e )
-                {
-                    // Do nothing
-                }
-                
-                public void focusLost( FocusEvent e )
-                {
-                    editingStopped( );
-                }
-            });
         }
         
         public DetailsPanelEditor getDetailPanelEditorComponent( int index, boolean editable, Object value )
@@ -254,7 +241,7 @@ public class DetailsPanel implements IGUIComponent, CellEditorListener, IBudgetA
                 try
                 {
                     m_theModel.applyChanges();
-                    m_applyButton.setEnabled( false );
+                    m_applyButton.setEnabled( m_theModel.isValid() );
                     
                     // Notify listeners that we have had an update
                     fireActionEvent( DETAILS_UPDATED, m_theModel );
@@ -317,7 +304,7 @@ public class DetailsPanel implements IGUIComponent, CellEditorListener, IBudgetA
         m_thePanel.setBorder( BorderFactory.createEmptyBorder( 5,5,5,5 ) );
         
         // Remove all existing components
-        m_applyButton.setEnabled( false );
+        m_applyButton.setEnabled( model.isValid() );
         
         // Always draw the first item
         int numPairs = model.getColumnCount();
@@ -405,13 +392,14 @@ public class DetailsPanel implements IGUIComponent, CellEditorListener, IBudgetA
     public void editingCanceled( ChangeEvent e ) 
     {
         // Do nothing
+        int i = 0;
     }    
     
     public boolean isModified( )
     {
         return m_theModel.isModified();
     }
-    
+        
     public synchronized void addActionListener(ActionListener l)
     {   
         m_subscribers = AWTEventMulticaster.add(m_subscribers, l);
