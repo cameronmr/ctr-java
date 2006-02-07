@@ -44,13 +44,17 @@ public interface IRule extends IDatabaseObject
     void setType( RULE_TYPE type );
     
     boolean matchTransaction( ITransaction transaction );
-    void applyRule( ITransaction transaction );
+    void applyRule( ITransaction transaction ) throws Exception;
     
     Collection<IRuleCriterion> getCriteria( );
-    void setCriteria( Collection<IRuleCriterion> criteria );
-    
+    void setCriteria( Collection<IRuleCriterion> criteria );    
     void addCriterion( IRuleCriterion criterion );
-    
     // Remove the last criterion in the list
     void removeCriterion( );
+    
+    Collection<IRuleResult> getResults();
+    void setResults( Collection<IRuleResult> results );
+    void addResult( IRuleResult result );    
+    // Remove the last result in the list
+    void removeResult( );
 }

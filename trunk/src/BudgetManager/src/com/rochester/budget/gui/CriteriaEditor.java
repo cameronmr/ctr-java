@@ -91,7 +91,7 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
         {            
             m_typePanel.removeAll();
             m_typeCombo = new JComboBox( criteria.getMatchTypes() );
-            m_typeCombo.setSelectedItem( criteria.getSelectedMatchType() );
+            m_typeCombo.setSelectedItem( criteria.getMatchType() );
             m_typePanel.add( m_typeCombo );
             
             m_typeCombo.addActionListener( new ActionListener( ) 

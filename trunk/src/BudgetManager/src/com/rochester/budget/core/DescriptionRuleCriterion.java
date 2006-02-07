@@ -75,7 +75,7 @@ public class DescriptionRuleCriterion extends AbstractRuleCriterion
     
     public boolean matchTransaction( ITransaction transaction )
     {
-        switch ( MATCH_TYPE.valueOf( getSelectedMatchType() ) )
+        switch ( MATCH_TYPE.valueOf( getMatchType() ) )
         {
             case CONTAINS:
                 return transaction.getNarrative().indexOf( getMatchValue() ) >= 0;

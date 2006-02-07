@@ -17,6 +17,7 @@ import com.rochester.budget.core.exceptions.CategoryNotFoundException;
 import com.rochester.budget.core.exceptions.ReconciliationNotFoundException;
 import com.rochester.budget.core.exceptions.RuleCriterionNotFoundException;
 import com.rochester.budget.core.exceptions.RuleNotFoundException;
+import com.rochester.budget.core.exceptions.RuleResultNotFoundException;
 import com.rochester.budget.core.exceptions.StatementNotFoundException;
 import com.rochester.budget.core.exceptions.TransactionNotFoundException;
 import java.io.BufferedInputStream;
@@ -268,7 +269,7 @@ public class DataObjectFactory
         ArrayList<IRuleCriterion> criteria = new ArrayList<IRuleCriterion>();
         try
         {
-            String sql = new String( "select PKEY,CRITERIA from RULE_CRITERIA where RULE_FKEY = '" + rule.getKey() + "'" );
+            String sql = new String( "select PKEY, CRITERIA from RULE_CRITERIA where RULE_FKEY = '" + rule.getKey() + "'" );
 
             // the statement object will be automatically cleaned up when garbage collected
             ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
@@ -298,6 +299,60 @@ public class DataObjectFactory
         return criteria;
     }
     
+    public static IRuleResult loadRuleResult( final String pkey ) throws RuleResultNotFoundException
+    {        
+        if ( pkey == null )
+        {
+            return null;
+        }
+        
+        // This will throw an exception if the account is not available
+        IRuleResult result = m_ruleResults.get( pkey );
+        if ( null == result )
+        {
+            result = new RuleResult( pkey );
+            
+            m_ruleResults.put( pkey, result );
+        }
+        
+        return result;
+    }
+    
+    public static Collection<IRuleResult> loadResultsForRule( final IRule rule ) throws RuleResultNotFoundException
+    {        
+        ArrayList<IRuleResult> ruleResults = new ArrayList<IRuleResult>();
+        try
+        {
+            String sql = new String( "select PKEY from RULE_RESULT where RULE_FKEY = '" + rule.getKey() + "'" );
+
+            // the statement object will be automatically cleaned up when garbage collected
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
+            {
+                try
+                {
+                    ruleResults.add( loadRuleResult( results.getString("PKEY") ) );
+                }
+                catch( RuleResultNotFoundException e )
+                {
+                    // TODO: handling creation of new account 
+                    System.out.println( e.toString() );
+                }
+            }
+            
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            // TODO: error handling
+            return null;
+        }
+        
+        return ruleResults;
+    }
+    
     public static Collection<IRuleCriterion> getAvailableCriteria( final IRuleCriterion selected )
     {
         // Set up the available criteria
@@ -325,6 +380,11 @@ public class DataObjectFactory
         }
         
         return criteria;
+    }
+    
+    public static IRuleResult newResultForRule( final IRule rule )
+    {
+        return new RuleResult( rule );
     }
         
     /***************************** STATEMENT *******************************/
@@ -582,6 +642,7 @@ public class DataObjectFactory
     private static DataObjectMap<IAccount> m_accounts = new DataObjectMap<IAccount>();
     private static DataObjectMap<IRule> m_rules = new DataObjectMap<IRule>();
     private static DataObjectMap<IRuleCriterion> m_ruleCriteria = new DataObjectMap<IRuleCriterion>();
+    private static DataObjectMap<IRuleResult> m_ruleResults = new DataObjectMap<IRuleResult>();
     private static DataObjectMap<IStatement> m_statements = new DataObjectMap<IStatement>();
     private static DataObjectMap<ICategory> m_categories = new DataObjectMap<ICategory>();
     private static DataObjectMap<IReconciliation> m_reconciliations = new DataObjectMap<IReconciliation>();

@@ -24,7 +24,7 @@ public interface IRuleCriterion extends IDatabaseObject
     String getCriteria();
     
     Enum[] getMatchTypes();
-    String getSelectedMatchType();
+    String getMatchType();
     void setMatchType( final String matchType );
     
     // Allows us to have a specific editor

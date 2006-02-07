@@ -7,7 +7,7 @@
 
 package com.rochester.budget.core;
 import com.rochester.budget.core.exceptions.StateSyncException;
-import java.util.Observer;
+
 
 /**
  * A simple interface for a database object.

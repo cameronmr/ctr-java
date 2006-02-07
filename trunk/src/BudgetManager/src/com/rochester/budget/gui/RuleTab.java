@@ -14,6 +14,7 @@ import com.rochester.budget.core.IGUIComponent;
 import com.rochester.budget.core.IRule;
 import com.rochester.budget.core.IRule.RULE_TYPE;
 import com.rochester.budget.core.IRuleCriterion;
+import com.rochester.budget.core.IRuleResult;
 import com.rochester.budget.core.RuleDetailsModel;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -119,6 +120,7 @@ public class RuleTab implements IGUITab, IGUIComponent, ListSelectionListener
         m_detailsPanel = new DetailsPanel();
         m_detailsPanel.setDefaultEditor( RULE_TYPE.class, new RuleTypeEditor() );
         m_detailsPanel.setDefaultEditor( IRuleCriterion.class, new CriteriaEditor() );
+        m_detailsPanel.setDefaultEditor( IRuleResult.class, new ResultEditor() );
         
         JSplitPane split = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
         
