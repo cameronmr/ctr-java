@@ -32,5 +32,15 @@ public interface IRuleResult extends IDatabaseObject
         }
     };
       
-    void applyResult( ITransaction transaction );
+    void applyResult( ITransaction transaction ) throws Exception;
+    
+    Enum[] getResultTypes();
+    RESULT_TYPE getResultType();
+    void setResultType( RESULT_TYPE type );
+    
+    void setReconciliationValue( final MonetaryValue value );
+    MonetaryValue getReconciliationValue( );
+    
+    ICategory getReconciliationCategory( );
+    void setReconciliationCategory( final ICategory category );
 }

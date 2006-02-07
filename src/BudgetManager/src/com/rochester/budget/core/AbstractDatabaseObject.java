@@ -10,7 +10,6 @@ import com.rochester.budget.core.IDataChangeObserver.ChangeType;
 import com.rochester.budget.core.IDatabaseObject.DBState;
 import com.rochester.budget.core.exceptions.BudgetManagerException;
 import com.rochester.budget.core.exceptions.StateSyncException;
-import com.sun.java_cup.internal.emit;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;

@@ -69,7 +69,7 @@ public class AccountRuleCriterion extends AbstractRuleCriterion
         
     public boolean matchTransaction( ITransaction transaction )
     {
-        switch ( MATCH_TYPE.valueOf( getSelectedMatchType() ) )
+        switch ( MATCH_TYPE.valueOf( getMatchType() ) )
         {
             case IS:
                 return transaction.getAccount().getNumber( ).equals( getMatchValue() );

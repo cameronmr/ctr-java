@@ -60,8 +60,7 @@ public class RuleDetailsModel extends AbstractDetailsModel<IRule>
             case 3:
                 return rule;
             case 4:
-                // TODO: results
-                return "";
+                return rule;
         }
         
         return null;
@@ -80,8 +79,7 @@ public class RuleDetailsModel extends AbstractDetailsModel<IRule>
             case 3:
                 return IRuleCriterion.class;
             case 4:
-                // TODO: results
-                break;
+                return IRuleResult.class;
         }
         
         return null;
@@ -105,7 +103,7 @@ public class RuleDetailsModel extends AbstractDetailsModel<IRule>
                 rule.setCriteria( (Collection<IRuleCriterion>) value );
                 break;
             case 4:
-                // TODO: results
+                rule.setResults( (Collection<IRuleResult>) value );
                 break;
         }
                 

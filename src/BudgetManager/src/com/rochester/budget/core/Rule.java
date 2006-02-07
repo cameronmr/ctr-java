@@ -58,6 +58,7 @@ public class Rule extends AbstractDatabaseObject implements IRule
         
         // Load the criteria
         m_criteria = new ArrayList<IRuleCriterion>( DataObjectFactory.loadCriteriaForRule( this ) );
+        m_results = new ArrayList<IRuleResult>( DataObjectFactory.loadResultsForRule( this ) );
         synchronise();
     }
     
@@ -85,6 +86,24 @@ public class Rule extends AbstractDatabaseObject implements IRule
         for ( IRuleCriterion criterion : m_newCriteria )
         {
             criterion.commit();
+        }
+        
+        // Remove the no longer used results
+        for ( IRuleResult result : m_results )
+        {
+            if ( ! m_newResults.contains( result ) )
+            {                
+                result.delete();
+            }
+        }    
+        
+        m_results.clear();
+        m_results.addAll( m_newResults );
+        
+        // Commit the changes
+        for ( IRuleResult result : m_newResults )
+        {
+            result.commit();
         }
     }
 
@@ -145,7 +164,7 @@ public class Rule extends AbstractDatabaseObject implements IRule
         return true;
     }
     
-    public void applyRule( ITransaction transaction )
+    public void applyRule( ITransaction transaction ) throws Exception
     {
         for ( IRuleResult result : m_results )
         {
@@ -180,6 +199,33 @@ public class Rule extends AbstractDatabaseObject implements IRule
         storeMemento();
     }
     
+    public Collection<IRuleResult> getResults()
+    {
+        return m_newResults;
+    }
+    
+    public void setResults( Collection<IRuleResult> results )
+    {
+        m_newResults = new ArrayList( results );
+        
+        storeMemento();        
+    }
+    
+    public void addResult( IRuleResult result )
+    {
+        m_newResults.add( result );
+        
+        storeMemento();        
+    }
+    
+    public void removeResult()
+    {
+        // Remove the last criteria
+        m_newResults.remove( m_newResults.size() - 1 );
+        
+        storeMemento();
+    }
+    
     private boolean criteriaValid( )
     {
         // Rules need at least one criteria
@@ -192,7 +238,29 @@ public class Rule extends AbstractDatabaseObject implements IRule
         {
             // If one of the criteria is not valid, then return false;
             if ( !criterion.isValid() )
+            {
                 return false;
+            }
+        }
+                
+        return true;
+    }
+    
+    private boolean resultsValid( )
+    {
+        // Rules need at least one criteria
+        if ( m_newResults.isEmpty() )
+        {
+            return false;
+        }
+        
+        for ( IRuleResult result : m_newResults )                
+        {
+            // If one of the criteria is not valid, then return false;
+            if ( !result.isValid() )
+            {
+                return false;
+            }
         }
                 
         return true;
@@ -206,12 +274,50 @@ public class Rule extends AbstractDatabaseObject implements IRule
             return false;
         }
         
+        // We need at least one result
+        if ( ! resultsValid() )
+        {
+            return false;
+        }
+        
         // We need at least one outcome
         
         // Check to see if this item is valid at this current time
         return m_ruleName != null &&
                 m_ruleDescription != null &&
                 m_ruleType != null;
+    }
+    
+    public boolean isModified()
+    {
+        // We want to check the elements that we are handling for modifications!
+        
+        // If we are already modified then return
+        if ( super.isModified() )
+        {
+            return true;
+        }
+        else
+        {
+            // See if our elements contain any modifications
+            for ( IRuleResult result : m_newResults )
+            {
+                if ( result.isModified() )
+                {
+                    return true;
+                }
+            }
+            
+            for ( IRuleCriterion criterion : m_newCriteria )
+            {
+                if ( criterion.isModified() )
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
     }
     
     public Memento getMemento()
@@ -222,7 +328,8 @@ public class Rule extends AbstractDatabaseObject implements IRule
                 ( m_ruleName == null ) ? null : new String(m_ruleName), 
                 ( m_ruleDescription == null ) ? null : new String(m_ruleDescription), 
                 ( m_ruleType == null ) ? null : m_ruleType,
-                new ArrayList<IRuleCriterion>(m_newCriteria) );
+                new ArrayList<IRuleCriterion>( m_newCriteria ),
+                new ArrayList<IRuleResult>( m_newResults ) );
     }
     
     
@@ -233,9 +340,18 @@ public class Rule extends AbstractDatabaseObject implements IRule
         m_ruleType = (RULE_TYPE)state.getSomeState();
         
         // Load the criteria
+        // TODO? load from state?
         try
         {
             m_criteria = new ArrayList<IRuleCriterion>( DataObjectFactory.loadCriteriaForRule( this ) );
+        }
+        catch( Exception e )
+        {}
+        
+        // Load the results
+        try
+        {
+            m_results = new ArrayList<IRuleResult>( DataObjectFactory.loadResultsForRule( this ) );
         }
         catch( Exception e )
         {}
@@ -247,6 +363,9 @@ public class Rule extends AbstractDatabaseObject implements IRule
     {
         m_newCriteria.clear();
         m_newCriteria.addAll( m_criteria );
+        
+        m_newResults.clear();
+        m_newResults.addAll( m_results );
     }
     
     private String m_ruleName;
@@ -255,4 +374,5 @@ public class Rule extends AbstractDatabaseObject implements IRule
     private ArrayList<IRuleCriterion> m_criteria = new ArrayList<IRuleCriterion>();
     private ArrayList<IRuleCriterion> m_newCriteria = new ArrayList<IRuleCriterion>();
     private ArrayList<IRuleResult> m_results = new ArrayList<IRuleResult>();
+    private ArrayList<IRuleResult> m_newResults = new ArrayList<IRuleResult>();
 }

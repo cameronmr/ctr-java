@@ -13,7 +13,6 @@ package com.rochester.budget.gui;
 import com.rochester.budget.core.Comparators;
 import com.rochester.budget.core.DataObjectFactory;
 import com.rochester.budget.core.GenericListModel;
-import com.rochester.budget.core.IAccount;
 import com.rochester.budget.core.IGUIComponent;
 import com.rochester.budget.core.IRule;
 import java.awt.BorderLayout;

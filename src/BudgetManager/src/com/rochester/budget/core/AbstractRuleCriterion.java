@@ -9,8 +9,6 @@
  */
 
 package com.rochester.budget.core;
-
-import com.rochester.budget.core.IRule.RULE_TYPE;
 import com.rochester.budget.core.exceptions.RuleCriterionNotFoundException;
 import com.rochester.budget.core.exceptions.StateSyncException;
 import java.sql.ResultSet;
@@ -78,7 +76,7 @@ public abstract class AbstractRuleCriterion extends AbstractDatabaseObject imple
         return m_criteria;
     }
           
-    public String getSelectedMatchType()
+    public String getMatchType()
     {
         return m_criteriaType;
     }
