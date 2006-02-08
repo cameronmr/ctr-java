@@ -152,6 +152,7 @@ public class Rule extends AbstractDatabaseObject implements IRule
             return false;
         }
         
+        boolean allPassed = true;
         for ( IRuleCriterion criterion : m_newCriteria )
         {
             if ( criterion.matchTransaction( transaction ) )
@@ -162,10 +163,17 @@ public class Rule extends AbstractDatabaseObject implements IRule
             }
             else
             {
+                allPassed = false;
                 // if a criterion fails, and the rule type is ALL, we have no match
                 if ( m_ruleType == RULE_TYPE.ALL )
                     return false;
             }
+        }
+        
+        if ( allPassed && 
+             ( m_ruleType == RULE_TYPE.ALL ) )
+        {
+            return true;
         }
         
         // We can only get here if the rule_type is ANY
