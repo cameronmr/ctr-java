@@ -36,22 +36,38 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
     public void setTransactions( Collection<ITransaction> transactions )
     {
         // remove any observerss to the transactions
-        for ( ITransaction trans : m_transactions )
+        for ( ITransaction trans : m_allTransactions )
         {
             trans.deleteObserver( this );
         }
         
-        m_transactions.clear();
+        m_allTransactions.clear();
         
-        m_transactions.addAll( transactions );
-        
-        Collections.sort( m_transactions, Comparators.TRANSACTION_DATE_ORDER );        
+        m_allTransactions.addAll( transactions );                
         
         // Observe any changes to the transactions
-        for ( ITransaction trans : m_transactions )
+        for ( ITransaction trans : m_allTransactions )
         {
             trans.addObserver( this );
+        }     
+        
+        filterAndSort();
+    }
+    
+    public void filterAndSort()
+    {
+        m_visibleTransactions.clear();
+        
+        for ( ITransaction trans : m_allTransactions )
+        {
+            // TODO: Generic filter?
+            if ( trans.getReconciliationState() != ITransaction.ReconciliationState.FULL )
+                m_visibleTransactions.add( trans );
         }
+        
+        Collections.sort( m_visibleTransactions, Comparators.TRANSACTION_DATE_ORDER );      
+        
+        fireTableDataChanged();     
     }
     
     public int getColumnCount() 
@@ -61,7 +77,7 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
 
     public int getRowCount() 
     {
-        return m_transactions.size();
+        return m_visibleTransactions.size();
     }
 
     public String getColumnName(int col) 
@@ -71,7 +87,7 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
 
     public Object getValueAt( int row, int col )
     {
-        ITransaction trans = m_transactions.get( row );
+        ITransaction trans = m_visibleTransactions.get( row );
         
         switch ( col )
         {
@@ -109,7 +125,21 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
     
     public ITransaction getTransactionAt( int row )
     {
-        return m_transactions.get( row );
+        return m_visibleTransactions.get( row );
+    }
+    
+    public Collection<ITransaction> getUnreconciledTransactions()
+    {
+        ArrayList<ITransaction> transactions = new ArrayList<ITransaction>();
+        for( ITransaction transaction : m_allTransactions )
+        {
+            if ( transaction.getReconciliationState() == ITransaction.ReconciliationState.NONE )
+            {
+                transactions.add( transaction );
+            }
+        }
+        
+        return transactions;
     }
 
     public void notifyDatabaseChange( ChangeType change, IDatabaseObject object )
@@ -118,7 +148,7 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
         if ( ChangeType.UPDATE == change )
         {
             // Update the reconciliation status
-            int row = m_transactions.indexOf( object );
+            int row = m_visibleTransactions.indexOf( object );
             if ( row >= 0 )
             {
                 fireTableCellUpdated( row, 0 );
@@ -145,6 +175,7 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
         fireTableCellUpdated(row, col);
     }*/
     
-    private ArrayList<ITransaction> m_transactions = new ArrayList<ITransaction>();
+    private ArrayList<ITransaction> m_allTransactions = new ArrayList<ITransaction>();
+    private ArrayList<ITransaction> m_visibleTransactions = new ArrayList<ITransaction>();
     private static final String[] m_columns = { "Reconciled", "Date", "Account", "Description", "Value" };
 }

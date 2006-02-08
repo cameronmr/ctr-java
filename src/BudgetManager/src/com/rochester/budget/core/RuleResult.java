@@ -96,6 +96,8 @@ public class RuleResult extends AbstractDatabaseObject implements IRuleResult
         
         recon.setCategory( m_category );   
         recon.setNote( "Automated Rule" );
+        
+        transaction.addReconciliation( recon );
         recon.commit();
     }
     
