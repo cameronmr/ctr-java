@@ -58,7 +58,7 @@ public class TransactionTable extends JTable
                                  null, column.getHeaderValue(),
                                  false, false, 0, 0);
             
-            headerWidth = comp.getPreferredSize().width * 3;
+            headerWidth = comp.getPreferredSize().width * 2;
 
             column.setMaxWidth( headerWidth );
         }

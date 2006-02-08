@@ -152,16 +152,25 @@ public class Rule extends AbstractDatabaseObject implements IRule
             return false;
         }
         
-        // if one criterion fails, then we don't have a match
         for ( IRuleCriterion criterion : m_newCriteria )
         {
-            if ( !criterion.matchTransaction( transaction ) )
+            if ( criterion.matchTransaction( transaction ) )
+            {                
+                // if a criterion matches, and the rule type is ANY, we have a match             
+                if ( m_ruleType == RULE_TYPE.ANY )
+                    return true;
+            }
+            else
             {
-                return false;
+                // if a criterion fails, and the rule type is ALL, we have no match
+                if ( m_ruleType == RULE_TYPE.ALL )
+                    return false;
             }
         }
         
-        return true;
+        // We can only get here if the rule_type is ANY
+        // and no matches were made
+        return false;
     }
     
     public void applyRule( ITransaction transaction ) throws Exception
@@ -224,6 +233,21 @@ public class Rule extends AbstractDatabaseObject implements IRule
         m_newResults.remove( m_newResults.size() - 1 );
         
         storeMemento();
+    }
+    
+    
+    public void delete()
+    {
+        // Delete all our criteria & results before deleting ourselves
+        for ( IRuleCriterion criterion : m_criteria )
+        {
+            criterion.delete();
+        }
+        
+        for ( IRuleResult result : m_results )
+        {
+            result.delete();
+        }
     }
     
     private boolean criteriaValid( )

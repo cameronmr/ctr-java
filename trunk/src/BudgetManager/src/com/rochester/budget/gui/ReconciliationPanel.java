@@ -61,21 +61,21 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
         m_reconciliationTable = new ReconciliationTable( m_reconciliationModel );
         m_reconciliationTable.setCellSelectionEnabled( true );
         m_amountRemainingLabel = new javax.swing.JLabel();
-
+        
         this.setLayout(new java.awt.BorderLayout());
-
+        
         m_reconciliationLabel.setText( m_title );
         this.add( m_reconciliationLabel, java.awt.BorderLayout.NORTH );
         this.add( new JScrollPane( m_reconciliationTable ), java.awt.BorderLayout.CENTER);
-
-        m_amountRemainingLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        m_amountRemainingLabel.setText( m_remaining );                      
         
-        // Action associated with the delete button and 'D' key event        
+        m_amountRemainingLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        m_amountRemainingLabel.setText( m_remaining );
+        
+        // Action associated with the delete button and 'D' key event
         Action deleteAction = new AbstractAction("Delete Reconciliation")
         {
-            public void actionPerformed(ActionEvent e) 
-            {            
+            public void actionPerformed(ActionEvent e)
+            {
                 // delete the transaction!
                 m_reconciliationModel.deleteReconciliation( m_reconciliationTable.getSelectedRow() );
             }
@@ -91,7 +91,7 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
                 fireActionEvent( NEXT_TRANSACTION );
             }
         };
-
+        
         // Action that will be associated with the Previous button and with
         // the 'P' key event
         Action previousAction = new AbstractAction("Previous Transaction")
@@ -106,7 +106,7 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
         // Register Key Bindings for the 'O' and 'C' keys:
         InputMap im = this.getInputMap( JComponent.WHEN_IN_FOCUSED_WINDOW );
         ActionMap am = this.getActionMap();
-                
+        
         // TODO: use constants, rather than strings!
         im.put( KeyStroke.getKeyStroke( KeyEvent.VK_D, java.awt.event.InputEvent.ALT_MASK ), "delete");
         am.put( "delete", deleteAction );
@@ -114,21 +114,21 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
         am.put( "next", nextAction );
         im.put( KeyStroke.getKeyStroke( KeyEvent.VK_P, java.awt.event.InputEvent.ALT_MASK ), "previous");
         am.put( "previous", previousAction );
-         
+        
         // Bottom buttons
         JPanel buttonPanel = new JPanel( new BorderLayout(5,1) );
-        JButton deleteButton = new JButton( deleteAction );  
+        JButton deleteButton = new JButton( deleteAction );
         deleteButton.setIcon( createImageIcon( "res/delete.png" ) );
         deleteButton.setMnemonic( KeyEvent.VK_D );
         
-        JButton nextButton = new JButton( nextAction );    
-        nextButton.setIcon( createImageIcon( "res/next.gif" ) ); 
+        JButton nextButton = new JButton( nextAction );
+        nextButton.setIcon( createImageIcon( "res/next.gif" ) );
         nextButton.setHorizontalTextPosition( SwingConstants.LEFT );
         nextButton.setMnemonic( KeyEvent.VK_N );
         
         JButton previousButton = new JButton( previousAction );
-        previousButton.setIcon( createImageIcon("res/prev.gif" ) );    
-        previousButton.setMnemonic( KeyEvent.VK_P );        
+        previousButton.setIcon( createImageIcon("res/prev.gif" ) );
+        previousButton.setMnemonic( KeyEvent.VK_P );
         
         buttonPanel.add( deleteButton, BorderLayout.WEST );
         JPanel middlePanel = new JPanel( new FlowLayout( FlowLayout.CENTER, 5, 1 ) );
@@ -139,7 +139,7 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
         m_amountRemainingLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         m_amountRemainingLabel.setText( m_remaining );
         
-        this.add( buttonPanel, java.awt.BorderLayout.SOUTH);    
+        this.add( buttonPanel, java.awt.BorderLayout.SOUTH);
     }
     
     public void actionPerformed( ActionEvent e )
@@ -157,7 +157,7 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
                 {
                     // Ask whether we want to delete the unsaved reconciliation, or not
                     if ( JOptionPane.CANCEL_OPTION == JOptionPane.showConfirmDialog( null,
-                            "There are unsaved reconciliations for this transaction. Press 'OK' to delete the incomplete reconcilation, or 'Cancel' to complete the reconciliation.", 
+                            "There are unsaved reconciliations for this transaction. Press 'OK' to delete the incomplete reconcilation, or 'Cancel' to complete the reconciliation.",
                             "Delete Reconciliation?", JOptionPane.OK_CANCEL_OPTION ) )
                     {
                         fireActionEvent( PREV_TRANSACTION );
@@ -166,7 +166,7 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
                     {
                         try
                         {
-                            // If we want to continue then we force the model to discard the 
+                            // If we want to continue then we force the model to discard the
                             // reconciliation
                             updateTransaction( trans, true );
                         }
@@ -195,30 +195,30 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
             }
         }
     }
-
+    
     public Component getComponent()
     {
         return m_reconciliationPanel;
     }
     
     public synchronized void addActionListener(ActionListener l)
-    {   
+    {
         m_subscribers = AWTEventMulticaster.add(m_subscribers, l);
     }
     
     public synchronized void removeActionListener(ActionListener l)
-    {   
+    {
         m_subscribers = AWTEventMulticaster.remove(m_subscribers, l);
     }
     
     private void fireActionEvent( int id )
-    {   
+    {
         if (m_subscribers != null)
         {
-             m_subscribers.actionPerformed(new ActionEvent(this, id, "") );
+            m_subscribers.actionPerformed(new ActionEvent(this, id, "") );
         }
-    }    
-        
+    }
+    
     private void updateTransaction( ITransaction trans, boolean discardIncomplete ) throws UnsavedReconciliationException
     {
         m_reconciliationTable.editingCanceled( null );
@@ -230,37 +230,37 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
         
         /* Pass to the ReconciliationTable to do some magic */
         m_reconciliationModel.setTransaction( trans, discardIncomplete );
-
+        
         // Update the labels
-        updateLabels( trans );        
-
+        updateLabels( trans );
+        
         // select the item at the starting point..
-        m_reconciliationTable.changeSelection( 0, 0, false, false );   
+        m_reconciliationTable.changeSelection( 0, 0, false, false );
     }
     
-    private ImageIcon createImageIcon(String path) 
+    private ImageIcon createImageIcon(String path)
     {
         java.net.URL imgURL = ClassLoader.getSystemClassLoader().getResource(path);
-
+        
         //error handling omitted for clarity...
         return new ImageIcon(imgURL);
     }
     
     private void updateLabels( ITransaction trans )
-    {        
+    {
         /* Update the title! */
         m_reconciliationLabel.setText( m_title + trans );
         
         /* Get the value remaining & update the label! */
-        m_amountRemainingLabel.setText( m_remaining + trans.getValueRemaining() );         
+        m_amountRemainingLabel.setText( m_remaining + trans.getValueRemaining() );
     }
     
     private javax.swing.JLabel m_amountRemainingLabel;
     private javax.swing.JLabel m_reconciliationLabel;
     private ReconciliationTable m_reconciliationTable;
     private ReconciliationTableModel m_reconciliationModel;
-    private JPanel m_reconciliationPanel;    
-    private ActionListener m_subscribers = null;    
+    private JPanel m_reconciliationPanel;
+    private ActionListener m_subscribers = null;
     
     private static final String m_title = "Reconciliations for ";
     private static final String m_remaining = "Amount Remaining to Reconcile: ";

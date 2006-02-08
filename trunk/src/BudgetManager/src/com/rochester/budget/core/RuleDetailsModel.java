@@ -115,5 +115,5 @@ public class RuleDetailsModel extends AbstractDetailsModel<IRule>
         return "Rule Details";
     }
         
-    private static final String[] m_labels = { "Name", "Description", "Rule Type", "Criteria", "Result" };
+    private static final String[] m_labels = { "Name", "Description", "Critera Match Type", "Criteria", "Result" };
 }

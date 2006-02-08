@@ -78,9 +78,9 @@ public class DescriptionRuleCriterion extends AbstractRuleCriterion
         switch ( MATCH_TYPE.valueOf( getMatchType() ) )
         {
             case CONTAINS:
-                return transaction.getNarrative().indexOf( getMatchValue() ) >= 0;
+                return transaction.getNarrative().toLowerCase().indexOf( getMatchValue().toLowerCase() ) >= 0;
             case DOES_NOT_CONTAIN:
-                return transaction.getNarrative().indexOf( getMatchValue() ) < 0;
+                return transaction.getNarrative().toLowerCase().indexOf( getMatchValue().toLowerCase() ) < 0;
         }
         
         return false;
