@@ -9,12 +9,12 @@
  */
 
 package com.rochester.budget.core;
-
-import com.rochester.budget.core.exceptions.AccountNotFoundException;
+import com.rochester.budget.core.IStatement.StatementSummary;
 import com.rochester.budget.core.exceptions.StateSyncException;
 import com.rochester.budget.core.exceptions.StatementNotFoundException;
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.util.Collection;
 
 /**
  *
@@ -115,6 +115,9 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         m_beginDate = startDate;
         
         storeMemento();
+        
+        // Clear the reconciliations
+        m_reconciliations = null;
     }
     
     public Date getStatementEnd()
@@ -127,6 +130,43 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         m_endDate = endDate;
         
         storeMemento();
+        
+        // Clear the reconciliations
+        m_reconciliations = null;
+    }
+    
+    public Collection<IAccount> getAccounts( final ICategory category, boolean flat )
+    {
+        loadReconciliations();
+        
+        // get the accounts used by this categories reconciliations
+        
+        // If isFlat get the transactions
+        
+        // if not flat, get the summary for category & all descendants
+        return null;
+    }
+    
+    public StatementSummary getSummary( final IAccount account, boolean flat )
+    {
+        loadReconciliations();
+        
+        // filter the list of reconciliations based on the account
+        return null;
+    }
+    
+    public StatementSummary getSummary( )
+    {
+        loadReconciliations();
+        
+        // Load the list of reconciliations for this statement period
+        StatementSummary summary = new StatementSummary();
+        for ( IReconciliation recon : m_reconciliations )
+        {
+            summary.addReconciliation(recon);
+        }
+        
+        return summary;
     }
       
     public boolean isValid( )
@@ -164,8 +204,17 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         m_endDate = (Date)state.getSomeState();
     }
     
+    private void loadReconciliations()
+    {
+        if ( null == m_reconciliations )
+        {
+            m_reconciliations = DataObjectFactory.loadReconciliationsForStatement( this );
+        }
+    }
+    
     private IAccount m_account = null;
     private String m_accountKey = null;
     private Date m_beginDate = null;
     private Date m_endDate = null;
+    private Collection<IReconciliation> m_reconciliations;
 }

@@ -22,8 +22,7 @@ import javax.swing.JPanel;
  * @author Cam
  */
 public class StatementSummaryPanel implements IGUIComponent
-{
-    
+{    
     /**
      * Creates a new instance of StatementSummaryPanel 
      */
@@ -31,6 +30,10 @@ public class StatementSummaryPanel implements IGUIComponent
     {
         m_detailsPanel.setDefaultEditor( Date.class, new DateEditor() );
         m_summaryPanel.add( m_detailsPanel.getComponent(), BorderLayout.NORTH );
+        
+        JPanel innerPanel = new JPanel( new BorderLayout() );
+        innerPanel.add( m_statementSummaryPanel.getComponent(), BorderLayout.NORTH );
+        m_summaryPanel.add( innerPanel, BorderLayout.CENTER );
     }
  
     public Component getComponent()
@@ -42,8 +45,10 @@ public class StatementSummaryPanel implements IGUIComponent
     {
         // Update the details pane & additional info as required
         m_detailsPanel.updateView( model );
+        m_statementSummaryPanel.setStatement( model.get(0) );
     }
     
     private JPanel m_summaryPanel = new JPanel( new BorderLayout() );
     private DetailsPanel m_detailsPanel = new DetailsPanel();
+    private StatementSummaryDetails m_statementSummaryPanel = new StatementSummaryDetails();
 }
