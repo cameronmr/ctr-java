@@ -11,13 +11,32 @@
 package com.rochester.budget.core;
 
 import java.sql.Date;
+import java.util.Collection;
 
 /**
  *
  * @author Cam
  */
 public interface IStatement extends IDatabaseObject
-{    
+{        
+    public class StatementSummary
+    {
+        public StatementSummary( )
+        {
+            m_value = new MonetaryValue( 0 );
+        }
+                
+        public void addReconciliation( final IReconciliation recon )
+        {
+            m_reconciliations++;
+            
+            m_value.addValue( recon.getValue() );
+        }
+        
+        public MonetaryValue m_value;
+        public int m_reconciliations;
+    };
+    
     IAccount getAccount();
     void setAccount( IAccount account );
     
@@ -26,4 +45,8 @@ public interface IStatement extends IDatabaseObject
     
     Date getStatementEnd();
     void setStatementEnd( final Date endDate );
+    
+    Collection<IAccount> getAccounts( final ICategory category, boolean flat );
+    StatementSummary getSummary( final IAccount account, boolean flat );
+    StatementSummary getSummary( );
 }

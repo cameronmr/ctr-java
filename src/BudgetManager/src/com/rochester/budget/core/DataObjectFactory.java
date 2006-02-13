@@ -630,6 +630,34 @@ public class DataObjectFactory
         }
     }
     
+    public static Collection<IReconciliation> loadReconciliationsForStatement( final IStatement statement ) 
+    {
+        ArrayList<IReconciliation> recons = new ArrayList<IReconciliation>();
+        try
+        {
+            String sql = new String( 
+                    "select r.PKEY from RECONCILIATION r, TRANSACTION t where r.RECON_TRANS_FKEY = t.PKEY" +
+                    " and t.TRANS_DATE between '" + statement.getStatementStart().toString() + 
+                    "' and '" + statement.getStatementEnd().toString() + "'" );
+
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
+            {
+                recons.add( loadReconciliation( results.getString( "PKEY" ) ) );
+            }
+            
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            
+            // TODO: error handling?
+        }
+        return recons;
+    }
+    
     public static IReconciliation newReconciliationForTransaction( ITransaction transaction )
     {
         IReconciliation recon = new Reconciliation( "New Reconciliation...", transaction.getValueRemaining(), transaction );
