@@ -196,7 +196,7 @@ public class Rule extends AbstractDatabaseObject implements IRule
     
     public void setCriteria( Collection<IRuleCriterion> criteria )
     {
-        m_newCriteria = new ArrayList( criteria );
+        m_newCriteria = new ArrayList<IRuleCriterion>( criteria );
         
         storeMemento();
     }
@@ -223,7 +223,7 @@ public class Rule extends AbstractDatabaseObject implements IRule
     
     public void setResults( Collection<IRuleResult> results )
     {
-        m_newResults = new ArrayList( results );
+        m_newResults = new ArrayList<IRuleResult>( results );
         
         storeMemento();        
     }
