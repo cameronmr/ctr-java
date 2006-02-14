@@ -92,7 +92,7 @@ public class GenericListModel< E extends IDatabaseObject > extends AbstractListM
         fireContentsChanged( this, 0, m_contents.size() );
     }
     
-    public void setComparator( Comparator comp )
+    public void setComparator( Comparator<? super E> comp )
     {
         m_comparator = comp;
         
@@ -113,5 +113,5 @@ public class GenericListModel< E extends IDatabaseObject > extends AbstractListM
     }
 
     private ArrayList<E> m_contents = new ArrayList<E>( );
-    private Comparator m_comparator = null;
+    private Comparator< ? super E > m_comparator = null;
 }
