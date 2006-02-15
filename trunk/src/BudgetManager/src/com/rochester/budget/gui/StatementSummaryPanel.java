@@ -46,6 +46,8 @@ public class StatementSummaryPanel implements IGUIComponent
         // Update the details pane & additional info as required
         m_detailsPanel.updateView( model );
         m_statementSummaryPanel.setStatement( model.get(0) );
+        
+        m_summaryPanel.validate();
     }
     
     private JPanel m_summaryPanel = new JPanel( new BorderLayout() );

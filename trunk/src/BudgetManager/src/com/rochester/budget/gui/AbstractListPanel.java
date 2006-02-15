@@ -16,6 +16,7 @@ import com.rochester.budget.core.IGUIComponent;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
@@ -23,26 +24,30 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionListener;
 
 /**
  *
  * @author Cameron
  */
-public abstract class AbstractListPanel<E extends IDatabaseObject> implements IGUIComponent {
+public abstract class AbstractListPanel<E extends IDatabaseObject> implements IGUIComponent, ListDataListener {
     
     /** Creates a new instance of AbstractListPanel */
     public AbstractListPanel( GenericListModel<E> model, final String label ) 
     {
         m_theModel = model;
-        
+        m_theModel.addListDataListener( this );
         m_theModel.setComparator( Comparators.ALPHABETICAL_ORDER );
         
+        
         m_theList = new JList( m_theModel );
-        m_theList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );        
+        m_theList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );      
         
         JScrollPane scrollPane = new JScrollPane( m_theList );
         scrollPane.setColumnHeaderView( new JLabel( label, JLabel.CENTER ) );
@@ -50,8 +55,9 @@ public abstract class AbstractListPanel<E extends IDatabaseObject> implements IG
         m_thePanel.setPreferredSize( new Dimension( 180, -1 ) );
         
         // New Account Button
-        JButton newAccount = new JButton( "New" );
-        newAccount.addActionListener( new ActionListener()
+        JPanel buttonPanel = new JPanel( new FlowLayout() );
+        JButton newButton = new JButton( "New" );
+        newButton.addActionListener( new ActionListener()
         {
             public void actionPerformed( ActionEvent evt )
             {
@@ -63,8 +69,31 @@ public abstract class AbstractListPanel<E extends IDatabaseObject> implements IG
                 m_theList.setSelectedValue( theItem, true );
             }
         });
+        buttonPanel.add( newButton );
         
-        m_thePanel.add( newAccount, BorderLayout.SOUTH );
+        JButton deleteButton = new JButton( "Delete" );
+        deleteButton.addActionListener( new ActionListener()
+        {
+            public void actionPerformed( ActionEvent evt )
+            {
+                // Get the selection
+                if ( !m_theList.isSelectionEmpty() )
+                {
+                    if ( JOptionPane.OK_OPTION == 
+                            JOptionPane.showConfirmDialog( null, "Are you sure you want to delete the selected item?" ) )
+                    {
+                        m_theModel.removeItemAt( m_theList.getSelectedIndex() );
+                    }
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog( null, "Please selecte an item to delete." );
+                }
+            }
+        });
+        buttonPanel.add( deleteButton );
+        
+        m_thePanel.add( buttonPanel, BorderLayout.SOUTH );
         
         m_thePanel.setBorder( BorderFactory.createEmptyBorder(5,5,5,5) );
     }
@@ -77,6 +106,21 @@ public abstract class AbstractListPanel<E extends IDatabaseObject> implements IG
     public void addListSelectionListener( ListSelectionListener listener )
     {
         m_theList.addListSelectionListener( listener );
+    }
+    
+    public void contentsChanged(ListDataEvent e)
+    {
+    }
+    
+    public void intervalAdded(ListDataEvent e)
+    {
+    }
+
+    public void intervalRemoved(ListDataEvent e)
+    {
+        // Clear the selection just in case an item has been deleted
+        m_theList.clearSelection();
+        
     }
     
     public abstract E onNew();

@@ -91,6 +91,12 @@ public abstract class AbstractDetailsModel< E extends IDatabaseObject > extends 
     
     public E get( int row )
     {
+        if ( m_items.isEmpty() ||
+             ( m_items.size() <= row ) )
+        {
+            return null;
+        }
+        
         return m_items.get( row );
     }
     

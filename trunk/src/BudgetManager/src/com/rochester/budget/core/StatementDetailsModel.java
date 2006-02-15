@@ -54,7 +54,7 @@ public class StatementDetailsModel extends AbstractDetailsModel<IStatement>
         switch ( column )
         {
             case 0:
-                return statement.getAccount();
+                return statement.getTransactionAccount();
             case 1:
                 return statement.getStatementStart();
             case 2:
@@ -87,7 +87,7 @@ public class StatementDetailsModel extends AbstractDetailsModel<IStatement>
         switch ( col )
         {
             case 0:
-                statement.setAccount( (IAccount) value );
+                statement.setTransactionAccount( (IAccount) value );
                 break;
             case 1:
                 statement.setStatementStart( (Date) value );
