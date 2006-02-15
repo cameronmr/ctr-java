@@ -43,6 +43,12 @@ public class GenericListModel< E extends IDatabaseObject > extends AbstractListM
         fireContentsChanged( this, 0, m_contents.size() );
     }
     
+    public void removeItemAt( int index )
+    {
+        // Delete the item. The notify database change will take care of the rest
+        m_contents.get( index ).delete();
+    }
+    
     public void setItems( Collection<E> contents )
     {
         fireIntervalRemoved( this, 0 , m_contents.size() );
@@ -78,18 +84,20 @@ public class GenericListModel< E extends IDatabaseObject > extends AbstractListM
 
     public void notifyDatabaseChange( ChangeType change, IDatabaseObject object ) throws BudgetManagerException
     {
+        int index = m_contents.indexOf( object );
         switch ( change )
         {
             case UPDATE:
                 // TODO: resort the list.. Unfortunately the selection will change if the index moves
                 //sortItems();
+                fireContentsChanged( this, index, index );
                 break;
             case DELETE:
                 // Remove from the list
                 m_contents.remove( object );
+                fireIntervalRemoved( this, index, index );
                 break;
         }
-        fireContentsChanged( this, 0, m_contents.size() );
     }
     
     public void setComparator( Comparator<? super E> comp )

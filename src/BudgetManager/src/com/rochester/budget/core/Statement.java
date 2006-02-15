@@ -40,7 +40,7 @@ public class Statement extends AbstractDatabaseObject implements IStatement
     
     protected Statement( IAccount account )
     {
-        setAccount( account );
+        setTransactionAccount( account );
     }
     
     public String toString()
@@ -78,7 +78,7 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         return "STATEMENT";
     }
         
-    public IAccount getAccount()
+    public IAccount getTransactionAccount()
     { 
         if ( null == m_account )
         {
@@ -94,7 +94,7 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         return m_account;
     }
     
-    public void setAccount( IAccount account )
+    public void setTransactionAccount( IAccount account )
     {
         if ( null != account )
         {
@@ -147,7 +147,7 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         return null;
     }
     
-    public StatementSummary getSummary( final IAccount account, boolean flat )
+    public StatementSummary getSummary( final ICategory category, boolean flat )
     {
         loadReconciliations();
         
@@ -163,7 +163,21 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         StatementSummary summary = new StatementSummary();
         for ( IReconciliation recon : m_reconciliations )
         {
-            summary.addReconciliation(recon);
+            summary.addReconciliation( recon );
+        }
+        
+        return summary;
+    }
+    
+    public StatementSummary getTransactionsSummary( )
+    {
+        Collection<ITransaction> transactions = DataObjectFactory.loadTransactionsForStatement( this );        
+        
+        // Load the list of reconciliations for this statement period
+        StatementSummary summary = new StatementSummary();
+        for ( ITransaction trans : transactions )
+        {
+            summary.addValue( trans.getMonetaryValue() );
         }
         
         return summary;
@@ -206,7 +220,9 @@ public class Statement extends AbstractDatabaseObject implements IStatement
     
     private void loadReconciliations()
     {
-        if ( null == m_reconciliations )
+        if ( null == m_reconciliations &&
+                m_beginDate != null &&
+                m_endDate != null ) 
         {
             m_reconciliations = DataObjectFactory.loadReconciliationsForStatement( this );
         }

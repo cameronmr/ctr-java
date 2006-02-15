@@ -12,6 +12,7 @@ package com.rochester.budget.core;
 
 import java.sql.Date;
 import java.util.Collection;
+import java.util.HashMap;
 
 /**
  *
@@ -28,17 +29,37 @@ public interface IStatement extends IDatabaseObject
                 
         public void addReconciliation( final IReconciliation recon )
         {
-            m_reconciliations++;
+            // Increment the overall summary
+            addValue( recon.getValue() );
             
-            m_value.addValue( recon.getValue() );
+            // Increment the per reconciled account summary
+            getSummaryForAccount( recon.getCatecory().getAccount() ).addValue( recon.getValue() );            
+        }
+        
+        public void addValue( final MonetaryValue value )
+        {
+            m_additions++;
+            
+            m_value.addValue( value );
+        }
+        
+        private StatementSummary getSummaryForAccount( final IAccount account )
+        {
+            if ( !m_accounts.containsKey( account ) )
+            {
+                m_accounts.put( account, new StatementSummary() );
+            }
+            
+            return m_accounts.get( account );
         }
         
         public MonetaryValue m_value;
-        public int m_reconciliations;
+        public int m_additions;
+        public HashMap<IAccount, StatementSummary> m_accounts = new HashMap<IAccount, StatementSummary>();
     };
     
-    IAccount getAccount();
-    void setAccount( IAccount account );
+    IAccount getTransactionAccount();
+    void setTransactionAccount( IAccount account );
     
     Date getStatementStart();
     void setStatementStart( final Date startDate );
@@ -46,7 +67,7 @@ public interface IStatement extends IDatabaseObject
     Date getStatementEnd();
     void setStatementEnd( final Date endDate );
     
-    Collection<IAccount> getAccounts( final ICategory category, boolean flat );
-    StatementSummary getSummary( final IAccount account, boolean flat );
+    StatementSummary getTransactionsSummary( );
+    StatementSummary getSummary( final ICategory category, boolean flat );
     StatementSummary getSummary( );
 }

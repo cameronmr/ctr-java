@@ -6,8 +6,9 @@
 
 package com.rochester.budget.core;
 
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
+
 
 /**
  *
@@ -45,9 +46,9 @@ public interface ICategory extends IDatabaseObject
     
     boolean isRootNode();
     
-    List<ICategory> getChildren();
+    Collection<ICategory> getChildren();
     
-    List<ICategory> getDescendants();    
+    Collection<ICategory> getDescendants();    
     
     int getChildCount();
 }

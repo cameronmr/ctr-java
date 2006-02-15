@@ -166,6 +166,44 @@ public class DataObjectFactory
         return m_transactions.values();
     }
     
+    public static Collection<ITransaction> loadTransactionsForStatement( final IStatement statement )
+    {
+        ArrayList<ITransaction> transactions = new ArrayList<ITransaction>();
+        try
+        {
+            String sql = new String(
+                "select PKEY from TRANSACTION where TRANS_DATE between '" + statement.getStatementStart().toString() + 
+                "' and '" + statement.getStatementEnd().toString() + 
+                "' and TRANS_ACCOUNT_FKEY = '" + statement.getTransactionAccount().getKey() + "'" );
+
+            // the statement object will be automatically cleaned up when garbage collected
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
+            {
+                try
+                {
+                    transactions.add( loadTransaction( results.getString("PKEY") ) );
+                }
+                catch( TransactionNotFoundException e )
+                {
+                    // TODO: handling creation of new account 
+                    System.out.println( e.toString() );
+                }
+            }
+
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            // TODO: error handling
+            return null;
+        }
+        
+        return transactions;
+    }
+    
     /***************************** RULE STUFF *******************************/
     
     public static IRule loadRule( final String pkey ) throws RuleNotFoundException
@@ -638,7 +676,8 @@ public class DataObjectFactory
             String sql = new String( 
                     "select r.PKEY from RECONCILIATION r, TRANSACTION t where r.RECON_TRANS_FKEY = t.PKEY" +
                     " and t.TRANS_DATE between '" + statement.getStatementStart().toString() + 
-                    "' and '" + statement.getStatementEnd().toString() + "'" );
+                    "' and '" + statement.getStatementEnd().toString() + 
+                    "' and t.TRANS_ACCOUNT_FKEY = '" + statement.getTransactionAccount().getKey() + "'" );
 
             ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
 

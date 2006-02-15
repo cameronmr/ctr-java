@@ -10,6 +10,7 @@
 
 package com.rochester.budget.gui;
 
+import com.rochester.budget.core.IAccount;
 import com.rochester.budget.core.IDataChangeObserver;
 import com.rochester.budget.core.IDatabaseObject;
 import com.rochester.budget.core.IGUIComponent;
@@ -19,6 +20,7 @@ import java.awt.Component;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.SpringLayout;
 
 /**
@@ -40,8 +42,11 @@ public class StatementSummaryDetails implements IGUIComponent, IDataChangeObserv
             m_theStatement.deleteObserver( this );
         }
         
-        m_theStatement = theStatement;        
-        m_theStatement.addObserver( this );
+        m_theStatement = theStatement;   
+        if ( null != m_theStatement )
+        {
+            m_theStatement.addObserver( this );
+        }
         
         updateView();
     }
@@ -54,18 +59,42 @@ public class StatementSummaryDetails implements IGUIComponent, IDataChangeObserv
     private void updateView()
     {
         m_thePanel.removeAll();
-        m_thePanel.setBorder( BorderFactory.createTitledBorder( m_theStatement.toString() + " Summary" ) );        
         
-        IStatement.StatementSummary summary = m_theStatement.getSummary();
-        m_thePanel.add( new JLabel( "Total Value" ) );
+        if ( null == m_theStatement )
+        {
+            m_thePanel.setBorder( BorderFactory.createEmptyBorder() );
+            return;
+        }
+        
+        m_thePanel.setBorder( BorderFactory.createTitledBorder( "Statement Summary " + m_theStatement.toString() ) );        
+        
+        IStatement.StatementSummary summary = m_theStatement.getTransactionsSummary();
+        m_thePanel.add( new JLabel( "Transactions Value" ) );
+        m_thePanel.add( new JLabel( summary.m_value.toString() ) );
+        m_thePanel.add( new JLabel( "Number Transactions" ) );
+        m_thePanel.add( new JLabel( Integer.toString( summary.m_additions ) ) );
+        
+        summary = m_theStatement.getSummary();
+        m_thePanel.add( new JLabel( "Reconciliations Value" ) );
         m_thePanel.add( new JLabel( summary.m_value.toString() ) );
         m_thePanel.add( new JLabel( "Number Reconciliations" ) );
-        m_thePanel.add( new JLabel( Integer.toString( summary.m_reconciliations ) ) );
+        m_thePanel.add( new JLabel( Integer.toString( summary.m_additions ) ) );
+        
+        for ( IAccount account : summary.m_accounts.keySet() )
+        {
+            m_thePanel.add( new JLabel( "Reconciliations for ", JLabel.TRAILING) );
+            m_thePanel.add( new JLabel( account.toString() ) );
+            
+            m_thePanel.add( new JLabel( "Reconciliations Value" ) );
+            m_thePanel.add( new JLabel( summary.m_accounts.get( account ).m_value.toString() ) );
+            m_thePanel.add( new JLabel( "Number Reconciliations" ) );
+            m_thePanel.add( new JLabel( Integer.toString( summary.m_accounts.get( account ).m_additions ) ) );
+        }
         
         SpringUtilities.makeCompactGrid( m_thePanel,
-                         2, 2,        //rows, cols
+                         4 + ( 3 * summary.m_accounts.size()), 2,        //rows, cols
                          5, 0,        //initX, initY
-                         5, 5);       //xPad, yPad     
+                         5, 2);       //xPad, yPad     
         
         m_thePanel.validate();
     }

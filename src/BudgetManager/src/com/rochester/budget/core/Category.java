@@ -13,7 +13,7 @@ import com.rochester.budget.core.exceptions.CategoryNotFoundException;
 import com.rochester.budget.core.exceptions.StateSyncException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 
 /**
@@ -180,12 +180,12 @@ public class Category extends AbstractDatabaseObject implements ICategory
         return m_isRoot;
     }
     
-    public List<ICategory> getChildren()
+    public Collection<ICategory> getChildren()
     {
         return m_children;
     }
     
-    public List<ICategory> getDescendants()
+    public Collection<ICategory> getDescendants()
     {
         // Get all the children, of the children, of children
         ArrayList<ICategory> descendants = new ArrayList<ICategory>();
