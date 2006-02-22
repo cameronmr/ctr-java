@@ -3,11 +3,11 @@
 -- http://www.phpmyadmin.net
 -- 
 -- Host: localhost
--- Generation Time: Jul 20, 2005 at 07:27 PM
--- Server version: 4.1.8
+-- Generation Time: Feb 22, 2006 at 08:21 PM
+-- Server version: 4.1.10
 -- PHP Version: 4.3.10
 -- 
--- Database: `AccountManager`
+-- Database: `AccountManagerReal`
 -- 
 
 -- --------------------------------------------------------
@@ -17,17 +17,14 @@
 -- 
 
 CREATE TABLE `ACCOUNT` (
-  `PKEY` varchar(32) NOT NULL default '',
+  `PKEY` varchar(36) NOT NULL default '',
   `ACCOUNT_NAME` varchar(255) NOT NULL default '',
+  `ACCOUNT_NUMBER` varchar(32) NOT NULL default '',
   `ACCOUNT_DESCRIPTION` tinytext NOT NULL,
-  PRIMARY KEY  (`PKEY`)
+  PRIMARY KEY  (`PKEY`),
+  UNIQUE KEY `ACCOUNT_NAME` (`ACCOUNT_NAME`),
+  KEY `ACCOUNT_NUMBER` (`ACCOUNT_NUMBER`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Account Information';
-
--- 
--- Dumping data for table `ACCOUNT`
--- 
-
-INSERT INTO `ACCOUNT` (`PKEY`, `ACCOUNT_NAME`, `ACCOUNT_DESCRIPTION`) VALUES ('4564717010664547', 'Credit Card', 'none');
 
 -- --------------------------------------------------------
 
@@ -38,19 +35,19 @@ INSERT INTO `ACCOUNT` (`PKEY`, `ACCOUNT_NAME`, `ACCOUNT_DESCRIPTION`) VALUES ('4
 CREATE TABLE `CATEGORY` (
   `PKEY` varchar(36) NOT NULL default '',
   `CATEGORY_NAME` varchar(255) NOT NULL default '',
-  `CATEGORY_DESCRIPTION` tinytext NOT NULL,
+  `CATEGORY_DESCRIPTION` tinytext,
+  `CATEGORY_ACTIVE` tinyint(1) NOT NULL default '1',
   `CATEGORY_PARENT_FKEY` varchar(36) default NULL,
-  `CATEGORY_ACC_FKEY` varchar(32) NOT NULL default '',
+  `CATEGORY_ACC_FKEY` varchar(36) default NULL,
   PRIMARY KEY  (`PKEY`),
-  UNIQUE KEY `CATEGORY_NAME` (`CATEGORY_NAME`),
-  KEY `CATEGORY_PARENT_FKEY` (`CATEGORY_PARENT_FKEY`)
+  UNIQUE KEY `CATEGORY_NAME` (`CATEGORY_NAME`,`CATEGORY_PARENT_FKEY`),
+  KEY `CATEGORY_PARENT_FKEY` (`CATEGORY_PARENT_FKEY`),
+  KEY `CATEGORY_ACC_FKEY` (`CATEGORY_ACC_FKEY`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Store information regarding the categories available.';
-
 -- 
 -- Dumping data for table `CATEGORY`
 -- 
-
-INSERT INTO `CATEGORY` (`PKEY`, `CATEGORY_NAME`, `CATEGORY_DESCRIPTION`, `CATEGORY_PARENT_FKEY`, `CATEGORY_ACC_FKEY`) VALUES ('0', 'ROOT', 'Root node for all categories', '0', '');
+INSERT INTO `CATEGORY` (`PKEY`, `CATEGORY_NAME`, `CATEGORY_DESCRIPTION`, `CATEGORY_PARENT_FKEY` ) VALUES ('0', 'Categories', 'Root node for all categories', '0' );
 
 -- --------------------------------------------------------
 
@@ -62,19 +59,56 @@ CREATE TABLE `RECONCILIATION` (
   `PKEY` varchar(36) NOT NULL default '',
   `RECON_TRANS_FKEY` varchar(36) NOT NULL default '',
   `RECON_CATEGORY_FKEY` varchar(36) NOT NULL default '',
-  `RECON_ACCOUNT_FKEY` varchar(32) NOT NULL default '',
   `RECON_VALUE` int(11) NOT NULL default '0',
   `RECON_NOTE` tinytext,
   PRIMARY KEY  (`PKEY`),
-  KEY `RECON_TRANS_FKEY` (`RECON_TRANS_FKEY`,`RECON_CATEGORY_FKEY`,`RECON_ACCOUNT_FKEY`,`RECON_VALUE`)
+  KEY `RECON_TRANS_FKEY` (`RECON_TRANS_FKEY`,`RECON_CATEGORY_FKEY`,`RECON_VALUE`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Store the reconciliations for transactions';
 
+-- --------------------------------------------------------
+
 -- 
--- Dumping data for table `RECONCILIATION`
+-- Table structure for table `RULE`
 -- 
 
-INSERT INTO `RECONCILIATION` (`PKEY`, `RECON_TRANS_FKEY`, `RECON_CATEGORY_FKEY`, `RECON_ACCOUNT_FKEY`, `RECON_VALUE`, `RECON_NOTE`) VALUES ('1234', 'c76452e8-4f33-414f-8123-ccd20126c000', '3', '3', 1000, 'Test Note!');
-INSERT INTO `RECONCILIATION` (`PKEY`, `RECON_TRANS_FKEY`, `RECON_CATEGORY_FKEY`, `RECON_ACCOUNT_FKEY`, `RECON_VALUE`, `RECON_NOTE`) VALUES ('1235', 'c76452e8-4f33-414f-8123-ccd20126c000', '3', '3', 502, 'Another test');
+CREATE TABLE `RULE` (
+  `PKEY` varchar(36) NOT NULL default '',
+  `RULE_NAME` varchar(255) NOT NULL default '',
+  `RULE_DESCRIPTION` tinytext NOT NULL,
+  `RULE_TYPE` enum('ANY','ALL') NOT NULL default 'ANY',
+  PRIMARY KEY  (`PKEY`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Rules for processing transactions';
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `RULE_CRITERIA`
+-- 
+
+CREATE TABLE `RULE_CRITERIA` (
+  `PKEY` varchar(36) NOT NULL default '',
+  `RULE_FKEY` varchar(36) NOT NULL default '',
+  `CRITERIA` varchar(32) NOT NULL default '0',
+  `CRITERIA_VALUE` varchar(255) NOT NULL default '',
+  `CRITERIA_TYPE` varchar(32) NOT NULL default '0',
+  PRIMARY KEY  (`PKEY`),
+  KEY `RULE_FKEY` (`RULE_FKEY`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='For a given rule the criteria must be met';
+
+-- --------------------------------------------------------
+
+-- 
+-- Table structure for table `RULE_RESULT`
+-- 
+
+CREATE TABLE `RULE_RESULT` (
+  `PKEY` varchar(36) NOT NULL default '',
+  `RULE_FKEY` varchar(36) NOT NULL default '',
+  `RESULT_TYPE` varchar(32) NOT NULL default '',
+  `RESULT_AMOUNT` int(11) NOT NULL default '0',
+  `CATEGORY_FKEY` varchar(36) NOT NULL default '',
+  PRIMARY KEY  (`PKEY`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='For a given rule the results must be configured';
 
 -- --------------------------------------------------------
 
@@ -84,18 +118,12 @@ INSERT INTO `RECONCILIATION` (`PKEY`, `RECON_TRANS_FKEY`, `RECON_CATEGORY_FKEY`,
 
 CREATE TABLE `STATEMENT` (
   `PKEY` varchar(36) NOT NULL default '',
-  `STATEMENT_NAME` varchar(255) NOT NULL default '',
-  `STATEMENT_ACC_FKEY` varchar(32) NOT NULL default '',
+  `STATEMENT_ACC_FKEY` varchar(36) NOT NULL default '',
   `STATEMENT_BEGIN` date NOT NULL default '0000-00-00',
   `STATEMENT_END` date NOT NULL default '0000-00-00',
   PRIMARY KEY  (`PKEY`),
   KEY `STATEMENT_ACC_FKEY` (`STATEMENT_ACC_FKEY`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Statement Information';
-
--- 
--- Dumping data for table `STATEMENT`
--- 
-
 
 -- --------------------------------------------------------
 
@@ -106,7 +134,7 @@ CREATE TABLE `STATEMENT` (
 CREATE TABLE `TRANSACTION` (
   `PKEY` varchar(36) NOT NULL default '',
   `TRANS_NARRATIVE` varchar(255) NOT NULL default '',
-  `TRANS_ACCOUNT_FKEY` varchar(32) NOT NULL default '',
+  `TRANS_ACCOUNT_FKEY` varchar(36) NOT NULL default '',
   `TRANS_VALUE` int(11) NOT NULL default '0',
   `TRANS_DATE` date default '0000-00-00',
   `TRANS_NOTE` tinytext,
