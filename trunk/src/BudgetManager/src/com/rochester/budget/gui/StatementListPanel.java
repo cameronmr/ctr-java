@@ -52,7 +52,10 @@ public class StatementListPanel extends AbstractListPanel<IStatement>
             }
         });
         
-        m_accountCombo.setSelectedIndex( 0 );
+        if ( accountModel.getSize() != 0 )
+        {
+            m_accountCombo.setSelectedIndex( 0 );
+        }
         
         m_thePanel.add( m_accountCombo, BorderLayout.NORTH );
         m_thePanel.add( super.getComponent(), BorderLayout.CENTER );

@@ -28,7 +28,7 @@ public class CategoryCreatePanel extends JPanel
     /**
      * Creates a new instance of CategoryCreatePanel 
      */
-    public CategoryCreatePanel( ICategory parent )
+    public CategoryCreatePanel( ICategory parent, IAccount account )
     {
         m_parent = parent;
         
@@ -54,7 +54,11 @@ public class CategoryCreatePanel extends JPanel
         add( m_name = new JTextField( 20 ) );
         
         add( new JLabel("Account: ") );
-        add( m_accountCombo = new JComboBox( DataObjectFactory.loadAccounts().toArray() ) );        
+        add( m_accountCombo = new JComboBox( DataObjectFactory.loadAccounts().toArray() ) );   
+        if ( null != account )
+        {
+            m_accountCombo.setSelectedItem( account );
+        }
     }
     
     ICategory getCategory() throws Exception

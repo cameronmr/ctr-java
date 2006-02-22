@@ -235,7 +235,7 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
         updateLabels( trans );
         
         // select the item at the starting point..
-        m_reconciliationTable.changeSelection( 0, 0, false, false );
+        m_reconciliationTable.changeSelection( m_reconciliationModel.getRowCount() - 1, 0, false, false );
     }
     
     private ImageIcon createImageIcon(String path)

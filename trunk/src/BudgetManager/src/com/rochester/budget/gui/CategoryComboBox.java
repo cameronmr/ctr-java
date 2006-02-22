@@ -14,10 +14,17 @@ import com.rochester.budget.core.DataObjectFactory;
 import com.rochester.budget.core.ICategory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.text.Keymap;
 
 
 /**
@@ -25,15 +32,32 @@ import javax.swing.JOptionPane;
  * @author Cam
  */
 public class CategoryComboBox extends JComboBox implements ActionListener
-{   
+{          
+    class MyFocusListener extends FocusAdapter
+    {
+        public void focusGained(FocusEvent e) 
+        {
+            JComboBox cb = (JComboBox)e.getSource();
+            try
+            {
+                cb.showPopup();
+            }
+            catch ( Exception ex )
+            {}
+        }
+    }
+    
     /** Creates a new instance of CategoryComboBox */
     public CategoryComboBox( )
     {
+        setEditable( false );
+                
         populateCategorys();
         addActionListener( this );
+        //setKeySelectionManager( new MyKeySelectionManager() );
+        addFocusListener( new MyFocusListener() );        
     }
-    
-    
+        
     public void populateCategorys( )
     {        
         // Empty the combo box, disable it before emptying it to stop unnecessary messages
@@ -42,7 +66,7 @@ public class CategoryComboBox extends JComboBox implements ActionListener
         
         try
         {
-            ArrayList<ICategory> categories = new ArrayList( DataObjectFactory.loadRootCategory().getDescendants() );
+            ArrayList<ICategory> categories = new ArrayList<ICategory>( DataObjectFactory.loadRootCategory().getDescendants() );
 
             // Sort the categories into name order before inserting into the combo box
             Collections.sort( categories, ICategory.CATEGORY_NAME_ORDER );
@@ -70,7 +94,7 @@ public class CategoryComboBox extends JComboBox implements ActionListener
         {
             if( isNewCategorySelected() )
             {   
-                CategoryCreatePanel panel = new CategoryCreatePanel( null );
+                CategoryCreatePanel panel = new CategoryCreatePanel( null, null );
                 if ( JOptionPane.showConfirmDialog( null, panel, "Create New Category...", JOptionPane.OK_CANCEL_OPTION ) == JOptionPane.OK_OPTION )
                 {
                     try

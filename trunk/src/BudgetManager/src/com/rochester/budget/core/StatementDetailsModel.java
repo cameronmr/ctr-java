@@ -23,26 +23,16 @@ public class StatementDetailsModel extends AbstractDetailsModel<IStatement>
      */
     public StatementDetailsModel( IStatement theStatement )
     {
-        super( theStatement );
-    }
-        
-    public int getColumnCount() 
-    {
-        return m_labels.length;
+        super( theStatement, m_labels );
     }
     
-    public String getColumnName(int col) 
-    {
-        return m_labels[col];
-    }
-    
-    public boolean isCellEditable( int row, int col ) 
+    public boolean isEditable( int col ) 
     {
         // "Statement", "Reconciled Account", "Start Date", "End Date"
         return true;
     }
         
-    public Object getValueAt( int row, int column )
+    public Object getValueAt( int column )
     {
         if ( isEmpty() )
         {
@@ -50,7 +40,7 @@ public class StatementDetailsModel extends AbstractDetailsModel<IStatement>
         }
         
         // "Statement", "Reconciled Account", "Start Date", "End Date"
-        IStatement statement = get( row );
+        IStatement statement = get( );
         switch ( column )
         {
             case 0:
@@ -79,9 +69,9 @@ public class StatementDetailsModel extends AbstractDetailsModel<IStatement>
         return null;
     }    
     
-    public void setValueAt(Object value, int row, int col)
+    public void setValueAt(Object value, int col)
     {        
-        IStatement statement = get( row );
+        IStatement statement = get( );
         
         // "Reconciled Account", "Start Date", "End Date"
         switch ( col )
@@ -95,9 +85,7 @@ public class StatementDetailsModel extends AbstractDetailsModel<IStatement>
             case 2:
                 statement.setStatementEnd( (Date) value );
                 break;
-        }
-                
-        fireTableCellUpdated(row, col);
+        }                
     }
     
     public String getTitle()

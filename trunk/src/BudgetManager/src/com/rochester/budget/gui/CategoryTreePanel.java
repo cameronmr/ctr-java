@@ -91,7 +91,6 @@ public class CategoryTreePanel implements IGUIComponent
         }
         catch( Exception ex )
         {
-            // TODO: handle exception
             JOptionPane.showMessageDialog( null, ex, "Error", JOptionPane.ERROR_MESSAGE );
             ex.printStackTrace();
         }
@@ -176,7 +175,8 @@ public class CategoryTreePanel implements IGUIComponent
         {
             CategoryNode parentNode = (CategoryNode)(parentPath.getLastPathComponent());
             
-            CategoryCreatePanel panel = new CategoryCreatePanel( parentNode.getCategory() );
+            CategoryCreatePanel panel = new CategoryCreatePanel( parentNode.getCategory(), 
+                    parentNode.getCategory().getAccount() );
             
             if ( JOptionPane.showConfirmDialog( null, panel, "Create New Category...", JOptionPane.OK_CANCEL_OPTION ) == JOptionPane.OK_OPTION )
             {

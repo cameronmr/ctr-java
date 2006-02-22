@@ -72,7 +72,7 @@ public class StatementTab implements IGUITab, IGUIComponent, ListSelectionListen
         // Single selection only. Returns null if none selected
         StatementDetailsModel model = new StatementDetailsModel( (IStatement)source.getSelectedValue() );
         m_summaryPanel.updateView( model );
-    }
+    }    
     
     private Component m_theComponent = null;
     private StatementSummaryPanel m_summaryPanel = null;

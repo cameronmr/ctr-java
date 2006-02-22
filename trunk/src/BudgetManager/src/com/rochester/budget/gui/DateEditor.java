@@ -11,14 +11,14 @@
 package com.rochester.budget.gui;
 
 import java.awt.Component;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.beans.PropertyChangeListener;
 import java.util.Date;
 import javax.swing.AbstractCellEditor;
 
-import com.standbysoft.component.date.swing.JDatePicker;
-import com.standbysoft.component.date.event.DateSelectionAdapter;
-import com.standbysoft.component.date.event.DateSelectionEvent;
+import com.toedter.calendar.JDateChooser;
 
 /**
  *
@@ -33,26 +33,25 @@ public class DateEditor extends AbstractCellEditor implements DetailsPanelEditor
     public DateEditor( int index, boolean editable, Object value )
     {
         m_index = index;
-        m_datePicker = new JDatePicker( );
-        m_datePicker.setEnabled( editable );        
-        m_datePicker.setSelectedDate( value != null ? (Date)value : new Date() );
+        m_dateChooser = new JDateChooser( );
+        m_dateChooser.setEnabled( editable );        
+        m_dateChooser.setDate( value != null ? (Date)value : new Date() );
         m_originalValue = value;
 
-        m_datePicker.addDateSelectionListener( new DateSelectionAdapter()
+        m_dateChooser.addPropertyChangeListener( new PropertyChangeListener ()
         {
-            public void dateSelectionChanged(DateSelectionEvent evt) 
+            public void propertyChange( java.beans.PropertyChangeEvent evt )
             {
-                editingStopped( );
+                // We only care about changes to the date property
+                if ( evt.getPropertyName().equals( "date") )
+                {
+                    editingStopped();
+                }
             }
-        }); 
+        });
 
-        m_datePicker.addFocusListener( new FocusListener()
+        m_dateChooser.addFocusListener( new FocusAdapter()
         {
-            public void focusGained( FocusEvent e )
-            {
-                // Do nothing
-            }
-
             public void focusLost( FocusEvent e )
             {
                 editingStopped( );
@@ -67,12 +66,12 @@ public class DateEditor extends AbstractCellEditor implements DetailsPanelEditor
 
     public Component getComponent()
     {
-        return m_datePicker;
+        return m_dateChooser;
     }
 
     public Object getCellEditorValue()
     {            
-        return new java.sql.Date( m_datePicker.getSelectedDate().getTime() );
+        return new java.sql.Date( m_dateChooser.getDate().getTime() );
     }
 
     public int getIndex( )
@@ -85,7 +84,7 @@ public class DateEditor extends AbstractCellEditor implements DetailsPanelEditor
         // If there is no original value, and the text field hasn't been modified don't edit the cell
         if ( m_originalValue == null )
         {
-            if ( null != m_datePicker.getSelectedDate() )
+            if ( null != m_dateChooser.getDate() )
             {
                 stopCellEditing();
             }
@@ -93,13 +92,13 @@ public class DateEditor extends AbstractCellEditor implements DetailsPanelEditor
             return;
         }
 
-        if ( ! m_originalValue.equals( m_datePicker.getSelectedDate() ) )
+        if ( ! m_originalValue.equals( m_dateChooser.getDate() ) )
         {
             stopCellEditing();
         }
     }
         
     private int m_index;
-    private JDatePicker m_datePicker;
+    private JDateChooser m_dateChooser;
     private Object m_originalValue;    
 }

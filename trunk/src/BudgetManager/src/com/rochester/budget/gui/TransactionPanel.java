@@ -183,6 +183,7 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
             }
             
             m_transactionModel.filterAndSort();
+            m_thePanel.validate();
         }
     }
     

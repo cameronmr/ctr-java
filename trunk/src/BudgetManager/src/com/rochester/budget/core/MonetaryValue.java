@@ -7,6 +7,11 @@
 package com.rochester.budget.core;
 
 import com.rochester.budget.core.exceptions.BudgetManagerException;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
+
 
 /**
  *
@@ -29,17 +34,18 @@ public class MonetaryValue
     
     public MonetaryValue( final String value )
     {
-        int pos = value.indexOf('.');
-        m_cents = ( Integer.parseInt( value.substring( 0, pos ) ) * 100 ) + Integer.parseInt( value.substring( pos + 1) );
+        BigDecimal val = new BigDecimal( new Double( value ), MathContext.DECIMAL32 );
+        val = val.multiply( new BigDecimal(100.00) );
+        m_cents = val.intValueExact();
     }
         
     public MonetaryValue( final Object value )
     {
         if ( value instanceof Double )
         {            
-            Double val = (Double)value;
-            Double cents = val*100;
-            m_cents = cents.intValue();
+            BigDecimal val = new BigDecimal((Double)value, MathContext.DECIMAL32);
+            val = val.multiply( new BigDecimal(100.00) );
+            m_cents = val.intValueExact();
         }
         else if ( value instanceof Long )
         {            
@@ -115,4 +121,5 @@ public class MonetaryValue
         return false;
     }
     private int m_cents;
+    private static final NumberFormat m_numberFormat = NumberFormat.getCurrencyInstance();
 }

@@ -9,18 +9,21 @@
  */
 
 package com.rochester.budget.core;
+import com.rochester.budget.core.IDataChangeObserver.ChangeType;
 import com.rochester.budget.core.IStatement.StatementSummary;
+import com.rochester.budget.core.exceptions.BudgetManagerException;
 import com.rochester.budget.core.exceptions.StateSyncException;
 import com.rochester.budget.core.exceptions.StatementNotFoundException;
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
  *
  * @author Cam
  */
-public class Statement extends AbstractDatabaseObject implements IStatement
+public class Statement extends AbstractDatabaseObject implements IStatement, IDataChangeObserver
 {
     // Protected to ensure no access outside this package
     protected Statement( final String pkey ) throws StatementNotFoundException
@@ -62,6 +65,8 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         m_accountKey = results.getString( "STATEMENT_ACC_FKEY" );
         m_beginDate = results.getDate( "STATEMENT_BEGIN" );
         m_endDate = results.getDate( "STATEMENT_END" );
+        
+        loadTransactions();
     }
     
     protected void populateResultSet( ResultSet results ) throws Exception
@@ -116,8 +121,8 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         
         storeMemento();
         
-        // Clear the reconciliations
-        m_reconciliations = null;
+        // reload the Transactions
+        loadTransactions();
     }
     
     public Date getStatementEnd()
@@ -131,14 +136,12 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         
         storeMemento();
         
-        // Clear the reconciliations
-        m_reconciliations = null;
+        // reload the Transactions
+        loadTransactions();
     }
     
     public Collection<IAccount> getAccounts( final ICategory category, boolean flat )
-    {
-        loadReconciliations();
-        
+    {        
         // get the accounts used by this categories reconciliations
         
         // If isFlat get the transactions
@@ -148,20 +151,18 @@ public class Statement extends AbstractDatabaseObject implements IStatement
     }
     
     public StatementSummary getSummary( final ICategory category, boolean flat )
-    {
-        loadReconciliations();
-        
+    {        
         // filter the list of reconciliations based on the account
         return null;
     }
     
     public StatementSummary getSummary( )
     {
-        loadReconciliations();
+        Collection<IReconciliation> reconciliations = loadReconciliations();
         
         // Load the list of reconciliations for this statement period
         StatementSummary summary = new StatementSummary();
-        for ( IReconciliation recon : m_reconciliations )
+        for ( IReconciliation recon : reconciliations )
         {
             summary.addReconciliation( recon );
         }
@@ -170,13 +171,12 @@ public class Statement extends AbstractDatabaseObject implements IStatement
     }
     
     public StatementSummary getTransactionsSummary( )
-    {
-        Collection<ITransaction> transactions = DataObjectFactory.loadTransactionsForStatement( this );        
-        
+    {        
         // Load the list of reconciliations for this statement period
         StatementSummary summary = new StatementSummary();
-        for ( ITransaction trans : transactions )
+        for ( ITransaction trans : m_transactions )
         {
+            trans.addObserver( this );
             summary.addValue( trans.getMonetaryValue() );
         }
         
@@ -188,8 +188,20 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         // Check to see if this item is valid at this current time
         return m_accountKey != null &&
                m_beginDate != null &&
-               m_endDate != null;
-                
+               m_endDate != null;                
+    }
+    
+    public void notifyDatabaseChange( ChangeType change, IDatabaseObject object ) throws BudgetManagerException
+    {
+        switch ( change )
+        {
+            case UPDATE:
+                m_reconciliations = null;
+                break;
+        }
+        
+        // Notify the panel that we have received an udpate from the transactions
+        notifyObservers( ChangeType.UPDATE );
     }
     
     public Memento getMemento()
@@ -218,13 +230,38 @@ public class Statement extends AbstractDatabaseObject implements IStatement
         m_endDate = (Date)state.getSomeState();
     }
     
-    private void loadReconciliations()
+    private Collection<IReconciliation> loadReconciliations()
     {
-        if ( null == m_reconciliations &&
-                m_beginDate != null &&
-                m_endDate != null ) 
+        if ( m_beginDate != null &&
+             m_endDate != null ) 
         {
-            m_reconciliations = DataObjectFactory.loadReconciliationsForStatement( this );
+            return DataObjectFactory.loadReconciliationsForStatement( this );
+        }
+       
+        return new ArrayList<IReconciliation>();
+    }
+    
+    private void loadTransactions()
+    {        
+        if ( m_beginDate == null ||
+                m_endDate == null )
+        {
+            return;
+        }
+        
+        if ( null != m_transactions )
+        {
+            for ( ITransaction trans : m_transactions )
+            {
+                trans.deleteObserver( this );
+            }
+        }
+        
+        m_transactions = DataObjectFactory.loadTransactionsForStatement( this );   
+        
+        for ( ITransaction trans : m_transactions )
+        {
+            trans.addObserver( this );
         }
     }
     
@@ -233,4 +270,5 @@ public class Statement extends AbstractDatabaseObject implements IStatement
     private Date m_beginDate = null;
     private Date m_endDate = null;
     private Collection<IReconciliation> m_reconciliations;
+    private Collection<ITransaction> m_transactions = new ArrayList<ITransaction>();
 }

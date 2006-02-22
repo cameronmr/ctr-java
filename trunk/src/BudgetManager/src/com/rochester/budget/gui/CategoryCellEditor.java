@@ -10,49 +10,48 @@
 
 package com.rochester.budget.gui;
 import java.awt.Component;
-import javax.swing.DefaultCellEditor;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
+import javax.swing.table.TableCellEditor;
 
 /**
  *
  * @author Cam
  */
-public class CategoryCellEditor extends DefaultCellEditor
+public class CategoryCellEditor extends AbstractCellEditor implements TableCellEditor
 {
     
     /** Creates a new instance of CategoryCellEditor */
     public CategoryCellEditor( JTable table )
     {
-        super( new CategoryComboBox() );
-        m_categoryCombo = (CategoryComboBox)getComponent();
-        m_table = table;
+        m_categoryCombo = new CategoryComboBox();
+        m_categoryCombo.addKeyListener(new KeyAdapter()
+        {
+            public void keyPressed(KeyEvent evt) 
+            {
+                int key = evt.getKeyCode();
+                if (key == KeyEvent.VK_ENTER)
+                {
+                    fireEditingStopped();
+                }
+            }
+        });
     }
     
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) 
     {
         m_categoryCombo.populateCategorys( );
-        
-        return super.getTableCellEditorComponent(table, value, isSelected, row, column );
-    }
-            
-    public boolean stopCellEditing()
-    {
-        // We don't want the default behaviour to occur when the new category is selected
-        if ( m_categoryCombo.isNewCategorySelected() )
-        {
-            return true;
-        }
-                    
-        if ( super.stopCellEditing() )
-        {
-            // For some reason focus was returning to the main transaction table..?
-            m_table.requestFocusInWindow();            
-            return true;
-        }
-        
-        return false;
+        m_categoryCombo.setSelectedItem( value );
+                        
+        return m_categoryCombo;
     }
     
+    public Object getCellEditorValue()
+    {        
+        return m_categoryCombo.getSelectedItem();
+    }
+                    
     private CategoryComboBox m_categoryCombo = null;
-    private JTable m_table = null;
 }
