@@ -9,11 +9,12 @@
  */
 
 package com.rochester.budget.gui;
-
 import com.rochester.budget.core.MonetaryValue;
 import java.awt.Component;
 import java.text.NumberFormat;
 import javax.swing.AbstractCellEditor;
+import javax.swing.InputVerifier;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
@@ -24,21 +25,28 @@ import javax.swing.table.TableCellEditor;
  */
 public class MonetaryValueCellEditor extends AbstractCellEditor implements TableCellEditor
 {
-    
     /** Creates a new instance of MonetaryValueEditor */
     public MonetaryValueCellEditor()
     { 
+        m_field.setFocusTraversalKeysEnabled( false );
     }
     
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) 
     {
-        MonetaryValue val = (MonetaryValue)value;
-        m_field.setValue( val.getValue() );
+        m_field.setValue( ((MonetaryValue)value).getValue() );
+        m_field.setText( "$" );
+        m_field.setCaretPosition( 1 );
         return m_field;
     }
         
     public Object getCellEditorValue()
     {        
+        try
+        {
+            m_field.commitEdit();
+        }
+        catch ( Exception e )
+        {}
         return m_field.getValue();
     }
     

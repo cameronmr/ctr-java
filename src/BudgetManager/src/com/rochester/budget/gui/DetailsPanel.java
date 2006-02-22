@@ -219,6 +219,17 @@ public class DetailsPanel implements IGUIComponent, CellEditorListener, IBudgetA
      */
     public DetailsPanel( )
     {
+        initComponents();
+    }
+    
+    public DetailsPanel( IDetailsPanelModel model )
+    {
+        initComponents();
+        updateView( model );
+    }
+    
+    protected void initComponents()
+    {        
         // Objects (labels)
         m_editorsByClass.put( Object.class, new ObjectEditor() );
         
@@ -282,7 +293,7 @@ public class DetailsPanel implements IGUIComponent, CellEditorListener, IBudgetA
         m_springPanel.removeAll();
         
         // If there is nothing to display, return at this point
-        if ( m_theModel.getRowCount() == 0 )
+        if ( m_theModel.isEmpty() )
         {
             m_thePanel.validate();
             return;

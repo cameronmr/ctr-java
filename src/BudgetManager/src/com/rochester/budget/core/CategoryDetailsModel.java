@@ -22,20 +22,10 @@ public class CategoryDetailsModel extends AbstractDetailsModel<ICategory>
     /** Creates a new instance of CategoryDetailsModel */
     public CategoryDetailsModel( ICategory category )
     {
-        super( category );
+        super( category, m_labels );
     }
-    
-    public int getColumnCount() 
-    {
-        return m_labels.length;
-    }
-    
-    public String getColumnName(int col) 
-    {
-        return m_labels[col];
-    }
-         
-    public boolean isCellEditable( int row, int col ) 
+             
+    public boolean isEditable( int col ) 
     {
         switch ( col )
         {
@@ -51,7 +41,7 @@ public class CategoryDetailsModel extends AbstractDetailsModel<ICategory>
         return false;
     }
     
-    public Object getValueAt( int row, int column )
+    public Object getValueAt( int column )
     {
         if ( isEmpty() )
         {
@@ -59,7 +49,7 @@ public class CategoryDetailsModel extends AbstractDetailsModel<ICategory>
         }
         
         //"Name", "Description", "Parent Category", "Active", "Associated Account"
-        ICategory category = get( row );
+        ICategory category = get( );
         switch ( column )
         {
             case 0:
@@ -95,9 +85,9 @@ public class CategoryDetailsModel extends AbstractDetailsModel<ICategory>
         return null;
     }    
 
-    public void setValueAt(Object value, int row, int col)
+    public void setValueAt(Object value, int col)
     {        
-        ICategory category = get( row );
+        ICategory category = get( );
         
         //"Name", "Description", "Parent Category", "Active", "Associated Account"
         switch ( col )
@@ -118,8 +108,6 @@ public class CategoryDetailsModel extends AbstractDetailsModel<ICategory>
                 category.setAccount( (IAccount) value );
                 break;
         }
-                
-        fireTableCellUpdated(row, col);
     }
     
     public String getTitle()

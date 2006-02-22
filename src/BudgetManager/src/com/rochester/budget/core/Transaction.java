@@ -36,8 +36,12 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
         }        
     }
     
-    protected Transaction( )
+    protected Transaction( String narrative, IAccount account, MonetaryValue value, Date date )
     {
+        m_value = value;
+        setNarrative( narrative );
+        setAccount( account );
+        setDate( date );
     }
     
     public String getNarrative()
@@ -205,7 +209,14 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
     
     protected void populateResultSet( ResultSet results ) throws Exception
     { 
-        // TODO
+        // update the database object
+        results.updateString( "PKEY", getKey() );
+        results.updateDate( "TRANS_DATE", m_date );
+        results.updateString( "TRANS_NARRATIVE", m_narrative );
+        results.updateString( "TRANS_NOTE", m_note );        
+        results.updateInt( "TRANS_VALUE", m_value.getCentsAsInt() );
+        results.updateString( "TRANS_ACCOUNT_FKEY", m_account.getKey() );
+        
     }
 
     public String getTableName()
@@ -225,19 +236,17 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
                 m_value != null &&
                 m_account != null &&
                 m_narrative != null &&
-                m_date != null;
-        
-        // TODO: do we care about reconciliations here? Probably not
+                m_date != null;        
     }
     
     public Memento getMemento()
     {
         return new Memento(
                 (m_note == null) ? null : new String( m_note ),
-                new MonetaryValue( m_value ), 
+                (m_value == null) ? null : new MonetaryValue( m_value ), 
                 m_account,
-                new String( m_narrative ), 
-                new Date( m_date.getTime() ),
+                (m_narrative == null) ? null : new String( m_narrative ), 
+                (m_date == null) ? null : new Date( m_date.getTime() ),
                 new ArrayList<IReconciliation>( m_reconciliations ) );
     }
     

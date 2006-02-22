@@ -18,92 +18,73 @@ import javax.swing.table.AbstractTableModel;
  *
  * @author Cam
  */
-public abstract class AbstractDetailsModel< E extends IDatabaseObject > extends AbstractTableModel implements IDetailsPanelModel
-{
-    
+public abstract class AbstractDetailsModel< E extends IDatabaseObject > implements IDetailsPanelModel
+{    
     /** Creates a new instance of AbstractDetailsModel */
-    public AbstractDetailsModel( E theObject )
+    public AbstractDetailsModel( E theObject, final String[] labels )
     {
-        if ( null != theObject )
-        {
-            m_items.add( theObject );
-        }
+        m_theItem = theObject;
+        m_labels = labels;
     }
-            
-    public int getRowCount() 
+                 
+    public int getColumnCount() 
     {
-        return m_items.size();
-    }
-         
-    public boolean isCellEditable(int row, int col) 
-    {
-        return false;
+        return m_labels.length;
     }
     
-    public boolean isEditable( int index )
+    public String getColumnName(int col) 
     {
-        return isCellEditable( 0, index );
-    }
-        
-    public Object getValueAt( int index )
-    {
-        return getValueAt( 0, index );
-    }
-    
-    public void setValueAt( Object value, int index )
-    {
-        setValueAt( value, 0, index );
+        return m_labels[col];
     }
     
     public boolean isValid()
     {
-        return m_items.get( 0 ).isValid();
+        if ( null == m_theItem )
+        {
+            return false;
+        }
+        
+        return m_theItem.isValid();
     }
     
     public boolean isModified()
     {
-        return m_items.get( 0 ).isModified();
+        return m_theItem.isModified();
     }
     
     public void applyChanges() throws Exception
     {
-        m_items.get( 0 ).commit();
+        m_theItem.commit();
     }
     
     public void cancelChanges() throws Exception
     {
-        if ( m_items.get( 0 ).isNew() )
+        if ( m_theItem.isNew() )
         {
             if ( JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog( null, 
                     "This object has not yet been saved. Cancelling now will delete the object. Are you sure you wish to delete the object?", 
                     "Delete Object",  
                     JOptionPane.YES_NO_OPTION ) )
             {
-                m_items.get( 0 ).delete();
-                m_items.remove( 0 );
+                m_theItem.delete();
             }
         }
         else
         {
-            m_items.get( 0 ).rollbackToLastGoodState();
+            m_theItem.rollbackToLastGoodState();
         }
     }
     
-    public E get( int row )
-    {
-        if ( m_items.isEmpty() ||
-             ( m_items.size() <= row ) )
-        {
-            return null;
-        }
-        
-        return m_items.get( row );
+    public E get( )
+    {        
+        return m_theItem;
     }
     
     public boolean isEmpty()
     {
-        return m_items.isEmpty();
+        return m_theItem == null;
     }
     
-    private ArrayList<E> m_items = new ArrayList<E>();
+    private E m_theItem = null;
+    private String[] m_labels = null;
 }

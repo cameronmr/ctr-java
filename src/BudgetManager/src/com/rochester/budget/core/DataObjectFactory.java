@@ -13,6 +13,7 @@ package com.rochester.budget.core;
 import com.Ostermiller.util.ExcelCSVParser;
 import com.Ostermiller.util.LabeledCSVParser;
 import com.rochester.budget.core.exceptions.AccountNotFoundException;
+import com.rochester.budget.core.exceptions.BudgetManagerException;
 import com.rochester.budget.core.exceptions.CategoryNotFoundException;
 import com.rochester.budget.core.exceptions.ReconciliationNotFoundException;
 import com.rochester.budget.core.exceptions.RuleCriterionNotFoundException;
@@ -23,11 +24,14 @@ import com.rochester.budget.core.exceptions.TransactionNotFoundException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -42,73 +46,86 @@ public class DataObjectFactory
      * Creates a new instance of DataObjectFactory 
      */    
     public static void importTransactionsFromFile( File csvFile )
-    {        
+    {    
+        LabeledCSVParser parser = null;   
         try
         {
-            LabeledCSVParser parser = new LabeledCSVParser(
+             parser = new LabeledCSVParser(
                     new ExcelCSVParser( new BufferedInputStream( new FileInputStream( csvFile ) ) ) );
-            
-            int count = 0;
-            
-            while ( true )
-            {
-                count ++;
-                try
-                {
-                    // Go to the next line
-                    if ( null != parser.getLine() )
-                    {              
-                        DataObjectFactory.createTransaction( parser );                        
-                    }   
-                    else
-                    {
-                        break;
-                    }
-                }
-                catch ( SQLException e )
-                {
-                    System.out.println( e.getMessage() );
-                }    
-                catch ( Exception e )
-                {
-                    // TODO We have reached the end of the file??
-                    break;
-                }
-            }
         }
         catch ( Exception e )
         {
-            // TODO??
-        }            
+            JOptionPane.showMessageDialog( null,
+                    "Error while importing transactions: " + e.getMessage(),
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE );
+        }           
+        int count = 0;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMddhhmmss" );
+        //SimpleDateFormat dateFormat = new SimpleDateFormat( "ddMMyy" );
+        while ( true )
+        {
+            count ++;
+            try
+            {
+                // Go to the next line
+                if ( null != parser.getLine() )
+                {              
+                    DataObjectFactory.createTransaction( parser, dateFormat );                        
+                }   
+                else
+                {
+                    break;
+                }
+            }
+            catch ( SQLException e )
+            {
+                // Do nothing..
+                int i = 0;
+            }    
+            catch ( BudgetManagerException e )
+            {
+                JOptionPane.showMessageDialog( null,
+                        "Error while importing transactions: " + e.getMessage(),
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE );
+                break;
+            }
+            catch ( IOException e )
+            {
+                // Reached the end of the file
+                break;
+            }
+            catch ( Exception e )
+            {
+                JOptionPane.showMessageDialog( null,
+                        "Error while importing transactions: " + e.getMessage(),
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE );
+                break;
+            }
+        } 
     }
     
     /** Creates a new instance of Transaction */
-    public static void createTransaction( LabeledCSVParser parser ) throws Exception
+    public static void createTransaction( LabeledCSVParser parser, SimpleDateFormat df ) throws Exception
     {
         // Load all the available fields from the parser
         // TODO: Load field names from XML file/specific object type
         if ( parser.getValueByLabel( " Categories" ).compareTo( "OTHER" ) == 0 || 
              parser.getValueByLabel( " Categories" ).compareTo( "FEE" ) == 0 )
-        {            
-            /*String sql = new String();
-                sql = "INSERT INTO TRANSACTION VALUES ( '" + UUID.randomUUID() + "','" +
-                    DatabaseManager.escapeSQL( parser.getValueByLabel( " Narrative" ) ) + "', '" +
-                    parser.getValueByLabel( "Bank Account" ) + "', " +
-                    new MonetaryValue( parser.getValueByLabel( " Debit Amount" ) ).getCents() + ", '" +
-                    parser.getValueByLabel( " Date" ) + "', null )"; // must be formatted according to mysql spec!
-                                                                    // see http://dev.mysql.com/doc/mysql/en/datetime.html
-
-            DatabaseManager.getStatement().executeUpdate( sql ); */
-            
+        {                        
             // Create a new Transaction with a new pkey
-            Transaction trans = new Transaction();
-            trans.setNarrative( parser.getValueByLabel( " Narrative" ) );
-            trans.setAccount( loadAccount( parser.getValueByLabel( "Bank Account" ) ) );
-            trans.setMonetaryValue( new MonetaryValue( parser.getValueByLabel( " Debit Amount" ) ) );
+            Transaction trans = new Transaction(
+                    parser.getValueByLabel( " Narrative" ), 
+                    loadAccountByAccountNumber( parser.getValueByLabel( "Bank Account" ) ),
+                    new MonetaryValue( parser.getValueByLabel( " Debit Amount" ) ), 
+                    new java.sql.Date( df.parse( parser.getValueByLabel( " Date" ) ).getTime() ) ); 
             
-            // TODO: date
-            //trans.
-            //trans.commit();
+            trans.commit();
+            
+            m_transactions.put( trans );
         }
     }
     
@@ -120,7 +137,7 @@ public class DataObjectFactory
         {
             transaction = new Transaction( transactionKey );
             
-            m_transactions.put( transactionKey, transaction );
+            m_transactions.put( transaction );
         }
         
         return transaction;
@@ -128,39 +145,33 @@ public class DataObjectFactory
     
     public static Collection<ITransaction> loadTransactions()
     {
-        if ( ! m_transactions.allLoaded() )        
-        {            
-            try
+        try
+        {
+            String sql = new String( "select PKEY from TRANSACTION" );
+
+            // the statement object will be automatically cleaned up when garbage collected
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
             {
-                String sql = new String( "select PKEY from TRANSACTION" );
-
-                // the statement object will be automatically cleaned up when garbage collected
-                ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
-
-                while ( results.next() )
+                try
                 {
-                    try
-                    {
-                        loadTransaction( results.getString("PKEY") );
-                    }
-                    catch( TransactionNotFoundException e )
-                    {
-                        // TODO: handling creation of new account 
-                        System.out.println( e.toString() );
-                    }
+                    loadTransaction( results.getString("PKEY") );
                 }
-                
-                // Flag the data as loaded
-                m_transactions.setLoaded();
+                catch( TransactionNotFoundException e )
+                {
+                    // TODO: handling creation of new account 
+                    System.out.println( e.toString() );
+                }
+            }
 
-                results.close();
-            }
-            catch ( Exception t )
-            {
-                t.printStackTrace();
-                // TODO: error handling
-                return null;
-            }
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            // TODO: error handling
+            return null;
         }
         
         return m_transactions.values();
@@ -197,8 +208,6 @@ public class DataObjectFactory
         catch ( Exception t )
         {
             t.printStackTrace();
-            // TODO: error handling
-            return null;
         }
         
         return transactions;
@@ -219,46 +228,42 @@ public class DataObjectFactory
         {
             rule = new Rule( pkey );
             
-            m_rules.put( pkey, rule );
+            m_rules.put( rule );
         }
         
         return rule;
     }
     
     public static Collection<IRule> loadRules( )
-    {
-        if ( ! m_rules.allLoaded() )
+    {            
+        ArrayList<IRule> rules = new ArrayList<IRule>();
+        try
         {
-            
-            ArrayList<IRule> rules = new ArrayList<IRule>();
-            try
+            String sql = new String( "select PKEY from RULE" );
+
+            // the statement object will be automatically cleaned up when garbage collected
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
             {
-                String sql = new String( "select PKEY from RULE" );
-
-                // the statement object will be automatically cleaned up when garbage collected
-                ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
-
-                while ( results.next() )
+                try
                 {
-                    try
-                    {
-                        rules.add( loadRule( results.getString("PKEY") ) );
-                    }
-                    catch( RuleNotFoundException e )
-                    {
-                        // TODO: handling creation of new account 
-                        System.out.println( e.toString() );
-                    }
+                    rules.add( loadRule( results.getString("PKEY") ) );
                 }
+                catch( RuleNotFoundException e )
+                {
+                    // TODO: handling creation of new account 
+                    System.out.println( e.toString() );
+                }
+            }
 
-                results.close();
-            }
-            catch ( Exception t )
-            {
-                t.printStackTrace();
-                // TODO: error handling
-                return null;
-            }
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            // TODO: error handling
+            return null;
         }
         
         return m_rules.values();
@@ -266,7 +271,9 @@ public class DataObjectFactory
     
     public static IRule newRule( )
     {
-        return new Rule( );
+        IRule rule = new Rule( );
+        m_rules.put( rule );
+        return rule;
     }
     
     public static IRuleCriterion loadRuleCriterion( final String pkey, final String type ) throws RuleCriterionNotFoundException
@@ -296,7 +303,7 @@ public class DataObjectFactory
             // Create a new one of that type
             criterion = criterion.getNew( pkey );
             
-            m_ruleCriteria.put( pkey, criterion );
+            m_ruleCriteria.put( criterion );
         }
         
         return criterion;
@@ -350,7 +357,7 @@ public class DataObjectFactory
         {
             result = new RuleResult( pkey );
             
-            m_ruleResults.put( pkey, result );
+            m_ruleResults.put( result );
         }
         
         return result;
@@ -413,7 +420,9 @@ public class DataObjectFactory
             }
             else
             {
-                criteria.add( crit.getNew( ) );
+                IRuleCriterion newCrit = crit.getNew( );
+                m_ruleCriteria.put( newCrit );
+                criteria.add( newCrit );
             }
         }
         
@@ -422,7 +431,9 @@ public class DataObjectFactory
     
     public static IRuleResult newResultForRule( final IRule rule )
     {
-        return new RuleResult( rule );
+        IRuleResult result = new RuleResult( rule );
+        m_ruleResults.put( result );
+        return result;
     }
         
     /***************************** STATEMENT *******************************/
@@ -440,7 +451,7 @@ public class DataObjectFactory
         {
             statement = new Statement( pkey );
             
-            m_statements.put( pkey, statement );
+            m_statements.put( statement );
         }
         
         return statement;
@@ -483,64 +494,87 @@ public class DataObjectFactory
     
     public static IStatement newStatement( IAccount account )
     {
-        return new Statement( account );
+        IStatement statement = new Statement( account );
+        m_statements.put( statement );
+        return statement;
     }
     
     /****************************** ACCOUNT ********************************/
     
-    public static IAccount loadAccount( final String accountNumber ) throws AccountNotFoundException
+    public static IAccount loadAccount( final String pkey ) throws AccountNotFoundException
     {
-        if ( accountNumber == null )
+        if ( pkey == null )
         {
             return null;
         }
         
         // This will throw an exception if the account is not available
-        IAccount account = m_accounts.get( accountNumber );
+        IAccount account = m_accounts.get( pkey );
         if ( null == account )
         {
-            account = new Account( accountNumber );
+            account = new Account( pkey );
             
-            m_accounts.put( accountNumber, account );
+            m_accounts.put( account );
         }
         
         return account;
     }
     
+    public static IAccount loadAccountByAccountNumber( final String accountNumber ) throws AccountNotFoundException
+    {
+        String sql = new String( "select PKEY from ACCOUNT where ACCOUNT_NUMBER = '" + accountNumber + "'" );
+        
+        try
+        {
+            // the statement object will be automatically cleaned up when garbage collected
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
+            {
+                // Make sure we don't load the root node in an infinite loop
+                return loadAccount( results.getString("PKEY") );
+            }
+            
+            results.close();
+        }
+        catch( SQLException e )
+        {
+            throw new AccountNotFoundException( e.toString() );
+        }                
+        
+        // If we get here we couldn't load the category
+        throw new AccountNotFoundException( "Unable to load Account with Account Number: " + accountNumber );
+    }
+    
     public static Collection<IAccount> loadAccounts( )
     {
-        if ( ! m_accounts.allLoaded() )
+        try
         {
-            try
+            String sql = new String( "select PKEY from ACCOUNT" );
+
+            // the statement object will be automatically cleaned up when garbage collected
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
             {
-                String sql = new String( "select PKEY from ACCOUNT" );
-
-                // the statement object will be automatically cleaned up when garbage collected
-                ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
-
-                while ( results.next() )
+                try
                 {
-                    try
-                    {
-                        loadAccount( results.getString("PKEY") );
-                    }
-                    catch( AccountNotFoundException e )
-                    {
-                        // TODO: handling creation of new account 
-                        System.out.println( e.toString() );
-                    }
+                    loadAccount( results.getString("PKEY") );
                 }
+                catch( AccountNotFoundException e )
+                {
+                    // TODO: handling creation of new account 
+                    System.out.println( e.toString() );
+                }
+            }
 
-                m_accounts.setLoaded();
-                
-                results.close();
-            }
-            catch ( Exception t )
-            {
-                t.printStackTrace();
-                // TODO: error handling
-                return null;
-            }
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            // TODO: error handling
+            return null;
         }
         
         return m_accounts.values();
@@ -548,7 +582,9 @@ public class DataObjectFactory
     
     public static IAccount newAccount( )
     {
-        return new Account();
+        IAccount account = new Account();
+        m_accounts.put( account );
+        return account;
     }    
     
     /******************************** CATEGORY ************************************/
@@ -587,7 +623,7 @@ public class DataObjectFactory
         {
             category = new Category( categoryKey );
             
-            m_categories.put( categoryKey, category );
+            m_categories.put( category );
             
             // Attempt to load children
             DataObjectFactory.loadChildrenOfCategory( category );
@@ -625,7 +661,7 @@ public class DataObjectFactory
     public static ICategory newChildCategory( ICategory parent, IAccount account, final String name ) throws Exception
     {
         ICategory cat = new Category( parent, account, name );
-                
+        m_categories.put( cat );
         return cat;
     }
      
@@ -639,7 +675,7 @@ public class DataObjectFactory
         {
             recon = new Reconciliation( reconKey );
             
-            m_reconciliations.put( reconKey, recon );
+            m_reconciliations.put( recon );
         }
         
         return recon;
@@ -699,9 +735,22 @@ public class DataObjectFactory
     
     public static IReconciliation newReconciliationForTransaction( ITransaction transaction )
     {
-        IReconciliation recon = new Reconciliation( "New Reconciliation...", transaction.getValueRemaining(), transaction );
-                
+        IReconciliation recon = new Reconciliation( "", transaction.getValueRemaining(), transaction );
+        m_reconciliations.put( recon );        
         return recon;
+    }
+    
+    public static void clearAll()
+    {
+        m_transactions.clear();
+        m_accounts.clear();
+        m_rules.clear();
+        m_ruleResults.clear();
+        m_ruleCriteria.clear();
+        m_statements.clear();
+        m_categories.clear();
+        m_reconciliations.clear();
+        m_availableCriteria.clear();
     }
     
     // Storage for the database objects

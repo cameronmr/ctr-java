@@ -16,7 +16,7 @@ import javax.swing.table.TableModel;
  *
  * @author Cam
  */
-public interface IDetailsPanelModel extends TableModel
+public interface IDetailsPanelModel 
 {
     String getTitle( );
     
@@ -33,4 +33,10 @@ public interface IDetailsPanelModel extends TableModel
     void applyChanges() throws Exception;
     
     void cancelChanges() throws Exception;
+    
+    boolean isEmpty();
+        
+    int getColumnCount();
+    String getColumnName(int columnIndex);
+    public Class<?> getColumnClass(int columnIndex);
 }

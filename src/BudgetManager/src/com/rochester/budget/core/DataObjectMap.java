@@ -24,12 +24,12 @@ public class DataObjectMap<E extends IDatabaseObject> implements IDataChangeObse
     {
     }
     
-    public E put( final String key, E object )
+    public E put( E object )
     {
         // Add an observer so the cache can be updated if the item is deleted
         object.addObserver( this );        
         
-        return m_dataObjects.put( key, object );
+        return m_dataObjects.put( object.getKey(), object );
     }
     
     public E get( final String key )
@@ -47,6 +47,11 @@ public class DataObjectMap<E extends IDatabaseObject> implements IDataChangeObse
     {
         switch ( change )
         {
+            // If we have received an update clear the item from the cache & allow
+            // it to be loaded from the database the next time around
+            case UPDATE:
+                IDatabaseObject obj = m_dataObjects.get( object.getKey() );
+                break;
             case DELETE:
                 // remove the item from the map
                 m_dataObjects.remove( object.getKey() );
@@ -56,16 +61,10 @@ public class DataObjectMap<E extends IDatabaseObject> implements IDataChangeObse
         }
     }
     
-    public boolean allLoaded()
+    public void clear()
     {
-        return m_isLoaded;
+        m_dataObjects.clear();
     }
-    
-    public void setLoaded()
-    {
-        m_isLoaded = true;
-    }
-    
-    private HashMap<String, E> m_dataObjects = new HashMap<String, E>();   
-    private boolean m_isLoaded = false;
+        
+    private HashMap<String, E> m_dataObjects = new HashMap<String, E>();  
 }

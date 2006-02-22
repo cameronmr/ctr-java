@@ -12,7 +12,13 @@ package com.rochester.budget.gui;
 
 import com.rochester.budget.core.ICategory;
 import com.rochester.budget.core.MonetaryValue;
+import java.awt.AWTKeyStroke;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
@@ -30,6 +36,7 @@ public class ReconciliationTable extends JTable
         super( model );
         
         setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+        setSurrendersFocusOnKeystroke( true );
         
         // TODO: Get the classes from the table model
         setDefaultRenderer( ICategory.class, new DefaultTableCellRenderer() );

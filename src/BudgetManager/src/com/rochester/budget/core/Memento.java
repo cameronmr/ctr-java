@@ -53,32 +53,6 @@ public class Memento
                 return false;
             }
             
-            /*for ( int i = 0; i < m_state.size(); i++ )
-            {
-                if ( m_state.get(i) == null )
-                {
-                    if ( m2.m_state.get(i) != null )
-                    {
-                        return false;
-                    }
-                }
-                else if ( m2.m_state.get(i) == null )
-                {                    
-                    if ( m_state.get(i) != null )
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if ( ! m_state.get(i).equals( m2.m_state.get(i) ) )
-                    {
-                        return false;
-                    }
-                }
-            }*/
-            
-            // TODO: Does this actually call the overridden equals function?
             return m_state.equals( m2.m_state );
         }
         

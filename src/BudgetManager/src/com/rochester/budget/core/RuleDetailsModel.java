@@ -23,32 +23,22 @@ public class RuleDetailsModel extends AbstractDetailsModel<IRule>
     /** Creates a new instance of RuleDetailsModel */
     public RuleDetailsModel( IRule theRule )
     {
-        super( theRule );
-    }
+        super( theRule, m_labels );
+    }        
         
-    public int getColumnCount() 
-    {
-        return m_labels.length;
-    }
-    
-    public String getColumnName(int col) 
-    {
-        return m_labels[col];
-    }
-        
-    public boolean isCellEditable(int row, int col) 
+    public boolean isEditable(int col) 
     {
         return true;
     }
     
-    public Object getValueAt( int row, int column )
+    public Object getValueAt( int column )
     {
         if ( isEmpty() )
         {
             return "";
         }
         
-        IRule rule = get( row );
+        IRule rule = get( );
         switch ( column )
         {
             case 0:
@@ -85,9 +75,9 @@ public class RuleDetailsModel extends AbstractDetailsModel<IRule>
         return null;
     }    
     
-    public void setValueAt(Object value, int row, int col)
+    public void setValueAt(Object value, int col)
     {        
-        IRule rule = get( row );
+        IRule rule = get( );
         switch ( col )
         {
             case 0:
@@ -106,8 +96,6 @@ public class RuleDetailsModel extends AbstractDetailsModel<IRule>
                 rule.setResults( (Collection<IRuleResult>) value );
                 break;
         }
-                
-        fireTableCellUpdated(row, col);
     }
         
     public String getTitle()

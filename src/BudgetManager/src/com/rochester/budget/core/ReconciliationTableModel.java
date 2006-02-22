@@ -31,19 +31,23 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
     {                        
         // When the transaction is applied ask the existing transaction to apply any changes that are necessary
         // If the applied transaction is the same as the existing transaction then skip this bit
-        if ( ( null != m_newReconciliation ) &&
-             m_newReconciliation.isNew() &&
-             ( transaction != m_transaction )  )
+        if ( m_transaction != null )
         {
-            if( m_newReconciliation.isModified() && !discardIncomplete )
+            ArrayList<IReconciliation> recons = new ArrayList<IReconciliation>( m_transaction.getReconciliations() );
+            for ( IReconciliation recon : recons )
             {
-                throw new UnsavedReconciliationException("");
-            }
-            else
-            {
-                // If it hasn't been modified, or we are discarding incomplete, just delete it                
-                m_newReconciliation.delete();
-                m_newReconciliation = null;
+                if ( recon.isNew() )
+                {
+                    if( recon.isModified() && !discardIncomplete )
+                    {
+                        throw new UnsavedReconciliationException("");
+                    }
+                    else
+                    {
+                        // If it hasn't been modified, or we are discarding incomplete, just delete it                
+                        recon.delete();
+                    }
+                }
             }
         }
 
@@ -53,16 +57,15 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
 
         // If the transaction is not fully reconciled then create a reconciliation with the remaining amount
         // If a reconciliation still exists then we don't want to add anymore
-        if ( ( transaction.getReconciliationState() != ITransaction.ReconciliationState.FULL ) &&
-             ( null == m_newReconciliation ) )
+        if ( transaction.getReconciliationState() != ITransaction.ReconciliationState.FULL  )
         {
-            m_newReconciliation = DataObjectFactory.newReconciliationForTransaction( transaction );
-            m_reconciliations.add( m_newReconciliation );
+            IReconciliation newReconciliation = DataObjectFactory.newReconciliationForTransaction( transaction );
+            m_reconciliations.add( newReconciliation );
             
             try
             {
                 // The transaction can also monitor changes to the reconciliation, to update value remaining, etc
-                transaction.addReconciliation( m_newReconciliation );
+                transaction.addReconciliation( newReconciliation );
             }
             catch ( Exception e )
             {
@@ -70,7 +73,7 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
             }
             
             // We want to observe the reconciliation to delete it if necessary
-            m_newReconciliation.addObserver( this );
+            newReconciliation.addObserver( this );
         }
 
         // reload the table
@@ -194,7 +197,6 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
         try
         {
             recon.commit();
-            m_newReconciliation = null;
         }
         catch ( Exception e )
         {
@@ -206,6 +208,5 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
     
     private static final String[] m_labels = { "Category", "Reconciliation Note", "Amount" };
     private ArrayList<IReconciliation> m_reconciliations = new ArrayList<IReconciliation>();
-    private IReconciliation m_newReconciliation = null;
     private ITransaction m_transaction = null;
 }

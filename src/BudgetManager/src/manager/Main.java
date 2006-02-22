@@ -7,6 +7,7 @@
 package manager;
 import com.rochester.budget.core.DatabaseManager;
 import com.rochester.budget.gui.BudgetManagerFrame;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 
@@ -37,14 +38,11 @@ public class Main
         try
         { 
             // Load the database instance 
-            Class.forName("com.mysql.jdbc.Driver");
-            
-            // Initiate the database connection
-            DatabaseManager.initiateDatabaseConnection();
+            Class.forName("com.mysql.jdbc.Driver");            
         }
         catch ( Exception e )
         {
-            //TODO: bomb out with error
+            JOptionPane.showMessageDialog( null, "Error connecting to database " + e.getMessage() );
         }
         
         javax.swing.SwingUtilities.invokeLater( new Runnable() 

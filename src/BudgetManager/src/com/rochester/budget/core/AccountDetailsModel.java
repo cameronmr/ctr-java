@@ -24,32 +24,22 @@ public class AccountDetailsModel extends AbstractDetailsModel<IAccount>
      */
     public AccountDetailsModel( IAccount theAccount )
     {
-        super( theAccount );
+        super( theAccount, m_labels );
     }
         
-    public int getColumnCount() 
-    {
-        return m_labels.length;
-    }
-    
-    public String getColumnName(int col) 
-    {
-        return m_labels[col];
-    }
-        
-    public boolean isCellEditable(int row, int col) 
+    public boolean isEditable(int col) 
     {
         return true;
     }
     
-    public Object getValueAt( int row, int column )
+    public Object getValueAt( int column )
     {
         if ( isEmpty() )
         {
             return "";
         }
         
-        IAccount account = get( row );
+        IAccount account = get( );
         switch ( column )
         {
             case 0:
@@ -68,9 +58,9 @@ public class AccountDetailsModel extends AbstractDetailsModel<IAccount>
         return String.class;
     }    
     
-    public void setValueAt(Object value, int row, int col)
+    public void setValueAt(Object value, int col)
     {        
-        IAccount account = get( row );
+        IAccount account = get( );
         switch ( col )
         {
             case 0:
@@ -82,9 +72,7 @@ public class AccountDetailsModel extends AbstractDetailsModel<IAccount>
             case 2:
                 account.setDescription( (String) value );
                 break;
-        }
-                
-        fireTableCellUpdated(row, col);
+        }                
     }
     
     public String getTitle()

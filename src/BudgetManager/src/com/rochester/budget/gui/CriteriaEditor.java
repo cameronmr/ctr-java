@@ -44,8 +44,7 @@ public class CriteriaEditor extends AbstractCellEditor implements DetailsPanelEd
         public CriterionPanelHelper( CriteriaEditor editor, IRuleCriterion criteria, JPanel thePanel )
         {                        
             m_editor = editor;
-            
-            // TODO: populate available criteria            
+                 
             populateCriteriaCombo( criteria );
             populateTypeCombo( criteria );
             setEditor( criteria );
