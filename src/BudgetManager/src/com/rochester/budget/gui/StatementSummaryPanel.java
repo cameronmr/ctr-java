@@ -70,8 +70,7 @@ public class StatementSummaryPanel implements IGUIComponent, TreeSelectionListen
         if ( path == null ||
              m_theStatement == null )
         {        
-            m_categorySummaryPanel.setStatementSummary( null );
-            m_categoryFlatSummaryPanel.setStatementSummary( null );
+            clearCategoryView();
             return;
         }
         
@@ -81,8 +80,20 @@ public class StatementSummaryPanel implements IGUIComponent, TreeSelectionListen
         updateCategoryView( cat );
     }
     
+    private void clearCategoryView()
+    {
+        m_categorySummaryPanel.setStatementSummary( null );
+        m_categoryFlatSummaryPanel.setStatementSummary( null );
+}
+    
     private void updateCategoryView( ICategory cat )
     {
+        if ( null == m_theStatement )
+        {
+            clearCategoryView();
+            return;
+        }
+        
         // Load the summary & apply it to the panel
         m_categorySummaryPanel.setStatementSummary( m_theStatement.getSummary( cat, false ) );
         
