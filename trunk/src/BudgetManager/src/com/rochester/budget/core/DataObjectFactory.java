@@ -60,13 +60,11 @@ public class DataObjectFactory
                     "Error", 
                     JOptionPane.ERROR_MESSAGE );
         }           
-        int count = 0;
 
         SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMddhhmmss" );
         //SimpleDateFormat dateFormat = new SimpleDateFormat( "ddMMyy" );
         while ( true )
         {
-            count ++;
             try
             {
                 // Go to the next line
@@ -156,7 +154,7 @@ public class DataObjectFactory
             {
                 try
                 {
-                    loadTransaction( results.getString("PKEY") );
+                    loadTransaction( results.getString(PKEY) );
                 }
                 catch( TransactionNotFoundException e )
                 {
@@ -194,7 +192,7 @@ public class DataObjectFactory
             {
                 try
                 {
-                    transactions.add( loadTransaction( results.getString("PKEY") ) );
+                    transactions.add( loadTransaction( results.getString(PKEY) ) );
                 }
                 catch( TransactionNotFoundException e )
                 {
@@ -248,7 +246,7 @@ public class DataObjectFactory
             {
                 try
                 {
-                    rules.add( loadRule( results.getString("PKEY") ) );
+                    rules.add( loadRule( results.getString(PKEY) ) );
                 }
                 catch( RuleNotFoundException e )
                 {
@@ -323,7 +321,7 @@ public class DataObjectFactory
             {
                 try
                 {
-                    criteria.add( loadRuleCriterion( results.getString("PKEY"), results.getString( "CRITERIA" ) ) );
+                    criteria.add( loadRuleCriterion( results.getString(PKEY), results.getString( "CRITERIA" ) ) );
                 }
                 catch( RuleCriterionNotFoundException e )
                 {
@@ -377,7 +375,7 @@ public class DataObjectFactory
             {
                 try
                 {
-                    ruleResults.add( loadRuleResult( results.getString("PKEY") ) );
+                    ruleResults.add( loadRuleResult( results.getString(PKEY) ) );
                 }
                 catch( RuleResultNotFoundException e )
                 {
@@ -471,7 +469,7 @@ public class DataObjectFactory
             {
                 try
                 {
-                    statements.add( loadStatement( results.getString("PKEY") ) );
+                    statements.add( loadStatement( results.getString(PKEY) ) );
                 }
                 catch( StatementNotFoundException e )
                 {
@@ -532,7 +530,7 @@ public class DataObjectFactory
             while ( results.next() )
             {
                 // Make sure we don't load the root node in an infinite loop
-                return loadAccount( results.getString("PKEY") );
+                return loadAccount( results.getString(PKEY) );
             }
             
             results.close();
@@ -559,7 +557,7 @@ public class DataObjectFactory
             {
                 try
                 {
-                    loadAccount( results.getString("PKEY") );
+                    loadAccount( results.getString(PKEY) );
                 }
                 catch( AccountNotFoundException e )
                 {
@@ -601,7 +599,7 @@ public class DataObjectFactory
             while ( results.next() )
             {
                 // Make sure we don't load the root node in an infinite loop
-                return loadCategory( results.getString("PKEY") );
+                return loadCategory( results.getString(PKEY) );
             }
             
             results.close();
@@ -644,9 +642,9 @@ public class DataObjectFactory
             while ( results.next() )
             {
                 // Make sure we don't load the root node in an infinite loop
-                if ( !results.getString("PKEY").equals( parent.getKey() ) )
+                if ( !results.getString(PKEY).equals( parent.getKey() ) )
                 {
-                    parent.addCategory( loadCategory( results.getString("PKEY") ) );
+                    parent.addCategory( loadCategory( results.getString(PKEY) ) );
                 }
             }
             
@@ -656,6 +654,37 @@ public class DataObjectFactory
         {
             throw new CategoryNotFoundException( e.toString() );
         }        
+    }
+    
+    public static Collection<IReconciliation> loadReconciliationsForStatement( final IStatement statement,
+            final ICategory category )
+    {
+        ArrayList<IReconciliation> recons = new ArrayList<IReconciliation>();
+        try
+        {
+            String sql = new String( 
+                    "select r.PKEY from RECONCILIATION r, TRANSACTION t where r.RECON_TRANS_FKEY = t.PKEY" +
+                    " and t.TRANS_DATE between '" + statement.getStatementStart().toString() + 
+                    "' and '" + statement.getStatementEnd().toString() + 
+                    "' and t.TRANS_ACCOUNT_FKEY = '" + statement.getTransactionAccount().getKey() +
+                    "' and r.RECON_CATEGORY_FKEY = '" + category.getKey() + "'" );
+
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
+            {
+                recons.add( loadReconciliation( results.getString( PKEY ) ) );
+            }
+            
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            
+            // TODO: error handling?
+        }
+        return recons;
     }
     
     public static ICategory newChildCategory( ICategory parent, IAccount account, final String name ) throws Exception
@@ -691,7 +720,7 @@ public class DataObjectFactory
 
             while ( results.next() )
             {
-                transaction.addReconciliation( loadReconciliation( results.getString( "PKEY" ) ) );
+                transaction.addReconciliation( loadReconciliation( results.getString( PKEY ) ) );
             }
             
             results.close();
@@ -719,7 +748,7 @@ public class DataObjectFactory
 
             while ( results.next() )
             {
-                recons.add( loadReconciliation( results.getString( "PKEY" ) ) );
+                recons.add( loadReconciliation( results.getString( PKEY ) ) );
             }
             
             results.close();
@@ -764,4 +793,6 @@ public class DataObjectFactory
     private static DataObjectMap<IReconciliation> m_reconciliations = new DataObjectMap<IReconciliation>();
     
     private static HashMap<String, IRuleCriterion> m_availableCriteria = new HashMap<String, IRuleCriterion>();
+    
+    private static final String PKEY = new String("PKEY");
 }

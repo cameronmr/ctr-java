@@ -73,15 +73,20 @@ public class CategoryTreePanel implements IGUIComponent
     /**
      * Creates a new instance of CategoryTreePanel
      */
-    public CategoryTreePanel()
+    public CategoryTreePanel( )
     {
-        initComponents();
+        initComponents( false );
+    }
+    
+    public CategoryTreePanel( boolean readOnly )
+    {
+        initComponents( readOnly );
     }
     
     /** This method is called from within the constructor to
      * initialize the form.
      */
-    private void initComponents()
+    private void initComponents( boolean readOnly )
     {
         // Get the root category
         try
@@ -97,6 +102,12 @@ public class CategoryTreePanel implements IGUIComponent
         
         m_scrollPane = new JScrollPane( m_categoryTree );
         m_scrollPane.setPreferredSize( new Dimension( 180, 300 ) );
+        
+        // If we are readOnly then don't do anymore
+        if ( readOnly )
+        {
+            return;
+        }
         
         // Add a mouse listener
         MouseListener ml = new MouseAdapter()
@@ -200,6 +211,28 @@ public class CategoryTreePanel implements IGUIComponent
     public void addTreeSelectionListener( TreeSelectionListener listener )
     {
         m_categoryTree.addTreeSelectionListener( listener );
+    }
+    
+    public void clearSelection()
+    {
+        m_categoryTree.clearSelection();
+    }
+    
+    public boolean categorySelected()
+    {
+        return !m_categoryTree.isSelectionEmpty();
+    }
+    
+    public ICategory getSelectedCategory()
+    { 
+        if ( m_categoryTree.isSelectionEmpty() )
+        {
+            return null;
+        }
+        
+        TreePath parentPath = m_categoryTree.getSelectionPath();
+        CategoryNode parentNode = (CategoryNode)(parentPath.getLastPathComponent());
+        return parentNode.getCategory();        
     }
     
     private void disableCategory( )

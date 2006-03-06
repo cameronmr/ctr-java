@@ -5,7 +5,6 @@
  */
 
 package manager;
-import com.rochester.budget.core.DatabaseManager;
 import com.rochester.budget.gui.BudgetManagerFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;

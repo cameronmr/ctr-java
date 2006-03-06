@@ -12,7 +12,6 @@ package com.rochester.budget.gui;
 
 import com.rochester.budget.core.IGUIComponent;
 import com.rochester.budget.core.IStatement;
-import com.rochester.budget.core.StatementDetailsModel;
 import java.awt.Component;
 import javax.swing.JList;
 import javax.swing.JSplitPane;
@@ -32,18 +31,14 @@ public class StatementTab implements IGUITab, IGUIComponent, ListSelectionListen
     {
         m_statementList = new StatementListPanel();
         m_statementList.addListSelectionListener( this );
-        m_categoryTree = new CategoryTreePanel();
         m_summaryPanel = new StatementSummaryPanel();
         
-        JSplitPane split1 = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
-        JSplitPane split2 = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
+        JSplitPane split = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
         
-        split1.setLeftComponent( m_statementList.getComponent() );
-        split1.setRightComponent( split2 );
-        split2.setLeftComponent( m_categoryTree.getComponent() );
-        split2.setRightComponent( m_summaryPanel.getComponent() );
+        split.setLeftComponent( m_statementList.getComponent() );
+        split.setRightComponent( m_summaryPanel.getComponent() );
         
-        m_theComponent = split1;
+        m_theComponent = split;
     }
     
     public String getTabTitle()
@@ -70,12 +65,10 @@ public class StatementTab implements IGUITab, IGUIComponent, ListSelectionListen
         JList source = (JList)e.getSource();
         
         // Single selection only. Returns null if none selected
-        StatementDetailsModel model = new StatementDetailsModel( (IStatement)source.getSelectedValue() );
-        m_summaryPanel.updateView( model );
+        m_summaryPanel.updateView( (IStatement)source.getSelectedValue() );
     }    
     
-    private Component m_theComponent = null;
-    private StatementSummaryPanel m_summaryPanel = null;
-    private StatementListPanel m_statementList = null;
-    private CategoryTreePanel m_categoryTree = null;
+    private Component m_theComponent;
+    private StatementSummaryPanel m_summaryPanel;
+    private StatementListPanel m_statementList;
 }

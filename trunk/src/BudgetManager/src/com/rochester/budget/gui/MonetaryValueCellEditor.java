@@ -13,8 +13,6 @@ import com.rochester.budget.core.MonetaryValue;
 import java.awt.Component;
 import java.text.NumberFormat;
 import javax.swing.AbstractCellEditor;
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;

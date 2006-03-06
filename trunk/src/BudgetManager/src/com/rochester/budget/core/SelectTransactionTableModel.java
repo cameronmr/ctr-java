@@ -72,7 +72,7 @@ public class SelectTransactionTableModel extends AbstractTableModel
             case 1:
                 return trans.getDate();
             case 2:
-                return trans.getMonetaryValue();
+                return trans.getValue();
             case 3:
                 return trans.getNarrative();
         }
