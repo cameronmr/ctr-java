@@ -68,12 +68,12 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
         storeMemento();
     }
                 
-    public MonetaryValue getMonetaryValue()
+    public MonetaryValue getValue()
     {
         return m_value;
     }
     
-    public void setMonetaryValue( final MonetaryValue value )
+    public void setValue( final MonetaryValue value )
     {
         m_value.setValue( value );
         
@@ -158,7 +158,7 @@ public class Transaction extends AbstractDatabaseObject implements ITransaction,
     {
         try
         {
-            return getNarrative() + " (" + getDate().toString() + " - " + getMonetaryValue() + ")";
+            return getNarrative() + " (" + getDate().toString() + " - " + getValue() + ")";
         }
         catch ( Throwable t )
         {

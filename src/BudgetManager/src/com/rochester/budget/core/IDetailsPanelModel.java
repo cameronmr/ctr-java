@@ -10,7 +10,6 @@
 
 package com.rochester.budget.core;
 
-import javax.swing.table.TableModel;
 
 /**
  *

@@ -10,7 +10,7 @@
 
 package com.rochester.budget.core;
 import com.rochester.budget.core.IDataChangeObserver.ChangeType;
-import com.rochester.budget.core.IStatement.StatementSummary;
+import com.rochester.budget.core.StatementSummary;
 import com.rochester.budget.core.exceptions.BudgetManagerException;
 import com.rochester.budget.core.exceptions.StateSyncException;
 import com.rochester.budget.core.exceptions.StatementNotFoundException;
@@ -139,21 +139,34 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
         // reload the Transactions
         loadTransactions();
     }
-    
-    public Collection<IAccount> getAccounts( final ICategory category, boolean flat )
-    {        
-        // get the accounts used by this categories reconciliations
         
-        // If isFlat get the transactions
-        
-        // if not flat, get the summary for category & all descendants
-        return null;
-    }
-    
     public StatementSummary getSummary( final ICategory category, boolean flat )
     {        
-        // filter the list of reconciliations based on the account
-        return null;
+        // filter the list of reconciliations based on the category
+        String additional = new String( flat?" (including sub categories)":"" );
+        StatementSummary summary = new StatementSummary( category.toString() + additional );
+        
+        ArrayList<IReconciliation> recons = new ArrayList<IReconciliation>();
+        
+        // Get only the reconciliations in the selected category for the time period
+        recons.addAll( DataObjectFactory.loadReconciliationsForStatement( this, category ) );
+                
+        if ( flat )
+        {
+            // Get the reconciliations in all sub categories
+            Collection<ICategory> cats = category.getDescendants();
+            for ( ICategory cat : cats )
+            {
+                recons.addAll( DataObjectFactory.loadReconciliationsForStatement( this, cat ) );
+            }
+        }
+        
+        // Assemble all the reconciliations into the final summary
+        for ( IReconciliation recon : recons )
+        {
+            summary.addReconciliation( recon );
+        }
+        return summary;
     }
     
     public StatementSummary getSummary( )
@@ -161,28 +174,21 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
         Collection<IReconciliation> reconciliations = loadReconciliations();
         
         // Load the list of reconciliations for this statement period
-        StatementSummary summary = new StatementSummary();
+        StatementSummary summary = new StatementSummary( toString() );
         for ( IReconciliation recon : reconciliations )
         {
             summary.addReconciliation( recon );
         }
         
-        return summary;
-    }
-    
-    public StatementSummary getTransactionsSummary( )
-    {        
-        // Load the list of reconciliations for this statement period
-        StatementSummary summary = new StatementSummary();
+        // Add the transactions to the summary as well
         for ( ITransaction trans : m_transactions )
         {
-            trans.addObserver( this );
-            summary.addValue( trans.getMonetaryValue() );
+            summary.addTransaction( trans );
         }
         
         return summary;
     }
-      
+          
     public boolean isValid( )
     {
         // Check to see if this item is valid at this current time
@@ -192,14 +198,7 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
     }
     
     public void notifyDatabaseChange( ChangeType change, IDatabaseObject object ) throws BudgetManagerException
-    {
-        switch ( change )
-        {
-            case UPDATE:
-                m_reconciliations = null;
-                break;
-        }
-        
+    {        
         // Notify the panel that we have received an udpate from the transactions
         notifyObservers( ChangeType.UPDATE );
     }
@@ -265,10 +264,9 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
         }
     }
     
-    private IAccount m_account = null;
-    private String m_accountKey = null;
-    private Date m_beginDate = null;
-    private Date m_endDate = null;
-    private Collection<IReconciliation> m_reconciliations;
+    private IAccount m_account;
+    private String m_accountKey;
+    private Date m_beginDate;
+    private Date m_endDate;
     private Collection<ITransaction> m_transactions = new ArrayList<ITransaction>();
 }

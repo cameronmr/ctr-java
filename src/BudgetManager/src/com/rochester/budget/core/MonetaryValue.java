@@ -9,8 +9,7 @@ package com.rochester.budget.core;
 import com.rochester.budget.core.exceptions.BudgetManagerException;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
-import java.text.NumberFormat;
+
 
 
 /**
@@ -22,6 +21,11 @@ public class MonetaryValue
     /**
      * Creates a new instance of MonetaryValue 
      */
+    public MonetaryValue( )
+    {
+        m_cents = 0;
+    }
+    
     public MonetaryValue( final int cents )
     {
         m_cents = cents;
@@ -121,5 +125,4 @@ public class MonetaryValue
         return false;
     }
     private int m_cents;
-    private static final NumberFormat m_numberFormat = NumberFormat.getCurrencyInstance();
 }

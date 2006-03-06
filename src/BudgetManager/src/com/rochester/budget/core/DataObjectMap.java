@@ -50,7 +50,7 @@ public class DataObjectMap<E extends IDatabaseObject> implements IDataChangeObse
             // If we have received an update clear the item from the cache & allow
             // it to be loaded from the database the next time around
             case UPDATE:
-                IDatabaseObject obj = m_dataObjects.get( object.getKey() );
+                // do nothing
                 break;
             case DELETE:
                 // remove the item from the map
@@ -66,5 +66,5 @@ public class DataObjectMap<E extends IDatabaseObject> implements IDataChangeObse
         m_dataObjects.clear();
     }
         
-    private HashMap<String, E> m_dataObjects = new HashMap<String, E>();  
+    private final HashMap<String, E> m_dataObjects = new HashMap<String, E>();  
 }

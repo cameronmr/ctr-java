@@ -100,7 +100,7 @@ public class TransactionTableModel extends AbstractTableModel implements IDataCh
             case 3:
                 return trans.getNarrative();
             case 4:
-                return trans.getMonetaryValue();
+                return trans.getValue();
         }
         return null;
     }

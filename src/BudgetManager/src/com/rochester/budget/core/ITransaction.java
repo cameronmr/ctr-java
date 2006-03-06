@@ -32,8 +32,8 @@ public interface ITransaction extends IDatabaseObject
     Date getDate();
     void setDate( final Date date );
                 
-    MonetaryValue getMonetaryValue();
-    void setMonetaryValue( final MonetaryValue value );
+    MonetaryValue getValue();
+    void setValue( final MonetaryValue value );
     
     IAccount getAccount();
     void setAccount( final IAccount account );

@@ -11,106 +11,92 @@
 package com.rochester.budget.gui;
 
 import com.rochester.budget.core.IAccount;
-import com.rochester.budget.core.IDataChangeObserver;
-import com.rochester.budget.core.IDatabaseObject;
 import com.rochester.budget.core.IGUIComponent;
-import com.rochester.budget.core.IStatement;
-import com.rochester.budget.core.exceptions.BudgetManagerException;
+import com.rochester.budget.core.StatementSummary;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.SpringLayout;
 
 /**
  *
  * @author Cam
  */
-public class StatementSummaryDetails implements IGUIComponent, IDataChangeObserver
+public class StatementSummaryDetails implements IGUIComponent
 {
     
     /** Creates a new instance of StatementSummaryDetails */
-    public StatementSummaryDetails()
+    public StatementSummaryDetails( )
     {        
     }
     
-    public void setStatement( final IStatement theStatement )
+    public void clearStatementSummary( )
     {        
-        if ( null != m_theStatement )
+        m_thePanel.removeAll();
+    }
+    
+    public void setStatementSummary( StatementSummary summary )
+    {               
+        clearStatementSummary();
+        if ( null == summary )
         {
-            m_theStatement.deleteObserver( this );
+            return;
         }
         
-        m_theStatement = theStatement;   
-        if ( null != m_theStatement )
+        JPanel panel = new JPanel( new SpringLayout() );
+        
+        panel.setBorder( BorderFactory.createTitledBorder( summary.toString() ) );        
+        
+        int rowCount = 0;
+        if ( summary.hasTransactions() )
         {
-            m_theStatement.addObserver( this );
+            panel.add( new JLabel( Integer.toString( summary.getTransactionCount() ) + " Transactions:" ) );
+            panel.add( new JLabel( summary.getTransactionValue().toString() ) );
+            rowCount += 1;
         }
         
-        updateView();
+        if ( summary.hasReconciliations() )
+        {
+            panel.add( new JLabel( Integer.toString( summary.getReconciliationCount() ) + " Reconciliations:" ) );
+            panel.add( new JLabel( summary.getReconciliationValue().toString() ) );
+            rowCount += 1;
+
+            for ( IAccount account : summary.getReconciliationAccounts() )
+            {
+                panel.add( new JLabel( "Reconciliations for ", JLabel.TRAILING) );
+                panel.add( new JLabel( account.toString() ) );
+
+                panel.add( new JLabel( Integer.toString( summary.getReconciliationCountForAccount( account ) ) +
+                        " Reconciliations:" ) );
+                panel.add( new JLabel( summary.getReconciliationValueForAccount( account ).toString() ) );
+
+                rowCount += 2;
+            }
+
+            SpringUtilities.makeCompactGrid( panel,
+                         rowCount, 2,        //rows, cols
+                         5, 0,        //initX, initY
+                         5, 2);       //xPad, yPad     
+        }
+        else
+        {
+            panel.add( new JLabel( "Nil" ) );
+            SpringUtilities.makeCompactGrid( panel,
+                         1, 1,        //rows, cols
+                         5, 0,        //initX, initY
+                         5, 2);       //xPad, yPad     
+        }
+        
+        m_thePanel.add( panel, BorderLayout.NORTH );
+        m_thePanel.validate();
     }
     
     public Component getComponent()
     {
         return m_thePanel;
-    }
-    
-    private void updateView()
-    {
-        m_thePanel.removeAll();
-        
-        if ( null == m_theStatement )
-        {
-            m_thePanel.setBorder( BorderFactory.createEmptyBorder() );
-            return;
-        }
-        
-        m_thePanel.setBorder( BorderFactory.createTitledBorder( "Statement Summary " + m_theStatement.toString() ) );        
-        
-        IStatement.StatementSummary summary = m_theStatement.getTransactionsSummary();
-        m_thePanel.add( new JLabel( "Transactions Value" ) );
-        m_thePanel.add( new JLabel( summary.m_value.toString() ) );
-        m_thePanel.add( new JLabel( "Number Transactions" ) );
-        m_thePanel.add( new JLabel( Integer.toString( summary.m_additions ) ) );
-        
-        summary = m_theStatement.getSummary();
-        m_thePanel.add( new JLabel( "Reconciliations Value" ) );
-        m_thePanel.add( new JLabel( summary.m_value.toString() ) );
-        m_thePanel.add( new JLabel( "Number Reconciliations" ) );
-        m_thePanel.add( new JLabel( Integer.toString( summary.m_additions ) ) );
-        
-        for ( IAccount account : summary.m_accounts.keySet() )
-        {
-            m_thePanel.add( new JLabel( "Reconciliations for ", JLabel.TRAILING) );
-            m_thePanel.add( new JLabel( account.toString() ) );
-            
-            m_thePanel.add( new JLabel( "Reconciliations Value" ) );
-            m_thePanel.add( new JLabel( summary.m_accounts.get( account ).m_value.toString() ) );
-            m_thePanel.add( new JLabel( "Number Reconciliations" ) );
-            m_thePanel.add( new JLabel( Integer.toString( summary.m_accounts.get( account ).m_additions ) ) );
-        }
-        
-        SpringUtilities.makeCompactGrid( m_thePanel,
-                         4 + ( 3 * summary.m_accounts.size()), 2,        //rows, cols
-                         5, 0,        //initX, initY
-                         5, 2);       //xPad, yPad     
-        
-        m_thePanel.validate();
-    }
-    
-    public void notifyDatabaseChange( ChangeType change, IDatabaseObject object ) throws BudgetManagerException
-    {
-        // If the update is for
-        switch ( change )
-        {
-            case UPDATE:
-                // Recalculate the remaining value
-                updateView();
-                break;
-        }
-    }            
+    }        
  
-    private JPanel m_thePanel = new JPanel( new SpringLayout() );
-    private IStatement m_theStatement;
+    private JPanel m_thePanel = new JPanel( new BorderLayout() );
 }
