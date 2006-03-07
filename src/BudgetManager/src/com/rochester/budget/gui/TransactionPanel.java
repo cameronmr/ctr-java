@@ -103,7 +103,7 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
             public void actionPerformed( ActionEvent evt )
             {
                 // Build the list of Actions
-                Collection<IRule> rules = DataObjectFactory.loadRules();
+                final Collection<IRule> rules = DataObjectFactory.loadRules();
                 
                 // Add the actions to the popupMenu
                 JPopupMenu popupMenu = new JPopupMenu();
@@ -114,14 +114,21 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
                         public void actionPerformed( ActionEvent e )
                         {
                             // Popup menu
-                            ruleSelected( m_rule );
-                        }
-                        
-                        private IRule m_rule = rule;
+                            ruleSelected( rule );
+                        }                        
                     };
                     popupMenu.add( anAction );
                 }
                 
+                popupMenu.addSeparator();
+                popupMenu.add( new AbstractAction( "all" )
+                {
+                    public void actionPerformed( ActionEvent e )
+                    {
+                        // Popup menu
+                        runAllRules( rules );
+                    }
+                });
                 // Popup the rule selection list
                 popupMenu.show( m_applyRule, m_applyRule.getWidth(), m_applyRule.getHeight() );
             }
@@ -139,6 +146,14 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
         m_thePanel.add( topButtonPanel, BorderLayout.NORTH );
         m_thePanel.add( bottomButtonPanel, BorderLayout.SOUTH );
         m_thePanel.setBorder( BorderFactory.createTitledBorder( "" ) );
+    }
+    
+    private void runAllRules( final Collection<IRule> rules )
+    {
+        for ( IRule rule : rules )
+        {
+            ruleSelected( rule );
+        }
     }
     
     private void ruleSelected( IRule rule )
@@ -170,7 +185,7 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
         
         // Popup the rule dialog with the list of matching transactions
         if ( JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog( 
-                null, panel, "Matching Transactions", JOptionPane.OK_CANCEL_OPTION ) ) 
+                null, panel, "Transactions Matching: " + rule.toString(), JOptionPane.OK_CANCEL_OPTION ) ) 
         {
             // Apply the rule
             try
