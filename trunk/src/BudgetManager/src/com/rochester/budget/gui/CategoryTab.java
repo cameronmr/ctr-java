@@ -35,6 +35,7 @@ public class CategoryTab implements IGUIComponent, IGUITab, TreeSelectionListene
         m_theTreePanel.addTreeSelectionListener( this );
         m_detailsPanel = new DetailsPanel();
         CategoryStatsPanel statsPanel = new CategoryStatsPanel();
+        m_theTreePanel.addTreeSelectionListener( statsPanel );
         JSplitPane catVPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
         JSplitPane catHPane = new JSplitPane( JSplitPane.HORIZONTAL_SPLIT );
         
