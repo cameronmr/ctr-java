@@ -61,6 +61,7 @@ CREATE TABLE `RECONCILIATION` (
   `RECON_CATEGORY_FKEY` varchar(36) NOT NULL default '',
   `RECON_VALUE` int(11) NOT NULL default '0',
   `RECON_NOTE` tinytext,
+  `RECON_TRANS_DATE` date default '0000-00-00',
   PRIMARY KEY  (`PKEY`),
   KEY `RECON_TRANS_FKEY` (`RECON_TRANS_FKEY`,`RECON_CATEGORY_FKEY`,`RECON_VALUE`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Store the reconciliations for transactions';

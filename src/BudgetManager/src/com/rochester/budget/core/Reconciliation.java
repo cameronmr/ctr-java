@@ -11,6 +11,7 @@
 package com.rochester.budget.core;
 import com.rochester.budget.core.exceptions.ReconciliationNotFoundException;
 import com.rochester.budget.core.exceptions.StateSyncException;
+import java.sql.Date;
 import java.sql.ResultSet;
 
 
@@ -43,6 +44,7 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
         m_value = new MonetaryValue( value );
         m_transaction = transaction;
         m_transactionKey = transaction.getKey();
+        m_date = transaction.getDate();
     }
          
     protected void parseResultSet( ResultSet results ) throws Exception
@@ -57,6 +59,8 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
         
         // Load the category associated with this reconciliation
         m_category = DataObjectFactory.loadCategory( results.getString( "RECON_CATEGORY_FKEY") );
+        
+        m_date = results.getDate( "RECON_TRANS_DATE" );
     }
     
     protected void populateResultSet( ResultSet results ) throws Exception
@@ -67,6 +71,7 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
         results.updateString( "RECON_NOTE", m_note );
         results.updateString( "RECON_TRANS_FKEY", m_transactionKey );
         results.updateString( "RECON_CATEGORY_FKEY", m_category.getKey() );
+        results.updateDate( "RECON_TRANS_DATE", m_date );
     }
     
     public ITransaction getTransaction()
@@ -90,6 +95,7 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
     {
         m_transaction = trans;
         m_transactionKey = trans.getKey();
+        m_date = trans.getDate();
         
         storeMemento();
     }
@@ -151,7 +157,8 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
                 ( m_value == null ) ? null : new MonetaryValue( m_value ), 
                 m_category, // Don't want a new copy
                 ( m_transactionKey == null ) ? null : new String( m_transactionKey ), 
-                ( m_note == null ) ? null : new String( m_note ) );
+                ( m_note == null ) ? null : new String( m_note ), 
+                ( m_date == null ) ? null : new Date( m_date.getTime() ) );
     }
     
     public void restoreMemento( Memento state ) throws StateSyncException
@@ -168,6 +175,7 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
             // TODO??
         }
         m_note = (String)state.getSomeState();
+        m_date = (Date)state.getSomeState();
     }
     
     private MonetaryValue m_value;
@@ -176,4 +184,5 @@ public class Reconciliation extends AbstractDatabaseObject implements IReconcili
     // Only used to restore a memento
     private String m_transactionKey;
     private String m_note;    
+    private Date m_date;
 }

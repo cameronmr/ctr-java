@@ -25,6 +25,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -664,10 +665,39 @@ public class DataObjectFactory
         {
             String sql = new String( 
                     "select r.PKEY from RECONCILIATION r, TRANSACTION t where r.RECON_TRANS_FKEY = t.PKEY" +
-                    " and t.TRANS_DATE between '" + statement.getStatementStart().toString() + 
+                    " and r.RECON_TRANS_DATE between '" + statement.getStatementStart().toString() + 
                     "' and '" + statement.getStatementEnd().toString() + 
                     "' and t.TRANS_ACCOUNT_FKEY = '" + statement.getTransactionAccount().getKey() +
                     "' and r.RECON_CATEGORY_FKEY = '" + category.getKey() + "'" );
+
+            ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
+
+            while ( results.next() )
+            {
+                recons.add( loadReconciliation( results.getString( PKEY ) ) );
+            }
+            
+            results.close();
+        }
+        catch ( Exception t )
+        {
+            t.printStackTrace();
+            
+            // TODO: error handling?
+        }
+        return recons;
+    }
+    
+    public static Collection<IReconciliation> loadReconciliationsForPeriod( final ICategory category, 
+            final Date start, final Date end )
+    {
+        ArrayList<IReconciliation> recons = new ArrayList<IReconciliation>();
+        try
+        {
+            String sql = new String( 
+                    "select PKEY from RECONCILIATION where RECON_TRANS_DATE between '" + start.toString() + 
+                    "' and '" + end.toString() + 
+                    "' and RECON_CATEGORY_FKEY = '" + category.getKey() + "'" );
 
             ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
 
@@ -740,7 +770,7 @@ public class DataObjectFactory
         {
             String sql = new String( 
                     "select r.PKEY from RECONCILIATION r, TRANSACTION t where r.RECON_TRANS_FKEY = t.PKEY" +
-                    " and t.TRANS_DATE between '" + statement.getStatementStart().toString() + 
+                    " and r.RECON_TRANS_DATE between '" + statement.getStatementStart().toString() + 
                     "' and '" + statement.getStatementEnd().toString() + 
                     "' and t.TRANS_ACCOUNT_FKEY = '" + statement.getTransactionAccount().getKey() + "'" );
 
