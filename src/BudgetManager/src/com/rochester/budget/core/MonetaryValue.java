@@ -10,13 +10,11 @@ import com.rochester.budget.core.exceptions.BudgetManagerException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-
-
 /**
  *
  * @author Cameron
  */
-public class MonetaryValue
+public class MonetaryValue implements Comparable<MonetaryValue>
 {
     /**
      * Creates a new instance of MonetaryValue 
@@ -124,5 +122,11 @@ public class MonetaryValue
         }
         return false;
     }
+    
+    public int compareTo( MonetaryValue val )
+    {
+        return (new Integer( m_cents )).compareTo( val.m_cents );
+    }
+    
     private int m_cents;
 }

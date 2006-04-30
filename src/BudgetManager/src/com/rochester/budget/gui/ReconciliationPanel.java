@@ -146,6 +146,9 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
     {
         switch ( e.getID() )
         {
+            case TRANS_SELECTION_REMOVED:
+                removeTransaction();
+                break;
             case TRANS_SELECTION_CHANGED:
                 // Handle the changed transaction!
                 ITransaction trans = (ITransaction)e.getSource();
@@ -219,6 +222,14 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
         }
     }
     
+    private void removeTransaction()
+    {
+        m_reconciliationTable.editingCanceled( null );
+        m_reconciliationModel.removeTransaction();
+        
+        updateLabels( null );
+    }
+    
     private void updateTransaction( ITransaction trans, boolean discardIncomplete ) throws UnsavedReconciliationException
     {
         m_reconciliationTable.editingCanceled( null );
@@ -249,10 +260,10 @@ public class ReconciliationPanel extends JPanel implements IDataChangeObserver, 
     private void updateLabels( ITransaction trans )
     {
         /* Update the title! */
-        m_reconciliationLabel.setText( m_title + trans );
+        m_reconciliationLabel.setText( m_title + ( trans==null?"":trans ) );
         
         /* Get the value remaining & update the label! */
-        m_amountRemainingLabel.setText( m_remaining + trans.getValueRemaining() );
+        m_amountRemainingLabel.setText( m_remaining + ( trans==null?"":trans.getValueRemaining() ) );
     }
     
     private javax.swing.JLabel m_amountRemainingLabel;

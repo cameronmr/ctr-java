@@ -84,7 +84,7 @@ public class RuleResult extends AbstractDatabaseObject implements IRuleResult
         storeMemento();
     }
     
-    public void applyResult( ITransaction transaction ) throws Exception
+    public void applyResult( ITransaction transaction, final String message ) throws Exception
     {
         // we need to reconcile the transaction
         // By default the amount will be fully reconciled
@@ -95,7 +95,7 @@ public class RuleResult extends AbstractDatabaseObject implements IRuleResult
         }
         
         recon.setCategory( m_category );   
-        recon.setNote( "Automated Rule" );
+        recon.setNote( "Automated Rule: " + message );
         
         transaction.addReconciliation( recon );
         recon.commit();

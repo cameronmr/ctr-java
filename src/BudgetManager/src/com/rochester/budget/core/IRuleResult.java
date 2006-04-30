@@ -32,7 +32,7 @@ public interface IRuleResult extends IDatabaseObject
         }
     };
       
-    void applyResult( ITransaction transaction ) throws Exception;
+    void applyResult( ITransaction transaction, final String message ) throws Exception;
     
     Enum[] getResultTypes();
     RESULT_TYPE getResultType();

@@ -13,6 +13,7 @@ package com.rochester.budget.gui;
 import com.rochester.budget.core.IGUIComponent;
 import java.awt.Component;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 
 /**
@@ -26,17 +27,17 @@ public class ReconciliationTab implements IGUIComponent, IGUITab
     public ReconciliationTab()
     { 
         ReconciliationPanel reconciliationPanel = new ReconciliationPanel();  
-        TransactionPanel transactionPanel = new TransactionPanel();         
+        m_transactionPanel = new TransactionPanel();         
         
         /* The ReconciliationPanel listens for changes to transaction selection */   
-        transactionPanel.addActionListener( reconciliationPanel );
+        m_transactionPanel.addActionListener( reconciliationPanel );
         
         /* The TransactionPanel listens for changes to reconciliation state */
-        reconciliationPanel.addActionListener( transactionPanel );
+        reconciliationPanel.addActionListener( m_transactionPanel );
         
         JSplitPane reconPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
         reconPane.setTopComponent( reconciliationPanel );
-        reconPane.setBottomComponent( transactionPanel.getComponent() );                
+        reconPane.setBottomComponent( m_transactionPanel.getComponent() );                
         
         m_theComponent = reconPane;      
     }
@@ -53,8 +54,20 @@ public class ReconciliationTab implements IGUIComponent, IGUITab
     
     public void stateChanged( ChangeEvent evt ) 
     {
-        // Selection has changed        
+        JTabbedPane pane = (JTabbedPane)evt.getSource();
+        
+        if ( pane.getSelectedComponent() == m_theComponent )
+        {
+            // Add the reconciliation
+            m_transactionPanel.viewGained();
+        }
+        else
+        {
+            // Remove the reconciliation
+            m_transactionPanel.viewLost();
+        }
     }
     
     private JSplitPane m_theComponent = null;
+    private TransactionPanel m_transactionPanel = null;
 }
