@@ -27,6 +27,18 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
     {
     }
     
+    public void removeTransaction()
+    {
+        m_reconciliations.clear();
+        
+        try
+        {
+            setTransaction( null, true );
+        }
+        catch( Exception e )
+        {}
+    }
+    
     public void setTransaction( ITransaction transaction, boolean discardIncomplete ) throws UnsavedReconciliationException
     {                        
         // When the transaction is applied ask the existing transaction to apply any changes that are necessary
@@ -51,29 +63,32 @@ public class ReconciliationTableModel extends AbstractTableModel implements IDat
             }
         }
 
-        // Store the transaction 
-        m_transaction = transaction;
-        m_reconciliations = new ArrayList<IReconciliation>( transaction.getReconciliations() );
-
-        // If the transaction is not fully reconciled then create a reconciliation with the remaining amount
-        // If a reconciliation still exists then we don't want to add anymore
-        if ( transaction.getReconciliationState() != ITransaction.ReconciliationState.FULL  )
+        if ( transaction != null )
         {
-            IReconciliation newReconciliation = DataObjectFactory.newReconciliationForTransaction( transaction );
-            m_reconciliations.add( newReconciliation );
-            
-            try
+            // Store the transaction 
+            m_transaction = transaction;
+            m_reconciliations = new ArrayList<IReconciliation>( transaction.getReconciliations() );
+
+            // If the transaction is not fully reconciled then create a reconciliation with the remaining amount
+            // If a reconciliation still exists then we don't want to add anymore
+            if ( transaction.getReconciliationState() != ITransaction.ReconciliationState.FULL  )
             {
-                // The transaction can also monitor changes to the reconciliation, to update value remaining, etc
-                transaction.addReconciliation( newReconciliation );
+                IReconciliation newReconciliation = DataObjectFactory.newReconciliationForTransaction( transaction );
+                m_reconciliations.add( newReconciliation );
+
+                try
+                {
+                    // The transaction can also monitor changes to the reconciliation, to update value remaining, etc
+                    transaction.addReconciliation( newReconciliation );
+                }
+                catch ( Exception e )
+                {
+                    // a new reconciliation always has a value of zero and should not cause an exception to be thrown 
+                }
+
+                // We want to observe the reconciliation to delete it if necessary
+                newReconciliation.addObserver( this );
             }
-            catch ( Exception e )
-            {
-                // a new reconciliation always has a value of zero and should not cause an exception to be thrown 
-            }
-            
-            // We want to observe the reconciliation to delete it if necessary
-            newReconciliation.addObserver( this );
         }
 
         // reload the table

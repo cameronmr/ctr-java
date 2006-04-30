@@ -65,8 +65,6 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
         m_accountKey = results.getString( "STATEMENT_ACC_FKEY" );
         m_beginDate = results.getDate( "STATEMENT_BEGIN" );
         m_endDate = results.getDate( "STATEMENT_END" );
-        
-        loadTransactions();
     }
     
     protected void populateResultSet( ResultSet results ) throws Exception
@@ -122,7 +120,7 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
         storeMemento();
         
         // reload the Transactions
-        loadTransactions();
+        loadTransactions( true );
     }
     
     public Date getStatementEnd()
@@ -137,11 +135,13 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
         storeMemento();
         
         // reload the Transactions
-        loadTransactions();
+        loadTransactions( true );
     }
         
     public StatementSummary getSummary( final ICategory category, boolean flat )
     {        
+        loadTransactions( false );
+        
         // filter the list of reconciliations based on the category
         String additional = new String( flat?" (including sub categories)":"" );
         StatementSummary summary = new StatementSummary( category.toString() + additional );
@@ -171,6 +171,7 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
     
     public StatementSummary getSummary( )
     {
+        loadTransactions( false );
         Collection<IReconciliation> reconciliations = loadReconciliations();
         
         // Load the list of reconciliations for this statement period
@@ -231,16 +232,16 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
     
     private Collection<IReconciliation> loadReconciliations()
     {
-        if ( m_beginDate != null &&
-             m_endDate != null ) 
+        ArrayList<IReconciliation> recons = new ArrayList<IReconciliation>();
+        for ( ITransaction trans : m_transactions )
         {
-            return DataObjectFactory.loadReconciliationsForStatement( this );
+            recons.addAll( trans.getReconciliations() );
         }
-       
-        return new ArrayList<IReconciliation>();
+        
+        return recons;
     }
     
-    private void loadTransactions()
+    private void loadTransactions( boolean clear )
     {        
         if ( m_beginDate == null ||
                 m_endDate == null )
@@ -248,19 +249,20 @@ public class Statement extends AbstractDatabaseObject implements IStatement, IDa
             return;
         }
         
-        if ( null != m_transactions )
+        if ( clear ||
+                m_transactions.isEmpty() )
         {
             for ( ITransaction trans : m_transactions )
             {
                 trans.deleteObserver( this );
             }
-        }
-        
-        m_transactions = DataObjectFactory.loadTransactionsForStatement( this );   
-        
-        for ( ITransaction trans : m_transactions )
-        {
-            trans.addObserver( this );
+
+            m_transactions = DataObjectFactory.loadTransactionsForStatement( this );   
+
+            for ( ITransaction trans : m_transactions )
+            {
+                trans.addObserver( this );
+            }
         }
     }
     

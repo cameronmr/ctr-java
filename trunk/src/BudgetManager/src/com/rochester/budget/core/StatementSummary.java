@@ -91,9 +91,14 @@ public class StatementSummary
         return m_accounts.keySet();
     }
     
-    public int getReconciliationCountForAccount( final IAccount account )
+    public Collection<IReconciliation> getReconciliations()
     {
-        return m_accounts.get( account ).getReconciliationCount();
+        return m_reconciliations;
+    }
+        
+    public StatementSummary getSummaryForAccount( final IAccount account )
+    {
+        return m_accounts.get( account );
     }
     
     public String toString()
@@ -101,11 +106,16 @@ public class StatementSummary
         return "Statement Summary: " + m_label;
     }
     
+    public String getLabel()
+    {
+        return m_label;
+    }
+    
     private void addReconciliationForAccount( final IAccount account, final IReconciliation recon )
     {
         if ( !m_accounts.containsKey( account ) )
         {
-            m_accounts.put( account, new StatementSummary("") );
+            m_accounts.put( account, new StatementSummary( account.toString() ) );
         }
 
         StatementSummary summary = m_accounts.get( account );

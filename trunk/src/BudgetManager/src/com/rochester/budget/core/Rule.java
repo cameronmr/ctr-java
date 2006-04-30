@@ -185,7 +185,7 @@ public class Rule extends AbstractDatabaseObject implements IRule
     {
         for ( IRuleResult result : m_results )
         {
-            result.applyResult( transaction );
+            result.applyResult( transaction, m_ruleName );
         }
     }
         

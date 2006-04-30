@@ -54,7 +54,10 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
     private void initComponents()
     { 
         m_transactionModel = new TransactionTableModel( DataObjectFactory.loadTransactions( ) );
-        m_transactionTable = new TransactionTable( m_transactionModel );
+        m_tableSorter = new TableSorter( m_transactionModel );
+        
+        m_transactionTable = new TransactionTable( m_tableSorter );
+        m_tableSorter.setTableHeader( m_transactionTable.getTableHeader() );
         m_scrollPane = new JScrollPane( m_transactionTable );
         
         ListSelectionModel rowSM = m_transactionTable.getSelectionModel();
@@ -71,15 +74,16 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
                 if ( lsm.isSelectionEmpty() )
                 {
                     // Remove the selected transaction
-                    fireActionEvent( TRANS_SELECTION_CHANGED, null );
+                    fireActionEvent( TRANS_SELECTION_REMOVED, TRANS_SELECTION_REMOVED );
                 }
                 else 
                 {
                     // Set the selected transaction
                     try
                     {
-                        fireActionEvent( TRANS_SELECTION_CHANGED, m_transactionModel.getTransactionAt( lsm.getMinSelectionIndex() ) );
-                        m_transactionModel.fireTableRowsUpdated( m_currentRow, m_currentRow );
+                        fireActionEvent( TRANS_SELECTION_CHANGED, 
+                                m_transactionModel.getTransactionAt( m_tableSorter.modelIndex( lsm.getMinSelectionIndex() ) ) );
+                        
                         m_currentRow = lsm.getMinSelectionIndex();
                     }
                     catch ( Exception ex )
@@ -150,13 +154,22 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
     
     private void runAllRules( final Collection<IRule> rules )
     {
+        boolean noneMatched = true;
         for ( IRule rule : rules )
         {
-            ruleSelected( rule );
+            if ( ruleSelected( rule ) )
+            {
+                noneMatched = false;
+            }
+        }
+        
+        if ( noneMatched )
+        {
+            JOptionPane.showMessageDialog( null, "Your configured Rules do not match any unreconciled Transactions." );
         }
     }
     
-    private void ruleSelected( IRule rule )
+    private boolean ruleSelected( IRule rule )
     {        
         // Transactions are only the unreconciled transactions
         Collection<ITransaction> transactions = m_transactionModel.getUnreconciledTransactions();
@@ -169,6 +182,11 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
                 matchedTransactions.add( transaction );
             }
         }        
+        
+        if ( matchedTransactions.isEmpty() )
+        {
+            return false;
+        }
         
         String str = new String( "<HTML>The following " + 
                 Integer.toString( matchedTransactions.size() ) + 
@@ -197,9 +215,10 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
                 JOptionPane.showMessageDialog( null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
             }
             
-            m_transactionModel.filterAndSort();
-            m_thePanel.validate();
+            //m_thePanel.validate();
         }
+        
+        return true;
     }
     
     public void actionPerformed( ActionEvent e )
@@ -223,6 +242,19 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
         return m_thePanel;
     }
     
+    public void viewLost()
+    {
+        // Remove the selection
+        fireActionEvent( TRANS_SELECTION_REMOVED, TRANS_SELECTION_REMOVED );
+    }
+    
+    public void viewGained()
+    {
+        // Set the selection 
+        fireActionEvent( TRANS_SELECTION_CHANGED, 
+                m_transactionModel.getTransactionAt( m_tableSorter.modelIndex( m_transactionTable.getSelectedRow() ) ) );
+    }
+    
     public synchronized void addActionListener(ActionListener l)
     {   
         m_subscribers = AWTEventMulticaster.add(m_subscribers, l);
@@ -235,12 +267,20 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
     {   
         if (m_subscribers != null)
         {
-            m_subscribers.actionPerformed(new ActionEvent(object, id, "") );
+            try
+            {
+                m_subscribers.actionPerformed(new ActionEvent(object, id, "") );
+            }
+            catch( Exception e )
+            {
+                int i = 0;
+            }
         }
     }
     
     private TransactionTable m_transactionTable;
     private TransactionTableModel m_transactionModel;
+    private TableSorter m_tableSorter;
     private JPanel m_thePanel = new JPanel( new BorderLayout( 2, 2 ) );
     private JButton m_applyRule;
     private JScrollPane m_scrollPane;

@@ -146,7 +146,19 @@ public class DataObjectFactory
     {
         try
         {
-            String sql = new String( "select PKEY from TRANSACTION" );
+            String sql = new String( "SELECT DISTINCT pkey " +
+                    "FROM TRANSACTION t " +
+                    "WHERE t.trans_value != " +
+                    "( " +
+                    "	SELECT sum( recon_value ) " +
+                    " 	FROM RECONCILIATION " +
+                    " 	WHERE RECON_TRANS_FKEY = t.PKEY " +
+                    ") " +
+                    " OR t.pkey NOT IN " +
+                    "( " +
+                    "	SELECT recon_trans_fkey " +
+                    "	FROM RECONCILIATION " + 
+                    ")" );
 
             // the statement object will be automatically cleaned up when garbage collected
             ResultSet results = DatabaseManager.getStatement().executeQuery( sql );
@@ -763,7 +775,7 @@ public class DataObjectFactory
         }
     }
     
-    public static Collection<IReconciliation> loadReconciliationsForStatement( final IStatement statement ) 
+    /*public static Collection<IReconciliation> loadReconciliationsForStatement( final IStatement statement ) 
     {
         ArrayList<IReconciliation> recons = new ArrayList<IReconciliation>();
         try
@@ -790,7 +802,7 @@ public class DataObjectFactory
             // TODO: error handling?
         }
         return recons;
-    }
+    }*/
     
     public static IReconciliation newReconciliationForTransaction( ITransaction transaction )
     {

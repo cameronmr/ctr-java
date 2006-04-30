@@ -13,11 +13,18 @@ package com.rochester.budget.gui;
 import com.rochester.budget.core.IAccount;
 import com.rochester.budget.core.IGUIComponent;
 import com.rochester.budget.core.StatementSummary;
+import com.rochester.budget.core.ViewReconTableModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
 
 /**
@@ -60,17 +67,19 @@ public class StatementSummaryDetails implements IGUIComponent
         if ( summary.hasReconciliations() )
         {
             panel.add( new JLabel( Integer.toString( summary.getReconciliationCount() ) + " Reconciliations:" ) );
-            panel.add( new JLabel( summary.getReconciliationValue().toString() ) );
+            panel.add( getReconciliationRow( summary ) );
             rowCount += 1;
 
             for ( IAccount account : summary.getReconciliationAccounts() )
             {
+                StatementSummary accSummary = summary.getSummaryForAccount( account );
                 panel.add( new JLabel( "Reconciliations for ", JLabel.TRAILING) );
                 panel.add( new JLabel( account.toString() ) );
 
-                panel.add( new JLabel( Integer.toString( summary.getReconciliationCountForAccount( account ) ) +
+                panel.add( new JLabel( Integer.toString( accSummary.getReconciliationCount() ) +
                         " Reconciliations:" ) );
-                panel.add( new JLabel( summary.getReconciliationValueForAccount( account ).toString() ) );
+                
+                panel.add( getReconciliationRow( accSummary ) );
 
                 rowCount += 2;
             }
@@ -97,6 +106,37 @@ public class StatementSummaryDetails implements IGUIComponent
     {
         return m_thePanel;
     }        
+    
+    Component getReconciliationRow( final StatementSummary summary )
+    {        
+        JPanel viewPanel = new JPanel( new BorderLayout());
+        JPanel viewPanel2 = new JPanel( );
+        viewPanel2.add( new JLabel( summary.getReconciliationValue().toString() ) );
+        
+        JButton viewButton = new JButton( new AbstractAction( "view" )
+        {
+            public void actionPerformed( ActionEvent e )
+            {
+                JPanel panel = new JPanel( new BorderLayout( 5, 5 ) );
+                panel.add( new JLabel( "Reconciliations for " + summary.getLabel() ), BorderLayout.NORTH );
+                ViewReconTableModel model = new ViewReconTableModel( summary );
+                TableSorter sorter = new TableSorter( model );
+                
+                ViewReconciliationTable table = new ViewReconciliationTable( sorter );
+                sorter.setTableHeader( table.getTableHeader() );
+                JScrollPane pane = new JScrollPane( table );
+                panel.add( pane, BorderLayout.SOUTH );
+
+                JOptionPane.showMessageDialog( null, panel );
+            }
+        });
+            
+        viewButton.setMargin( new Insets( 0, 1, 0, 1 ) );
+        viewPanel2.add( viewButton );
+        viewPanel.add( viewPanel2, BorderLayout.WEST );
+        
+        return viewPanel;        
+    }
  
     private JPanel m_thePanel = new JPanel( new BorderLayout() );
 }
