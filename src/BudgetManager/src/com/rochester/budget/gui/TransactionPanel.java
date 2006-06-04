@@ -250,9 +250,12 @@ public class TransactionPanel implements IGUIComponent, ActionListener, IBudgetA
     
     public void viewGained()
     {
-        // Set the selection 
-        fireActionEvent( TRANS_SELECTION_CHANGED, 
-                m_transactionModel.getTransactionAt( m_tableSorter.modelIndex( m_transactionTable.getSelectedRow() ) ) );
+        // Set the selection
+        if ( m_transactionTable.getSelectedRow() >= 0 )
+        {
+            fireActionEvent( TRANS_SELECTION_CHANGED, 
+                    m_transactionModel.getTransactionAt( m_tableSorter.modelIndex( m_transactionTable.getSelectedRow() ) ) );
+        }
     }
     
     public synchronized void addActionListener(ActionListener l)
