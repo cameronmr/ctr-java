@@ -23,6 +23,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -32,6 +34,22 @@ import javax.swing.JPanel;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
+import net.sourceforge.openforecast.DataPoint;
+import net.sourceforge.openforecast.DataSet;
+import net.sourceforge.openforecast.Forecaster;
+import net.sourceforge.openforecast.ForecastingModel;
+import net.sourceforge.openforecast.Observation;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.general.SeriesException;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.time.TimeSeriesDataItem;
+
 
 /**
  *
@@ -43,7 +61,7 @@ public class CategoryStatsPanel implements IGUIComponent, TreeSelectionListener
     {
         public CatRecPair( final ICategory cat )
         {
-            m_category = cat; 
+            m_category = cat;
         }
         
         public ICategory m_category;
@@ -69,11 +87,11 @@ public class CategoryStatsPanel implements IGUIComponent, TreeSelectionListener
             m_rangeCombo.setSelectedIndex( 0 );
         }
         
-        public void actionPerformed(ActionEvent e) 
-        {                        
+        public void actionPerformed(ActionEvent e)
+        {
             m_endDate = new GregorianCalendar();
             // Update the label
-            if ( m_rangeCombo.getSelectedIndex() == 0 )            
+            if ( m_rangeCombo.getSelectedIndex() == 0 )
             {
                 m_endDate.add( GregorianCalendar.MONTH, -2 );
             }
@@ -84,7 +102,7 @@ public class CategoryStatsPanel implements IGUIComponent, TreeSelectionListener
             else if ( m_rangeCombo.getSelectedIndex() == 2 )
             {
                 m_endDate.add( GregorianCalendar.MONTH, -12 );
-            }            
+            }
             /*else if ( m_rangeCombo.getSelectedIndex() == 3 )
             {
                 // all
@@ -121,13 +139,119 @@ public class CategoryStatsPanel implements IGUIComponent, TreeSelectionListener
         public GraphComponent()
         {
             setBorder( BorderFactory.createTitledBorder( "Data for Period" ) );
-        }         
+            setLayout( new BorderLayout(5, 0) );
+        }
         
         void updateView( final ArrayList<CatRecPair> catRecs, final java.util.Date begin, final java.util.Date end )
         {
+            removeAll();
             // Calculate the averages, over the given timeperiod
+            
+            // Chart stuff
+            String chartTitle = "TimePeriod";
+            TimeSeries series = new TimeSeries( "Transactions" );
+            
+            // Forecast stuff
+            DataSet dataSet = new DataSet();
+            
+            for ( CatRecPair catRec : catRecs )
+            {
+                for ( IReconciliation rec : catRec.m_reconciliations )
+                {
+                    try
+                    {
+                        DataPoint dp = new Observation( rec.getValue().getValue() );
+                        dp.setIndependentValue( "date", rec.getTransaction().getDate().getTime() );
+                        dataSet.add( dp );
+                        series.add( new Day(rec.getTransaction().getDate()), rec.getValue().getValue() );
+                    }
+                    catch ( SeriesException e)
+                    {
+                        TimeSeriesDataItem d = series.getDataItem( new Day( rec.getTransaction().getDate() ) );
+                        d.setValue( rec.getValue().getValue() + d.getValue().doubleValue() );
+                    }
+                }
+            }
+            
+            TimeSeries forecastSeries = new TimeSeries( "Forecast" );
+            if ( !dataSet.isEmpty() )
+            {
+                try
+                {
+                    // Forecast a value
+                    ForecastingModel model = Forecaster.getBestForecast( dataSet );
+                    
+                    GregorianCalendar cal = new GregorianCalendar();
+                    cal.setTime( begin );
+                    
+                    DataSet forecast = new DataSet();
+                    
+                    // Forecast only over the transactions that exist
+                    ArrayList<IReconciliation> recs = catRecs.get(0).m_reconciliations;
+                    
+                    // Sort the transactions to ensure we cover the full range
+                    Collections.sort( recs, new Comparator<IReconciliation>()
+                    {
+                        public int compare(IReconciliation rec1, IReconciliation rec2)
+                        {
+                            return rec1.getTransaction().getDate().compareTo( rec2.getTransaction().getDate() );
+                        }
+                    });
+                    
+                    java.util.Date recStart = recs.get(0).getTransaction().getDate();
+                    java.util.Date recEnd = recs.get(recs.size()-1).getTransaction().getDate();
+                    while ( cal.getTime().before( recEnd ) )
+                    {
+                        if ( cal.getTime().after( recStart ) )
+                        {
+                            DataPoint dp = new Observation( 0 );
+                            dp.setIndependentValue( "date", cal.getTime().getTime() );
+                            forecast.add( dp );
+                        }
+                        cal.add( GregorianCalendar.DAY_OF_YEAR, 2 );
+                    }
+                    
+                    model.forecast( forecast );
+                    
+                    // Turn the openforecast model into a jfreechart model
+                    for ( Object o : forecast)
+                    {
+                        DataPoint p = (DataPoint)o;
+                        forecastSeries.add(
+                                new Day( new java.util.Date( (long)p.getIndependentValue("date"))),
+                                p.getDependentValue() );
+                    }
+                }
+                catch ( Exception e )
+                {
+                    // do nothing
+                }
+            }
+            
+            TimeSeriesCollection coll = new TimeSeriesCollection( series );
+            coll.addSeries( forecastSeries );
+            JFreeChart chart
+                    = ChartFactory.createTimeSeriesChart(chartTitle,
+                    "Date",
+                    "Value",
+                    coll,
+                    true,  // Legend
+                    true,  // Tooltips
+                    false);// URLs
+            
+            XYPlot plot = chart.getXYPlot();
+            XYItemRenderer renderer = plot.getRenderer();
+            /*if (renderer instanceof XYLineAndShapeRenderer)
+            {
+                XYLineAndShapeRenderer r = (XYLineAndShapeRenderer) renderer;
+                r.setShapesVisible(true);
+                r.setShapesFilled(true);
+            }*/
+            
+            ChartPanel chartPanel = new ChartPanel(chart);
+            add( chartPanel, BorderLayout.CENTER );
         }
-    };    
+    };
     
     public class AveragesComponent extends JPanel
     {
@@ -144,7 +268,7 @@ public class CategoryStatsPanel implements IGUIComponent, TreeSelectionListener
             panel.add( m_monthly );
             panel.add( new JLabel("Yearly:") );
             panel.add( m_yearly );
-        }        
+        }
         
         void updateView( final ArrayList<CatRecPair> catRecs, final java.util.Date begin, final java.util.Date end )
         {
@@ -189,18 +313,18 @@ public class CategoryStatsPanel implements IGUIComponent, TreeSelectionListener
         // The Graph component in the middle
         m_statsPanel.add( m_averages, BorderLayout.EAST );
     }
-        
+    
     public Component getComponent()
     {
         return m_statsPanel;
     }
     
-    public void valueChanged( TreeSelectionEvent e ) 
+    public void valueChanged( TreeSelectionEvent e )
     {
         TreePath path = e.getNewLeadSelectionPath();
         
         if ( path == null )
-        {        
+        {
             // Nothing selected
             return;
         }
@@ -215,7 +339,7 @@ public class CategoryStatsPanel implements IGUIComponent, TreeSelectionListener
         // Load the reconciliations
         try
         {
-            catRec.m_reconciliations = new ArrayList( DataObjectFactory.loadReconciliationsForPeriod( cat, 
+            catRec.m_reconciliations = new ArrayList( DataObjectFactory.loadReconciliationsForPeriod( cat,
                     new java.sql.Date( m_range.getStartDate().getTime()),
                     new java.sql.Date( m_range.getEndDate().getTime()) ) );
         }
@@ -234,13 +358,13 @@ public class CategoryStatsPanel implements IGUIComponent, TreeSelectionListener
         long d1 = start.getTime();
         long d2 = end.getTime();
         long difMil = d2-d1;
-        long milPerDay = 1000*60*60*24; 
+        long milPerDay = 1000*60*60*24;
         Long l = new Long( difMil / milPerDay );
         return l.intValue();
     }
     
-    private JPanel m_statsPanel = new JPanel( new BorderLayout( 5, 5 ) );    
-    private RangeComponent m_range = new RangeComponent();    
+    private JPanel m_statsPanel = new JPanel( new BorderLayout( 5, 5 ) );
+    private RangeComponent m_range = new RangeComponent();
     private GraphComponent m_graph = new GraphComponent();
     private AveragesComponent m_averages = new AveragesComponent();
     
