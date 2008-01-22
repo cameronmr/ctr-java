@@ -20,6 +20,11 @@ public class AutomationException extends Exception
     public AutomationException(final String msg)
     {
         super(msg, null);
+    } 
+    
+    public AutomationException( final Throwable cause)
+    {
+        super(null, cause);
     }
     
     public AutomationException(final String msg, final Throwable cause)

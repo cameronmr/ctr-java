@@ -10,15 +10,15 @@
 package au.id.ctr.automation.server;
 
 import au.id.ctr.automation.common.AbstractRenderer;
-import au.id.ctr.automation.mbeans.WinampRendererMBean;
-import java.net.MalformedURLException;
+import au.id.ctr.automation.common.AutomationException;
+import au.id.ctr.automation.mbeans.WinampRendererMXBean;
 import java.util.logging.Logger;
 
 /**
  *
  * @author Cameron
  */
-public class WinampRendererImpl extends AbstractRenderer implements WinampRendererMBean
+public class WinampRendererImpl extends AbstractRenderer implements WinampRendererMXBean
 {
     private static final int port = 8011;
     private static final String host = "192.168.1.20";
@@ -28,25 +28,23 @@ public class WinampRendererImpl extends AbstractRenderer implements WinampRender
     
 //    private XmlRpcClient client;
     /** Creates a new instance of WinampRendererImpl */
-    public WinampRendererImpl(final String zone) throws MalformedURLException
+    public WinampRendererImpl(final String zone) throws AutomationException
     {
-        super(WinampRendererMBean.class, zone);        
+        super(WinampRendererMXBean.class, zone);
+        
 //        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
 //        config.setServerURL(new URL("http://127.0.0.1:8011/"));
-//        
+//
 //        client = new XmlRpcClient( );
-//        client.setConfig(config);     
-        
-        
-        
+//        client.setConfig(config);
     }
-
+    
     public void playFile(final String file)
     {
         logger.info("Zone [" + getZone() + "] Received play command: " + file);
 //        try
 //        {
-//            
+//
 //            if (isPlaying)
 //            {
 //                // stop

@@ -9,7 +9,9 @@
 
 package au.id.ctr.automation.common;
 
+import java.beans.ConstructorProperties;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import javax.management.remote.JMXServiceURL;
 
 /**
@@ -18,13 +20,14 @@ import javax.management.remote.JMXServiceURL;
  */
 public class NodeRef implements Serializable
 {
-    private JMXServiceURL url;
+    private String url;
     private NodeStatus status;
     private final String name;
     
     /** Creates a new instance of NodeRef */
+    @ConstructorProperties({"name","URL","status"})
     public NodeRef(final String nodeName, 
-            final JMXServiceURL url, 
+            final String url, 
             final NodeStatus status)
     {
         this.name = nodeName;
@@ -47,7 +50,7 @@ public class NodeRef implements Serializable
         return status;
     }
     
-    public JMXServiceURL getURL()
+    public String getURL()
     {
         return url;
     }

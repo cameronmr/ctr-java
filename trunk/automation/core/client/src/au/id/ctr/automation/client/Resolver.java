@@ -10,14 +10,16 @@ package au.id.ctr.automation.client;
 import au.id.ctr.automation.common.AutomationException;
 import au.id.ctr.automation.common.ManagerClient;
 import au.id.ctr.automation.common.NodeRef;
-import au.id.ctr.automation.common.interfaces.Zone;
-import au.id.ctr.automation.common.interfaces.Library;
-import au.id.ctr.automation.common.interfaces.Node;
+import au.id.ctr.automation.mbeans.LibraryMXBean;
+import au.id.ctr.automation.mbeans.NodeMXBean;
+import au.id.ctr.automation.mbeans.ZoneMXBean;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import javax.management.remote.JMXServiceURL;
 
 /**
  *
@@ -27,7 +29,7 @@ public class Resolver
 {
     private static final Logger logger = Logger.getLogger(Resolver.class.getName());
     private static Resolver instance = null;
-    private Map<String,NodeClient> nodes = new HashMap<String,NodeClient>();
+    private Map<String, NodeMXBean> nodes = new HashMap<String,NodeMXBean>();
     private ManagerClient theManager;
     
     private Resolver() throws AutomationException
@@ -40,8 +42,16 @@ public class Resolver
         for (NodeRef ref : theManager.getNodes())
         {
             logger.info("Found node: " + ref.getName());
-            logger.info(ref.getName() + " url " + ref.getURL().toString());
-            nodes.put(ref.getName(), new NodeClient(ref.getName(), ref.getURL()));
+            try
+            {
+                logger.info(ref.getName() + " url " + ref.getURL().toString());
+                nodes.put(ref.getName(), 
+                        new NodeWrapper(ref.getName(), new JMXServiceURL(ref.getURL())));
+            } 
+            catch (MalformedURLException ex)
+            {
+                throw new AutomationException(ex);
+            } 
         }
     }
     
@@ -54,16 +64,16 @@ public class Resolver
         return instance;
     }
     
-    public static List<Zone> getZones(final String node) throws AutomationException
+    public static List<ZoneMXBean> getZones(final String node) throws AutomationException
     {
         return getInstance().nodes.get(node).getZones();
     }
     
-    public static Zone getZone(final String zone) throws AutomationException
+    public static ZoneMXBean getZone(final String zone) throws AutomationException
     {
-        for (Node node : getInstance().nodes.values())
+        for (NodeMXBean node : getInstance().nodes.values())
         {
-            Zone z = node.getZone(zone);
+            ZoneMXBean z = node.getZone(zone);
             if (z != null)
             {
                 return z;
@@ -72,21 +82,21 @@ public class Resolver
         return null;
     }
     
-    public static List<Library> getLibraries() throws AutomationException
+    public static List<LibraryMXBean> getLibraries() throws AutomationException
     {
-        List<Library> libs = new ArrayList<Library>();
-        for (Node node : getInstance().nodes.values())
+        List<LibraryMXBean> libs = new ArrayList<LibraryMXBean>();
+        for (NodeMXBean node : getInstance().nodes.values())
         {
             libs.addAll(node.getLibraries());
         }
         return libs;
     }
     
-    public static <T extends Library> T getLibrary(Class<T> clss) throws AutomationException
+    public static <T extends LibraryMXBean> T getLibrary(Class<T> clss) throws AutomationException
     {
-        for (Node node : getInstance().nodes.values())
+        for (NodeMXBean node : getInstance().nodes.values())
         {
-            T lib = node.getLibrary(clss);
+            T lib = (T)node.getLibrary(clss.getName());
             if (lib != null)
             {
                 return lib;

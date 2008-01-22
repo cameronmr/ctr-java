@@ -6,42 +6,70 @@
 
 package au.id.ctr.automation.server;
 
+import au.id.ctr.automation.common.AutomationException;
+import au.id.ctr.automation.mbeans.LightsRendererMXBean;
+import au.id.ctr.automation.mbeans.RendererMXBean;
+import au.id.ctr.automation.mbeans.WinampRendererMXBean;
+import au.id.ctr.automation.mbeans.ZoneMXBean;
 import java.lang.management.ManagementFactory;
-import java.net.MalformedURLException;
-import javax.management.InstanceAlreadyExistsException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.management.JMException;
-import javax.management.MBeanRegistrationException;
 import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import javax.management.StandardMBean;
 
 /**
  *
  * @author Cameron
  */
-public class ZoneImpl
+public class ZoneImpl extends StandardMBean implements ZoneMXBean
 {
     private final String name;
     
-    /** Creates a new instance of ZoneImpl */
-    public ZoneImpl(final String name)
-    {
-        this.name = name;
-    }
+    private Map<String, RendererMXBean> renderers = new HashMap<String, RendererMXBean>();
     
-    public void loadRenderers() throws JMException
+    /** Creates a new instance of ZoneImpl */
+    public ZoneImpl(final String name) throws AutomationException
     {
+        super(ZoneMXBean.class, true);
+        this.name = name;
+        
         try
         {
-            WinampRendererImpl winamp = new WinampRendererImpl(name);
-            ManagementFactory.getPlatformMBeanServer().registerMBean(winamp, winamp.getObjectName());
-            
-            LightsRendererImpl lights = new LightsRendererImpl(name);
-            ManagementFactory.getPlatformMBeanServer().registerMBean(lights, lights.getObjectName());
-        }
-        catch (MalformedURLException ex)
+            ManagementFactory.getPlatformMBeanServer().registerMBean(this, this.getObjectName());
+        } 
+        catch (JMException ex)
         {
-            ex.printStackTrace();
+            throw new AutomationException(ex);
         }
+    }
+    
+    public void loadRenderers() throws AutomationException
+    {
+        renderers.put(WinampRendererMXBean.class.getName(), new WinampRendererImpl(name));
+        renderers.put(LightsRendererMXBean.class.getName(), new LightsRendererImpl(name));
+    }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    public RendererMXBean getRenderer(String clss)
+    {
+        return renderers.get(clss);
+    }
+    
+    public List<RendererMXBean> getRenderers()
+    {
+        return new ArrayList<RendererMXBean>(renderers.values());
+    }
+    
+    public ObjectName getObjectName() throws MalformedObjectNameException
+    {
+        return ObjectName.getInstance("ctr.automation.node:type=Zone,name=" + getName());
     }
 }

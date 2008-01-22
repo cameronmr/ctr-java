@@ -1,5 +1,5 @@
 /*
- * WinampRendererMBean.java
+ * WinampRendererMXBean.java
  *
  * Created on 12 December 2007, 20:27
  *
@@ -9,13 +9,13 @@
 
 package au.id.ctr.automation.mbeans;
 
-import au.id.ctr.automation.common.interfaces.Renderer;
+import au.id.ctr.automation.mbeans.RendererMXBean;
 
 /**
  *
  * @author Cameron
  */
-public interface WinampRendererMBean extends Renderer
+public interface WinampRendererMXBean extends RendererMXBean
 {
     void playFile(final String file);
 }

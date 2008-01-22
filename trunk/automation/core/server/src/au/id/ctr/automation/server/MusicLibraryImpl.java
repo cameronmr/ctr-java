@@ -10,17 +10,18 @@
 package au.id.ctr.automation.server;
 
 import au.id.ctr.automation.common.AbstractLibrary;
-import au.id.ctr.automation.mbeans.MusicLibraryMBean;
+import au.id.ctr.automation.common.AutomationException;
+import au.id.ctr.automation.mbeans.MusicLibraryMXBean;
 
 /**
  *
  * @author Cameron
  */
-public class MusicLibraryImpl extends AbstractLibrary implements MusicLibraryMBean
+public class MusicLibraryImpl extends AbstractLibrary implements MusicLibraryMXBean
 {
-    public MusicLibraryImpl()
+    public MusicLibraryImpl() throws AutomationException
     {
-        super(MusicLibraryMBean.class);
+        super(MusicLibraryMXBean.class);
     }
     
     public String getFile()
