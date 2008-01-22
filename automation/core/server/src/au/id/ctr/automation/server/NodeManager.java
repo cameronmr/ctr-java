@@ -13,8 +13,9 @@ import au.id.ctr.automation.common.AutomationException;
 import au.id.ctr.automation.common.DefaultExecutor;
 import au.id.ctr.automation.common.NodeNotification;
 import au.id.ctr.automation.common.NodeRef;
-import au.id.ctr.automation.mbeans.NodeManagerMBean;
+import au.id.ctr.automation.mbeans.NodeManagerMXBean;
 import au.id.ctr.automation.common.NodeStatus;
+import au.id.ctr.automation.mbeans.LibraryMXBean;
 import java.lang.management.ManagementFactory;
 import java.rmi.registry.LocateRegistry;
 import java.util.HashSet;
@@ -37,7 +38,7 @@ import javax.management.remote.JMXServiceURL;
  *
  * @author Cameron
  */
-public class NodeManager extends StandardEmitterMBean implements NodeManagerMBean
+public class NodeManager extends StandardEmitterMBean implements NodeManagerMXBean
 {
     private static final Logger logger = Logger.getLogger(NodeManager.class.getName());
     
@@ -51,18 +52,20 @@ public class NodeManager extends StandardEmitterMBean implements NodeManagerMBea
      */
     public NodeManager()
     {
-        super(NodeManagerMBean.class,
+        super(NodeManagerMXBean.class,
+                true,
                 new NotificationBroadcasterSupport(DefaultExecutor.getExecutor()));
     }
     
-    public void registerNode(final String nodeName, JMXServiceURL url)
+    public void registerNode(final String nodeName, String url)
     {
         // A Node has come up so we need to resolve it & then we can load it's configuration
-        logger.info("Node registration received for " + nodeName + ":\n" + url.toString());
+        logger.info("Node registration received for " + nodeName + ":\n" + url);
         try
         {
             // Resolve the connection to the node
-            JMXConnector conn = JMXConnectorFactory.connect(url);
+            JMXServiceURL jmxUrl = new JMXServiceURL(url);
+            JMXConnector conn = JMXConnectorFactory.connect(jmxUrl);
             
             // Create, or update, node references
             NodeRef ref = new NodeRef(nodeName, url, NodeStatus.ONLINE);
@@ -135,6 +138,5 @@ public class NodeManager extends StandardEmitterMBean implements NodeManagerMBea
     public void preDeregister() throws Exception
     {
         stop();
-    }
-    
+    }    
 }

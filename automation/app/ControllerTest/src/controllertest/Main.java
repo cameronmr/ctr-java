@@ -10,11 +10,11 @@
 package controllertest;
 
 import au.id.ctr.automation.client.Resolver;
-import au.id.ctr.automation.common.AutomationException;
-import au.id.ctr.automation.common.interfaces.Library;
-import au.id.ctr.automation.common.interfaces.Zone;
-import au.id.ctr.automation.mbeans.MusicLibraryMBean;
-import au.id.ctr.automation.mbeans.WinampRendererMBean;
+import au.id.ctr.automation.common.ManagerClient;
+import au.id.ctr.automation.mbeans.LibraryMXBean;
+import au.id.ctr.automation.mbeans.MusicLibraryMXBean;
+import au.id.ctr.automation.mbeans.WinampRendererMXBean;
+import au.id.ctr.automation.mbeans.ZoneMXBean;
 
 /**
  *
@@ -36,21 +36,29 @@ public class Main
         try
         {
             // TODO code application logic here
-            for (Zone zone : Resolver.getZones("node1"))
+            
+            ManagerClient theManager = new ManagerClient("service:jmx:rmi:///jndi/rmi://cameron:1506/jmxrmi");
+            theManager.connect();
+            
+            for (ZoneMXBean zone : Resolver.getZones("node1"))
             {
                 System.out.println("Found zone: " + zone.getName());
-                WinampRendererMBean winamp = zone.getRenderer(WinampRendererMBean.class);
+                WinampRendererMXBean winamp = (WinampRendererMXBean)zone.getRenderer(WinampRendererMXBean.class.getName());
                 winamp.playFile("Woot!");
             }
-            
-            for (Library lib : Resolver.getLibraries())
-            {                
+
+            for (LibraryMXBean lib : Resolver.getLibraries())
+            {
                 System.out.println("Found library: " + lib.getName());
-                MusicLibraryMBean ml = (MusicLibraryMBean)lib;
-                System.out.println("\t" + ml.getFile());
             }
-        } 
-        catch (AutomationException ex)
+            
+            MusicLibraryMXBean lib = Resolver.getLibrary(MusicLibraryMXBean.class);
+            if (lib != null)
+            {
+                System.out.println("Found Music Lib: " + lib.getFile());
+            }
+        }
+        catch (Exception ex)
         {
             ex.printStackTrace();
         }

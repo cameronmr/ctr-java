@@ -9,7 +9,9 @@
 
 package au.id.ctr.automation.common;
 
-import au.id.ctr.automation.common.interfaces.Library;
+import au.id.ctr.automation.mbeans.LibraryMXBean;
+import java.lang.management.ManagementFactory;
+import javax.management.JMException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
@@ -18,11 +20,20 @@ import javax.management.StandardMBean;
  *
  * @author Cameron
  */
-public abstract class AbstractLibrary extends StandardMBean implements Library
+public abstract class AbstractLibrary extends StandardMBean implements LibraryMXBean
 {
-    public AbstractLibrary(Class<?> interfaceClass)
+    public AbstractLibrary(Class<?> interfaceClass) throws AutomationException
     {
-        super(interfaceClass, false);
+        super(interfaceClass, true);
+        
+        try
+        {
+            ManagementFactory.getPlatformMBeanServer().registerMBean(this, this.getObjectName());
+        } 
+        catch (JMException ex)
+        {
+            throw new AutomationException(ex);
+        }
     }
 
     public ObjectName getObjectName() throws MalformedObjectNameException

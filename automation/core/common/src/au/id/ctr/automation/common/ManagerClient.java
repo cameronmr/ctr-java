@@ -9,7 +9,8 @@
 
 package au.id.ctr.automation.common;
 
-import au.id.ctr.automation.mbeans.NodeManagerMBean;
+import au.id.ctr.automation.mbeans.LibraryMXBean;
+import au.id.ctr.automation.mbeans.NodeManagerMXBean;
 import java.net.MalformedURLException;
 import java.util.Observable;
 import java.util.Set;
@@ -29,14 +30,15 @@ import javax.management.remote.JMXServiceURL;
  *
  * @author Cameron
  */
-public class ManagerClient extends Observable implements NotificationListener, NodeManagerMBean
+public class ManagerClient extends Observable implements NotificationListener, NodeManagerMXBean
 {
     private final ObjectName managerName;
     private static final Logger logger = Logger.getLogger(ManagerClient.class.getName());
     private JMXServiceURL controllerURL;
-    private NodeManagerMBean theBean;
+    private NodeManagerMXBean theBean;
     private String nodeName;
     private JMXServiceURL nodeURL;
+    private MBeanServerConnection serverConnection = null;
     
     /** Creates a new instance of ManagerClient */
     public ManagerClient(final String url) throws AutomationException
@@ -93,18 +95,18 @@ public class ManagerClient extends Observable implements NotificationListener, N
                     }
                 }, null, null);
                 
-                MBeanServerConnection controllerServer =
+                serverConnection =
                         controllerConnector.getMBeanServerConnection();
                 
                 logger.info("Connected to controller on: " + controllerURL.toString());
                 connected = true;
                 
-                theBean = JMX.newMBeanProxy(controllerServer,
+                theBean = JMX.newMXBeanProxy(serverConnection,
                         managerName,
-                        NodeManagerMBean.class);
+                        NodeManagerMXBean.class);
                 
                 // Listen for notification of node registration
-                controllerServer.addNotificationListener(managerName,
+                serverConnection.addNotificationListener(managerName,
                         this,
                         null,
                         null);
@@ -112,7 +114,7 @@ public class ManagerClient extends Observable implements NotificationListener, N
                 // Re-register if the manager went offline
                 if (nodeURL != null && nodeName != null)
                 {
-                    registerNode(nodeName, nodeURL);
+                    registerNode(nodeName, nodeURL.toString());
                 }
             }
             catch (Exception ex)
@@ -131,18 +133,41 @@ public class ManagerClient extends Observable implements NotificationListener, N
         }
     }
     
-    public void registerNode(final String nodeName, JMXServiceURL url)
+    public void registerNode(final String nodeName, String url)
     {
         this.nodeName = nodeName;
-        this.nodeURL = url;
+        try
+        {
+            this.nodeURL = new JMXServiceURL(url);
+        } catch (MalformedURLException ex)
+        {
+            ex.printStackTrace();
+        }
         logger.info("Registering node with url:" + url.toString());
-        theBean.registerNode(this.nodeName, this.nodeURL);
+        theBean.registerNode(this.nodeName, this.nodeURL.toString());
     }
     
     public Set<NodeRef> getNodes()
     {
         return theBean.getNodes();
     }
+
+    public LibraryMXBean getLibrary()
+    {
+        return null;
+    }
+
+    public NodeManagerMXBean getTheBean()
+    {
+        return theBean;
+    }
+
+    public MBeanServerConnection getServerConnection()
+    {
+        return serverConnection;
+    }
     
+
+
     
 }

@@ -1,7 +1,7 @@
 /*
- * Renderer.java
+ * Common.java
  *
- * Created on 12 December 2007, 20:27
+ * Created on 22 January 2008, 21:34
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
@@ -16,9 +16,8 @@ import javax.management.ObjectName;
  *
  * @author Cameron
  */
-public interface Renderer
-{
+public interface Common
+{    
     String getName();
-    String getZone();
     ObjectName getObjectName() throws MalformedObjectNameException;
 }
