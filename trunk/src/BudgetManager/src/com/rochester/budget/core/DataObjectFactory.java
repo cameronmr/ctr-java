@@ -112,7 +112,7 @@ public class DataObjectFactory
     {
         // Load all the available fields from the parser
         // TODO: Load field names from XML file/specific object type
-        if ( parser.getValueByLabel( " Categories" ).compareTo( "OTHER" ) == 0 || 
+        if ( parser.getValueByLabel( " Categories" ).compareTo( "DEBIT" ) == 0 || 
              parser.getValueByLabel( " Categories" ).compareTo( "FEE" ) == 0 )
         {                        
             // Create a new Transaction with a new pkey
