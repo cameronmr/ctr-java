@@ -112,15 +112,15 @@ public class DataObjectFactory
     {
         // Load all the available fields from the parser
         // TODO: Load field names from XML file/specific object type
-        if ( parser.getValueByLabel( " Categories" ).compareTo( "DEBIT" ) == 0 || 
-             parser.getValueByLabel( " Categories" ).compareTo( "FEE" ) == 0 )
+        if ( parser.getValueByLabel( "Categories" ).compareTo( "DEBIT" ) == 0 || 
+             parser.getValueByLabel( "Categories" ).compareTo( "FEE" ) == 0 )
         {                        
             // Create a new Transaction with a new pkey
             Transaction trans = new Transaction(
-                    parser.getValueByLabel( " Narrative" ), 
+                    parser.getValueByLabel( "Narrative" ), 
                     loadAccountByAccountNumber( parser.getValueByLabel( "Bank Account" ) ),
-                    new MonetaryValue( parser.getValueByLabel( " Debit Amount" ) ), 
-                    new java.sql.Date( df.parse( parser.getValueByLabel( " Date" ) ).getTime() ) ); 
+                    new MonetaryValue( parser.getValueByLabel( "Debit Amount" ) ), 
+                    new java.sql.Date( df.parse( parser.getValueByLabel( "Date" ) ).getTime() ) ); 
             
             trans.commit();
             
@@ -533,7 +533,7 @@ public class DataObjectFactory
     
     public static IAccount loadAccountByAccountNumber( final String accountNumber ) throws AccountNotFoundException
     {
-        String sql = new String( "select PKEY from ACCOUNT where ACCOUNT_NUMBER = '" + accountNumber + "'" );
+        String sql = new String( "select PKEY from ACCOUNT where ACCOUNT_NUMBER like '%" + accountNumber + "'" );
         
         try
         {
